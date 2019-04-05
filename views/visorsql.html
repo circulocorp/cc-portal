@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+  <head>
+
+    <% include header.html %>
+
+  </head>
+
+  <body id="page-top" ng-controller="SQLCtl">
+
+    <% include navbar.html %>
+
+    <div id="wrapper">
+
+    
+    <% include sidebar.html %>
+
+      <div id="content-wrapper">
+
+        <div class="container-fluid">
+
+          <!-- Breadcrumbs-->
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="#">Visor SQL</a>
+            </li>
+          </ol>
+
+          
+          <!-- Search Area-->
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fas fa-chart-area"></i>Filtros</div>
+            <div class="card-body">
+              <form>
+                <div class="row">
+                <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputFolio" placeholder="Folio" ng-model="filter.id">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputCliente" placeholder="Cliente" ng-model="filter.cliente">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputIMEI" placeholder="IMEI" ng-model="filter.imei">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputSim" placeholder="SIM" ng-model="filter.sim">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputLinea" placeholder="LINEA (Numero)" ng-model="filter.linea">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputPlacas" placeholder="Placas" ng-model="filter.placas">
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputColor" placeholder="Color">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="inputMarca" placeholder="Marca" ng-model="filter.marca">
+                </div>
+              </div>
+            </div>
+                <button ng-click="searchOS()" class="btn btn-primary">Buscar</button>
+            </form>
+            </div>
+            <div class="card-footer small text-muted">&nbsp;</div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-header">
+              <i class="fas fa-chart-area"></i>Resultados</div>
+            <div class="card-body">
+              <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
+              <tr ng-repeat="orden in $data">
+                <td data-title="'ID'" filter="{id: 'text'}" sortable="'id'"><a href="#" ng-click="editNotification(notification)">{{ orden.ordservh_c_servicio }}</a></td>
+                <td data-title="'Cliente'" filter="{cliente: 'text'}" sortable="'cliente'">{{ orden.cte_n_nombre }}</td>
+                <td data-title="'Marca'" filter="{placas: 'text'}" sortable="'placas'">{{ orden.mrc_n_marca }}</td>
+                <td data-title="'Placas'" filter="{placas: 'text'}" sortable="'placas'">{{ orden.ordserv_d_placas }}</td>
+                <td data-title="'Sim'" filter="{sim: 'text'}" sortable="'sim'">{{ orden.ordserv_d_iccid_sim }}</td>
+              </tr>
+          </table>
+            </div>
+            <div class="card-footer small text-muted">&nbsp;</div>
+          </div>
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright © </span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+      <!-- /.content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+   <% include scripts.html %>
+  </body>
+</html>

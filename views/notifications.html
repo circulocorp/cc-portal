@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+  <head>
+
+    <% include header.html %>
+
+  </head>
+
+  <body id="page-top" ng-controller="NotifiCtl">
+
+    <% include navbar.html %>
+
+    <div id="wrapper">
+
+    
+    <% include sidebar.html %>
+    <% include modal_notifications.html %>     
+
+      <div id="content-wrapper">
+
+        <div class="container-fluid">
+
+          <!-- Breadcrumbs-->
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="#">Notificaciones</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="#" ng-click="newNotification()">Crear</a>
+            </li>
+          </ol>
+
+          
+          <!-- Area Chart Example-->
+          <div class="card mb-3">
+            <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
+              <tr ng-repeat="notification in $data">
+                <td>&nbsp;<button ng-click="showAskDeleteNoti(notification)"><i class="fas fa-trash prefix grey-text"></i></button></td>
+                <td data-title="'Usuario'" filter="{user: 'text'}" sortable="'user'"><a href="#" ng-click="editNotification(notification)">{{ notification.user }}</a></td>
+                <td data-title="'Password'" filter="{password: 'text'}" sortable="'password'">{{ notification.password  | limitTo: 5 }}xxxxx</td>
+                <td data-title="'Extra Suscriptores'" filter="{topic: 'text'}" sortable="'topic'">{{ notification.extraSubscribers }}</td>
+              </tr>
+          </table>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright © </span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+      <!-- /.content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+   <% include scripts.html %>
+  </body>
+</html>
