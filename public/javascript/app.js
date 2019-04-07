@@ -43,17 +43,39 @@
 
 var app = angular.module('ccportal', ['ngTable']);
 
+
+//Vehicles Controller
+
 app.controller('VehiclesCtl', function ($scope, NgTableParams, $http) {
     
-    $scope.vehicle = {};
-	$http.get('/api/vehicles').then(function(response){
-		$scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
-	});
+  $scope.vehicle = {};
 
 	$scope.editVehicle = function(vehicle){
 		$scope.vehicle = vehicle;
 		$('#modalvehicleForm').modal();
 	}
+
+  $scope.saveVehicle = function(){
+    var vehicle = $scope.vehicle;
+    $http.patch('/api/vehicles', vehicle).then(function(response){
+      console.log(response);
+      $scope.refreshVehicles();
+      $scope.cancelVehicle();
+    });
+  }
+
+  $scope.refreshVehicles = function(){
+    $http.get('/api/vehicles').then(function(response){
+      $scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
+    });
+  }
+
+  $scope.cancelVehicle = function(){
+    $scope.vehicle = {}
+   $('#modalvehicleForm').modal('hide'); 
+  }
+
+  $scope.refreshVehicles();
 });
 
 app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {

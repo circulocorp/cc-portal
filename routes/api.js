@@ -18,11 +18,22 @@ router.get('/vehicles', function(req, res, next){
 	});
 });
 
-router.post('/clients', function(req, res, next){
-	request.post(API_URL+'/clients', {data: req.data}, (err, re, body) => {
-		
+
+router.patch('/vehicles', function(req, res, next){
+	var vehicle = req.body;
+	var url = API_URL+'/vehicle/'+vehicle["_id"];
+	var options = {
+   		uri: url,
+   		json: true,
+   		method: 'PATCH',
+   		body: vehicle
+	};
+	request(options, (err, re, body) => {
+		res.send(body);
 	});
-})
+});
+
+
 
 router.get('/serviceaccounts', function(req, res, next){
 	var auth = "Basic " + new Buffer("circulocorp:"+token).toString("base64");

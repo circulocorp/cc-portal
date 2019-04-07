@@ -14,7 +14,8 @@
     <div id="wrapper">
 
     
-    <% include sidebar.html %>     
+    <% include sidebar.html %>
+    <% include modal_vehicle.html %>     
 
       <div id="content-wrapper">
 
@@ -27,12 +28,11 @@
             </li>
           </ol>
 
-          
-          <!-- Area Chart Example-->
           <div class="card mb-3">
             <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
             <tbody>
               <tr ng-repeat="vehicle in $data">
+                <td>&nbsp;<button ng-click="editVehicle(vehicle)"><i class="fas fa-edit prefix"></i></button></td>
                 <td data-title="'Unit Id'" filter="{Unit_Id: 'text'}" sortable="'Unit_Id'">{{ vehicle.Unit_Id }}</td>
                 <td data-title="'Proveedor'" filter="{provider: 'text'}" sortable="'provider'">{{ vehicle.provider }}</td>
                 <td data-title="'Placas/ECO'" filter="{Registration: 'text'}" sortable="'Registration'">{{ vehicle.Registration }}</td>
