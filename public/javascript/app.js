@@ -57,15 +57,14 @@ app.controller('VehiclesCtl', function ($scope, NgTableParams, $http) {
 
   $scope.saveVehicle = function(){
     var vehicle = $scope.vehicle;
-    $http.patch('./api/vehicles', vehicle).then(function(response){
-      console.log(response);
+    $http.patch('/api/vehicles', vehicle).then(function(response){
       $scope.refreshVehicles();
       $scope.cancelVehicle();
     });
   }
 
   $scope.refreshVehicles = function(){
-    $http.get('./api/vehicles').then(function(response){
+    $http.get('/api/vehicles').then(function(response){
       $scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
     });
   }
@@ -82,7 +81,7 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 
 	$scope.account = {};
 
-	$http.get('./api/serviceaccounts').then(function(response){
+	$http.get('/api/serviceaccounts').then(function(response){
 		$scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
 	});
 
@@ -107,7 +106,7 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 app.controller('NotifiCtl', function($scope, NgTableParams, $http){
   $scope.notification = {};
   $scope.refreshNotifications = function(){
-    $http.get('./api/notifications').then(function(response){
+    $http.get('/api/notifications').then(function(response){
       $scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
     });
   }
@@ -121,7 +120,7 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
   $scope.saveNotification = function(){
     var notification = $scope.notification;
     if(notification["_id"] == ""){
-      $http.post('./api/notifications', notification).then(function(response){
+      $http.post('/api/notifications', notification).then(function(response){
         $scope.cancelNotification();
       });
     }else{
@@ -138,7 +137,7 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
 
   $scope.deleteNotification = function(){
     var notification = $scope.notification;
-    $http.delete('./api/notifications/'+notification["_id"]).then(function(response){
+    $http.delete('/api/notifications/'+notification["_id"]).then(function(response){
         $scope.cancelAskDeleteNoti();
         $scope.refreshNotifications();
     });
@@ -166,7 +165,7 @@ app.controller('SQLCtl', function($scope, NgTableParams, $http) {
 
   $scope.searchOS = function(){
     var filter = $scope.filter;
-    $http.post('./sql/ordenes', filter).then(function(response){
+    $http.post('/sql/ordenes', filter).then(function(response){
       $scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
     })
   }
