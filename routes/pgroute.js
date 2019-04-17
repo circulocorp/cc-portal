@@ -4,20 +4,18 @@ var secrets = require('docker-secrets-nodejs');
 var router = express.Router();
 
 
-var pg_host = process.env.PG_HOST | "192.168.1.71";
-var pg_user = process.env.PG_USER | "circulocorp";
+var pg_host = process.env.PG_HOST || "192.168.1.71";
+var pg_user = process.env.PG_USER || "circulocorp";
 var pg_pass = secrets.get("pg_pass");
 
 const Pool = require('pg').Pool;
-
 const pool = new Pool({
-  user: pg_user,
-  host: pg_host,
-  database: 'sos',
-  password: pg_pass,
-  port: 5432,
+   		user: pg_user,
+  		host: pg_host,
+  		database: 'sos',
+  		password: pg_pass,
+  		port: 5432,
 });
-
 
 router.get('/ordenes', function(req, res, next){
 	pool.query('SELECT * FROM saph_orden_servicio_hist order by ordservh_c_servicio asc limit 1', (error, results) => {
