@@ -97,7 +97,6 @@ router.post('/notifications', function(req, res, next){
       		'Authorization': auth
    		}
 	};
-	console.log(options);
 	request(options, (err, re, body) => {
 		console.log(body);
 		res.send(body);
