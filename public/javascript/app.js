@@ -114,11 +114,13 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
   $scope.newNotification = function(){
     $scope.notification = null;
     $scope.notification = {};
+    $scope.notification["_id"] = "";
     $('#modalnotificationForm').modal();
   }
 
   $scope.saveNotification = function(){
     var notification = $scope.notification;
+    console.log(notification);
     if(notification["_id"] == ""){
       $http.post('./api/notifications', notification).then(function(response){
         $scope.cancelNotification();
