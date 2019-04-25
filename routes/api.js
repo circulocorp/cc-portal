@@ -98,7 +98,6 @@ router.post('/notifications', function(req, res, next){
    		}
 	};
 	request(options, (err, re, body) => {
-		console.log(body);
 		res.send(body);
 	});
 });
