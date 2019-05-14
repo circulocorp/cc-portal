@@ -109,12 +109,15 @@ router.patch('/notifications', function(req, res, next){
 	var url = API_URL+'/notificationadmins/'+notification["_id"];
 	var options = {
    		uri: url,
+   		json: true,
    		method: 'PATCH',
-   		json: notification,
+   		form: notification,
    		headers: {
-      		'Authorization': auth
+      		'Authorization': auth,
+      		'Content-type': 'application/json'
    		}
 	};
+	console.log(options);
 	request(options, (err, re, body) => {
 		if(err)
 			console.log(err);
