@@ -3,7 +3,7 @@ var request = require('request');
 var secrets = require('docker-secrets-nodejs');
 var router = express.Router();
 
-var API_URL = process.env.API_URL || "http://192.168.1.71:8080/api";
+var API_URL = process.env.API_URL || "http://localhost:8080/api";
 var token =  secrets.get("token_key");
 
 
@@ -91,9 +91,11 @@ router.post('/notifications', function(req, res, next){
 	var options = {
    		uri: url,
    		method: 'POST',
-   		json: req.body,
+   		form: req.body,
+   		json: true,
    		headers: {
-      		'Authorization': auth
+      		'Authorization': auth,
+      		'Content-type': 'application/json'
    		}
 	};
 	request(options, (err, re, body) => {
@@ -103,7 +105,7 @@ router.post('/notifications', function(req, res, next){
 	});
 });
 
-router.patch('/notifications', function(req, res, next){
+router.patch('/notifications/', function(req, res, next){
 	var auth = "Basic " + new Buffer("circulocorp:"+token).toString("base64");
 	var notification = req.body;
 	var url = API_URL+'/notificationadmins/'+notification["_id"];
@@ -121,6 +123,7 @@ router.patch('/notifications', function(req, res, next){
 	request(options, (err, re, body) => {
 		if(err)
 			console.log(err);
+		console.log(body);
 		res.send(body);
 	});
 });

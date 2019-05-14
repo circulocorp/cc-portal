@@ -119,16 +119,16 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
 
   $scope.saveNotification = function(){
     var notification = $scope.notification;
-    if(notification["_id"]){
+    if(("_id" in notification) == false){
       $http.post('./api/notifications', notification).then(function(response){
         $scope.cancelNotification();
       });
     }else{
       $http.patch('./api/notifications', notification).then(function(response){
-        console.log(response);
         $scope.cancelNotification();
       });
     }
+    $scope.refreshNotifications();
   }
 
   $scope.showAskDeleteNoti = function(notification){
