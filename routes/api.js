@@ -90,14 +90,12 @@ router.post('/notifications', function(req, res, next){
 	var url = API_URL+'/notificationadmins/' ;
 	var options = {
    		uri: url,
-   		json: true,
    		method: 'POST',
-   		body: req.body,
+   		json: req.body,
    		headers: {
       		'Authorization': auth
    		}
 	};
-	console.log(options);
 	request(options, (err, re, body) => {
 		if(err)
 			console.log(err);
@@ -111,14 +109,12 @@ router.patch('/notifications', function(req, res, next){
 	var url = API_URL+'/notificationadmins/'+notification["_id"];
 	var options = {
    		uri: url,
-   		json: true,
    		method: 'PATCH',
-   		body: notification,
+   		json: notification,
    		headers: {
       		'Authorization': auth
    		}
 	};
-	console.log(options);
 	request(options, (err, re, body) => {
 		if(err)
 			console.log(err);

@@ -125,6 +125,7 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
       });
     }else{
       $http.patch('./api/notifications', notification).then(function(response){
+        console.log(response);
         $scope.cancelNotification();
       });
     }
