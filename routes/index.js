@@ -22,6 +22,10 @@ router.get('/notifications', function(req, res){
 	res.render('notifications');
 });
 
+router.get('/emergencia', function(req, res){
+	res.render('emergencia');
+})
+
 router.get('/historico', function(req, res){
 	res.render('visorsql');
 });
