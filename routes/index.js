@@ -26,6 +26,10 @@ router.get('/emergencia', function(req, res){
 	res.render('emergencia');
 })
 
+router.get('/newemergency', function(req, res){
+	res.render('new_emergency');
+})
+
 router.get('/historico', function(req, res){
 	res.render('visorsql');
 });
