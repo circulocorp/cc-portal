@@ -27,7 +27,7 @@
               <a href="#">Emergencias Abiertas </a>
             </li>
             <li class="breadcrumb-item">
-              <a href="/newemergency">Crear</a>
+              <a href="./newemergency">Crear</a>
             </li>
           </ol>
 
@@ -35,7 +35,9 @@
             <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
             <tbody>
               <tr ng-repeat="emergencia in $data">
-                <td>&nbsp;<button ng-click="editVehicle(emergencia)"><i class="fas fa-edit prefix"></i></button></td>
+                <td>&nbsp;<button ng-click="editVehicle(emergencia)"><i class="fas fa-edit prefix"></i></button>&nbsp;
+                <span ng-show="emergencia.status > 1"><button  ng-click="stopReporting(emergencia)"><i class="fas fa-edit prefix"></i></button></span>
+                </td>
                 <td data-title="'Folio'" filter="{Folio: 'text'}" sortable="'Folio'">{{ emergencia.folio }}</td>
                 <td data-title="'Placas'" filter="{provider: 'text'}" sortable="'provider'">{{ emergencia.placa }}</td>
                 <td data-title="'Marca'" filter="{Registration: 'text'}" sortable="'Registration'">{{ emergencia.marca }}</td>
