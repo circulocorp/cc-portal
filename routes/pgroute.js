@@ -6,7 +6,7 @@ var router = express.Router();
 
 var pg_host = process.env.PG_HOST || "192.168.1.71";
 var pg_user = process.env.PG_USER || "circulocorp";
-var pg_pass = "admin123"; //secrets.get("pg_pass");
+var pg_pass = secrets.get("pg_pass");
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
