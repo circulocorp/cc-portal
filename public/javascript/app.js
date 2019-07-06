@@ -160,6 +160,53 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
   $scope.refreshNotifications();
 });
 
+app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
+  $scope.emergency = {};
+  $scope.emergencias = [];
+  $scope.vehicles = [];
+  $scope.vehiclesList = [];
+
+  $scope.refreshEmergency = function(){
+    $http.get('./sql/centinela').then(function(response){
+      $scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
+    });
+  }
+
+  $scope.newEmergency = function(){
+    $http.post('./sql/centinela', $scope.emergency).then(function(response){
+        $scope.emergency = null;
+        alert('Ok');
+    });
+  }
+
+  $scope.refreshVehicles = function(){
+    $http.get('./api/vehicles').then(function(response){
+      $scope.vehicles =  response.data;
+    });
+  }
+
+  $scope.complete = function(search){
+    var output=[];
+      angular.forEach($scope.vehicles,function(vehicle){
+        if(vehicle.Registration.toLowerCase().indexOf(search.toLowerCase())>=0){
+          output.push(vehicle);
+        }
+      });
+      $scope.vehiclesList=output;
+  }
+
+  $scope.fillTextbox=function(vehicle){
+    console.log(vehicle);
+      $scope.emergency.placa=vehicle.Registration;
+      $scope.emergency.marca=vehicle.Make;
+      $scope.emergency.unidadyear=vehicle.ModelYear;
+      $scope.emergency.vehicle_Id = vehicle.Id;
+      $scope.vehiclesList=null;
+    }
+    $scope.refreshEmergency()
+
+});
+
 
 
 app.controller('SQLCtl', function($scope, NgTableParams, $http) {

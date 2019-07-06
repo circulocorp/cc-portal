@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+  <head>
+
+    <% include header.html %>
+
+  </head>
+
+  <body id="page-top" ng-controller="EmergencyCtl">
+
+    <% include navbar.html %>
+
+    <div id="wrapper">
+
+    
+    <% include sidebar.html %>
+    <% include modal_emergencia.html %>     
+
+      <div id="content-wrapper">
+
+        <div class="container-fluid">
+
+          <!-- Breadcrumbs-->
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="#">Emergencias Abiertas </a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="/newemergency">Crear</a>
+            </li>
+          </ol>
+
+          <div class="card mb-3">
+            <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
+            <tbody>
+              <tr ng-repeat="emergencia in $data">
+                <td>&nbsp;<button ng-click="editVehicle(emergencia)"><i class="fas fa-edit prefix"></i></button></td>
+                <td data-title="'Folio'" filter="{Folio: 'text'}" sortable="'Folio'">{{ emergencia.folio }}</td>
+                <td data-title="'Placas'" filter="{provider: 'text'}" sortable="'provider'">{{ emergencia.placa }}</td>
+                <td data-title="'Marca'" filter="{Registration: 'text'}" sortable="'Registration'">{{ emergencia.marca }}</td>
+                <td data-title="'Modelo'" filter="{Description: 'text'}" sortable="'Description'">{{ emergencia.modelo }}</td>
+                <td data-title="'Status'" filter="{lastReport: 'text'}" sortable="'lastReport'">{{ emergencia.status }}</td>
+                <td data-title="'Fecha'" filter="{lastReport: 'text'}" sortable="'lastReport'">{{ emergencia.created }}</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright © </span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+      <!-- /.content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <a class="btn btn-primary" href="login.html">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+   <% include scripts.html %>
+  </body>
+</html>

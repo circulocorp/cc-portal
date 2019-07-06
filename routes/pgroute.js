@@ -58,4 +58,38 @@ router.post('/ordenes', function(req, res, next){
   });
 });
 
+router.post('/centinela', function(req, res, next){
+	var data = req.body;
+	var sql = 'INSERT INTO centinela.reportes (marca, modelo, unidadyear,color, placa, vin,"vehicle_Id",created, status) \
+				values($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id'
+	console.log(sql);
+	pool.query(sql, [data.marca, data.modelo, data.unidadyear, data.color, data.placa, data.serie, data.vehicle_Id, new Date(), 1], 
+		(error, results) => {
+	  if (error) {
+      		console.log(error);
+      }
+      res.status(200).json({"status": "ok"});
+	});
+});
+
+router.get('/centinela', function(req, res, next){
+	var sql = "SELECT * from centinela.reportes where status < 5 order by created desc";
+	pool.query(sql, (error, results) => {
+    if (error) {
+      console.log(error);
+    }
+    res.status(200).json(results.rows);
+  });
+});
+
+router.get('/centinela/:id', function(req, res, next){
+	var sql = "SELECT * from centinela.reportes where id=$1";
+	pool.query(sql, [req.params.id], (error, results) => {
+	if (error) {
+      console.log(error);
+    }
+    res.status(200).json(results.rows);
+	});
+})
+
 module.exports = router;
