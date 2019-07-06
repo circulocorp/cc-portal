@@ -18,7 +18,6 @@ router.get('/vehicles', function(req, res, next){
 	});
 });
 
-
 router.patch('/vehicles', function(req, res, next){
 	var vehicle = req.body;
 	var url = API_URL+'/vehicle/'+vehicle["_id"];
