@@ -92,7 +92,6 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 	}
 
 	$scope.editAccount = function(account){
-		console.log(account);
 		$scope.account = account;
 		$('#modalaccountForm').modal();
 	}
@@ -172,10 +171,24 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   }
 
+  $scope.stopReporting = function(emergency){
+    $scope.emergency = emergency;
+    $('#modalemergencyForm').modal();
+  }
+
+  $scope.stopEmergency = function(){
+    $scope.emergency.status = 5;
+    $http.patch('./sql/centinela/'+$scope.emergency.id, $scope.emergency).then(function(response){
+      $('#modalemergencyForm').modal('hide');   
+      $scope.refreshEmergency();
+      $scope.emergency = null;
+    });
+  }
+
   $scope.newEmergency = function(){
     $http.post('./sql/centinela', $scope.emergency).then(function(response){
         $scope.emergency = null;
-        alert('Ok');
+        window.location = "./emergencia"
     });
   }
 

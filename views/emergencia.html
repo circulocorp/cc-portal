@@ -35,15 +35,15 @@
             <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
             <tbody>
               <tr ng-repeat="emergencia in $data">
-                <td>&nbsp;<button ng-click="editVehicle(emergencia)"><i class="fas fa-edit prefix"></i></button>&nbsp;
-                <span ng-show="emergencia.status > 1"><button  ng-click="stopReporting(emergencia)"><i class="fas fa-edit prefix"></i></button></span>
+                <td>&nbsp;<button ng-click="checkEmergency(emergencia)"><i class="fas fa-eye prefix"></i></button>
+                <button  ng-show="emergencia.status > 1 && emergencia.status < 5" ng-click="stopReporting(emergencia)"><i class="fas fa-stop-circle prefix"></i></button>
                 </td>
                 <td data-title="'Folio'" filter="{Folio: 'text'}" sortable="'Folio'">{{ emergencia.folio }}</td>
                 <td data-title="'Placas'" filter="{provider: 'text'}" sortable="'provider'">{{ emergencia.placa }}</td>
                 <td data-title="'Marca'" filter="{Registration: 'text'}" sortable="'Registration'">{{ emergencia.marca }}</td>
                 <td data-title="'Modelo'" filter="{Description: 'text'}" sortable="'Description'">{{ emergencia.modelo }}</td>
-                <td data-title="'Status'" filter="{lastReport: 'text'}" sortable="'lastReport'">{{ emergencia.status }}</td>
-                <td data-title="'Fecha'" filter="{lastReport: 'text'}" sortable="'lastReport'">{{ emergencia.created }}</td>
+                <td data-title="'Status'" filter="{status: 'text'}" sortable="'status'">{{ emergencia.status }}</td>
+                <td data-title="'Fecha'" filter="{created: 'text'}" sortable="'created'">{{ emergencia.created }}</td>
               </tr>
             </tbody>
           </table>
