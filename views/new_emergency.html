@@ -23,15 +23,54 @@
           <!-- Breadcrumbs-->
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
-              <a href="#" ng-click="newEmergency()">Crear</a>
+              <a href="#" ng-click="newEmergency()">Guardar</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="#" ng-click="newEmergency()">Cancelar</a>
+              <a href="./emergencia">Cancelar</a>
             </li>
           </ol>
 
           <div class="col-mb-8">
             <form>
+              <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Nombre</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.nombre"  placeholder="" value="" required>
+                <div class="invalid-feedback">
+                  El nombre es obligatorio
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Apellidos</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.apellidos"  placeholder="" value="" required>
+              </div>        
+              </div>
+              <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Estado</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.estado"  placeholder="" value="" required >
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Municipio</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.municipio"  placeholder="" value=""  required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Nombre del conductor</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.conductor"  placeholder="" value="" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Telefono del conductor</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.telconductor"  placeholder="" value="" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Representante legal</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.representante"  placeholder="" value="" required>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Telefono Representante legal</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.telrepresentante"  placeholder="" value="" required>
+              </div>
+              </div>
               <div class="row">
               <div class="col-md-3 mb-3">
                 <label for="firstName">Placas</label>
@@ -80,9 +119,276 @@
                   Las placas son obligatorias
                 </div>
               </div>
+              <div class="col-md-3 mb-3">
+                <label for="color"># Motor</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.motor" placeholder="" value="" required>
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
              </div>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Entidad placas</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.entidad" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Tipo de Unidad</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.tipounidad" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Aseguradora</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.aseguradora" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color"># Siniestro</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.siniestro" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Razon social</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.razonsocial" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  La razon social es obligatoria
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Articulado?</label>
+                <select class="form-control" id="articuladoS" ng-model="emergency.extras.isArticulado">
+                  <option value="">-----</option>
+                  <option value="articulado">Si</option>
+                  <option value="full">Full</option>
+                </select>
+              </div>
+             </div>
+             <div class="row-fluid" ng-show="emergency.extras.isArticulado == 'articulado' || emergency.extras.isArticulado == 'full'">
+              <div class="span12">
+                <b>Llenar en caso de ser Articulado</b>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Marca</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.articulado.marca" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Tipo</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.tipo" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Placa</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.placa" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Color</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.color" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Tipo de Mercancia</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.articulado.mercancia" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Monto de Mercancia</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.mnto" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Serie</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.serie" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Se&ntilde;as Particulares</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.articulado.senias" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+           </div>
+         </div>
+         <!-- Full -->
+         <div class="row-fluid" ng-show="emergency.extras.isArticulado == 'full'">
+              <div class="span12">
+                <b>Llenar en caso de ser Full</b>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Marca</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.full.marca" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Tipo</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.tipo" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Placa</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.placa" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Color</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.color" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Tipo de Mercancia</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.full.mercancia" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Monto de Mercancia</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.monto" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Serie</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.serie" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Se&ntilde;as Particulares</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.full.senias" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- Datos del robo -->
+        <div class="row-fluid">
+              <div class="span12">
+                <b>Datos del Robo</b>
+             <div class="row">
+              <div class="col-md-3 mb-3">
+                <label for="color">Coordenadas</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.robo.coordenadas" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Modalidad</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.robo.modalidad" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Estado</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.robo.estado" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Municipio</label>
+                <input type="text" class="form-control" id="articuladotipo" ng-model="emergency.extras.robo.municipio" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+             <div class="row">
+              <div class="col-md-6 mb-6">
+                <label for="color">Calles</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.robo.calles" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Fecha</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.robo.fecha" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label for="color">Horario</label>
+                <input type="text" class="form-control" id="color" ng-model="emergency.extras.robo.horario" placeholder="" value="" >
+                <div class="invalid-feedback">
+                  Las placas son obligatorias
+                </div>
+              </div>
+             </div>
+             <div class="row">
+              <div class="col-md-6 mb-6">
+                <label for="color">Detalle del Robo</label>
+                <textarea class="form-control" id="color" rows="10" cols="100" ng-model="emergency.extras.robo.detalle" placeholder="" value="">
+                {{  emergency.extras.robo.detalle }}</textarea>
+              </div>
+            </div>
+
+           </div>
+         </div>
+         <div class="row">
+              <div class="col-md-6 mb-6">
+                &nbsp;
+              </div>
+            </div>
+
             </form>
           </div>
+           <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="#" ng-click="newEmergency()">Guardar</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="./emergencia">Cancelar</a>
+            </li>
+          </ol>
 
         </div>
         <!-- /.container-fluid -->
