@@ -194,8 +194,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
 
   $scope.checkEmergency = function(emergencia){
     $http.get('./sql/centinela/'+emergencia).then(function(response){
-      $scope.emergency = response.data;
-      console.log($scope.emergency);
+      $scope.emergency = response.data[0];
     });
   }
 
