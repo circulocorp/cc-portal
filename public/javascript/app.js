@@ -192,6 +192,14 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   }
 
+  $scope.checkEmergency = function(emergencia){
+    id = emergencia.id;
+    $http.get('./sql/centinela/'+id).then(function(response){
+      $scope.emergency = response.data;
+      window.location = "./checkemergency"
+    });
+  }
+
   $scope.refreshVehicles = function(){
     $http.get('./api/vehicles').then(function(response){
       $scope.vehicles =  response.data;

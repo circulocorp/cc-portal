@@ -24,10 +24,14 @@ router.get('/notifications', function(req, res){
 
 router.get('/emergencia', function(req, res){
 	res.render('emergencia');
-})
+});
 
 router.get('/newemergency', function(req, res){
 	res.render('new_emergency');
+});
+
+router.get('./checkemergency', function(req, res){
+	res.render('checkemergency')
 })
 
 router.get('/historico', function(req, res){
