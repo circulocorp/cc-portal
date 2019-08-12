@@ -35,7 +35,7 @@
             <table ng-table="tableParams" class="table" show-filter="true" cellspacing="0" width="100%">
             <tbody>
               <tr ng-repeat="emergencia in $data">
-                <td>&nbsp;<button ng-click="checkEmergency(emergencia)"><i class="fas fa-eye prefix"></i></button>
+                <td>&nbsp;<button href="./checkemergency/{{ emergency.id }}"><i class="fas fa-eye prefix"></i></button>
                 <button  ng-show="emergencia.status > 1 && emergencia.status < 5" ng-click="stopReporting(emergencia)"><i class="fas fa-stop-circle prefix"></i></button>
                 </td>
                 <td data-title="'Folio'" filter="{Folio: 'text'}" sortable="'Folio'">{{ emergencia.folio }}</td>
