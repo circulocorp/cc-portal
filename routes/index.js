@@ -30,7 +30,7 @@ router.get('/newemergency', function(req, res){
 	res.render('new_emergency');
 });
 
-router.get('./checkemergency/:id', function(req, res){
+router.get('/checkemergency/:id', function(req, res){
 	res.render('checkemergency', { emergencia: request.params.id });
 })
 
