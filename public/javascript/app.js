@@ -193,10 +193,9 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.checkEmergency = function(emergencia){
-    id = emergencia.id;
-    $http.get('./sql/centinela/'+id).then(function(response){
+    $http.get('./sql/centinela/'+emergencia).then(function(response){
       $scope.emergency = response.data;
-      window.location = "./checkemergency"
+      console.log($scope.emergency);
     });
   }
 
