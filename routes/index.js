@@ -31,7 +31,7 @@ router.get('/newemergency', function(req, res){
 });
 
 router.get('/checkemergency/:id', function(req, res){
-	res.render('checkemergency', { emergencia: request.params.id });
+	res.render('checkemergency', { emergencia: req.params.id });
 })
 
 router.get('/historico', function(req, res){
