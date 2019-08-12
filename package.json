@@ -1,6 +1,6 @@
 {
   "name": "circulocorp-portal",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "scripts": {
     "ng": "ng",
     "start": "node ./bin/www",
