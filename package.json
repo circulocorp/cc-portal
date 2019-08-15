@@ -1,6 +1,6 @@
 {
   "name": "circulocorp-portal",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "scripts": {
     "ng": "ng",
     "start": "node ./bin/www",
@@ -8,7 +8,7 @@
     "test": "ng test"
   },
   "dependencies": {
-    "amqplib": "^0.9.1",
+    "amqplib": "latest",
     "body-parser": "^1.18.3",
     "core-js": "^2.5.4",
     "express": "^4.16.4",
