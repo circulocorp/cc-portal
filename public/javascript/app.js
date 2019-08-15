@@ -215,7 +215,6 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.fillTextbox=function(vehicle){
-    console.log(vehicle);
       $scope.emergency.placa=vehicle.Registration;
       $scope.emergency.marca=vehicle.Make;
       $scope.emergency.unidadyear=vehicle.ModelYear;

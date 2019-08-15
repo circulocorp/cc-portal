@@ -70,10 +70,14 @@
                 <label for="firstName">Telefono Representante legal</label>
                 <input type="text" class="form-control" id="nombre"  ng-model="emergency.extras.telrepresentante"  placeholder="" value="" required>
               </div>
+              <div class="col-md-3 mb-3">
+                <label for="firstName">Folio MZone</label>
+                <input type="text" class="form-control" id="nombre"  ng-model="emergency.vehicle_Id"  readonly>
+              </div>
               </div>
               <div class="row">
               <div class="col-md-3 mb-3">
-                <label for="firstName">Placas</label>
+                <label for="firstName">Placas <i class="icon-zoom-in"></i></label>
                 <input type="text" class="form-control" id="placa"  ng-model="emergency.placa" ng-keyup="complete(emergency.placa)" placeholder="" value="" required>
                 <ul class="list-group">
                   <li class="list-group-item" ng-repeat="vehicle in vehiclesList" ng-click="fillTextbox(vehicle)">{{vehicle.Registration}}</li>

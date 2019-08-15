@@ -2,8 +2,10 @@ var express = require('express');
 var request = require('request');
 var secrets = require('docker-secrets-nodejs');
 var router = express.Router();
+var amqp = require('amqplib/callback_api');
 
 var API_URL = process.env.API_URL || "http://localhost:8080/api";
+var RABBITMQ = secrets.get("rabbitmq_user")+":"+secrets.get("rabbitmq_passw")+"@10.0.4.100:5672"
 var token =  secrets.get("token_key");
 
 
@@ -143,6 +145,28 @@ router.delete('/notifications/:id', function(req, res, next){
 	request(options, (err, re, body) => {
 		console.log(body);
 		res.send(body);
+	});
+});
+
+router.post('/mzonevehicle/', function(req, res, next){
+	var placa = req.body;
+	amqp.connect('amqp://'+RABBITMQ, function(error0, connection) {
+	if (error0) {
+	    throw error0;
+	}
+	 connection.createChannel(function(error1, channel) {
+	    if (error1) {
+	      throw error1;
+	    }
+	    var queue = 'mzonehandler';
+
+	    channel.assertQueue(queue, {
+	      durable: false
+	    });
+
+	    channel.sendToQueue(queue, Buffer.from(place));
+	    console.log(" [x] Sent %s", msg);
+	  });
 	});
 });
 
