@@ -149,7 +149,8 @@ router.delete('/notifications/:id', function(req, res, next){
 });
 
 router.post('/mzonevehicle/', function(req, res, next){
-	var placa = req.body.placa;
+	var placa = dict();
+	placa["registration"] =  req.body.placa;
 	amqp.connect('amqp://'+RABBITMQ, function(error0, connection) {
 	if (error0) {
 	    res.status(500, err0);
@@ -158,13 +159,10 @@ router.post('/mzonevehicle/', function(req, res, next){
 	    if (error1) {
 	      res.status(500, err1);
 	    }
-	    var queue = 'mzonehandler';
-
-	    channel.assertQueue(queue, {
-	      durable: false
-	    });
-
-	    channel.sendToQueue(queue, Buffer.from(placa));
+	    var exchange = connection.exchange('circulocorp', {type: 'direct'});
+	    exchange.publish('mzonehandler', Buffer.from(placa), function (err,result) {
+        	console.log(err,result);
+    	});
 	    res.status(200, "Ok");
 	  });
 	});
