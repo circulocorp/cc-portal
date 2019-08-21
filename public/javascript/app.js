@@ -210,6 +210,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   $scope.refreshVehicles = function(){
     $http.get('./api/vehicles').then(function(response){
       $scope.vehicles =  response.data;
+      console.log($scope.vehicles);
     });
   }
 

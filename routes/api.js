@@ -149,8 +149,7 @@ router.delete('/notifications/:id', function(req, res, next){
 });
 
 router.post('/mzonevehicle/', function(req, res, next){
-	var placa = dict();
-	placa["registration"] =  req.body.placa;
+	var placa = {"registration": "'"+req.body.placa"'"};
 	amqp.connect('amqp://'+RABBITMQ, function(error0, connection) {
 	if (error0) {
 	    res.status(500, err0);
