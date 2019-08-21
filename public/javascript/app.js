@@ -184,6 +184,15 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
       $scope.emergency = null;
     });
   }
+  
+  $scope.refreshMzone = function(placa){
+    if($scope.emergency.placa != ""){
+       $http.post('./api/mzonevehicle', $scope.emergency).then(function(response){
+        console.log(response);
+        $scope.refreshVehicles();
+      });
+    }
+  }
 
   $scope.newEmergency = function(){
     $http.post('./sql/centinela', $scope.emergency).then(function(response){

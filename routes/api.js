@@ -149,14 +149,14 @@ router.delete('/notifications/:id', function(req, res, next){
 });
 
 router.post('/mzonevehicle/', function(req, res, next){
-	var placa = req.body;
+	var placa = req.body.placa;
 	amqp.connect('amqp://'+RABBITMQ, function(error0, connection) {
 	if (error0) {
-	    throw error0;
+	    res.status(500, err0);
 	}
 	 connection.createChannel(function(error1, channel) {
 	    if (error1) {
-	      throw error1;
+	      res.status(500, err1);
 	    }
 	    var queue = 'mzonehandler';
 
@@ -164,8 +164,8 @@ router.post('/mzonevehicle/', function(req, res, next){
 	      durable: false
 	    });
 
-	    channel.sendToQueue(queue, Buffer.from(place));
-	    console.log(" [x] Sent %s", msg);
+	    channel.sendToQueue(queue, Buffer.from(placa));
+	    res.status(200, "Ok");
 	  });
 	});
 });

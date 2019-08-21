@@ -77,7 +77,7 @@
               </div>
               <div class="row">
               <div class="col-md-3 mb-3">
-                <label for="firstName">Placas <i class="icon-zoom-in"></i></label>
+                Placas <button class="btn" type="button" ng-click="refreshMzone(emergency.placa)"><i class="fas fa-sync"></i></button>
                 <input type="text" class="form-control" id="placa"  ng-model="emergency.placa" ng-keyup="complete(emergency.placa)" placeholder="" value="" required>
                 <ul class="list-group">
                   <li class="list-group-item" ng-repeat="vehicle in vehiclesList" ng-click="fillTextbox(vehicle)">{{vehicle.Registration}}</li>
