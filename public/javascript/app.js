@@ -185,13 +185,8 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   }
   
-  $scope.refreshMzone = function(placa){
-    if($scope.emergency.placa != ""){
-       $http.post('./api/mzonevehicle', $scope.emergency).then(function(response){
-        console.log(response);
+  $scope.refreshMzone = function(){
         $scope.refreshVehicles();
-      });
-    }
   }
 
   $scope.newEmergency = function(){
@@ -210,7 +205,6 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   $scope.refreshVehicles = function(){
     $http.get('./api/vehicles').then(function(response){
       $scope.vehicles =  response.data;
-      console.log($scope.vehicles);
     });
   }
 
