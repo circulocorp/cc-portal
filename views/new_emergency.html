@@ -7,7 +7,7 @@
 
   </head>
 
-  <body id="page-top" ng-controller="EmergencyCtl" ng-init="refreshVehicles()">
+  <body id="page-top" ng-controller="EmergencyCtl">
 
     <% include navbar.html %>
 
@@ -77,7 +77,7 @@
               </div>
               <div class="row">
               <div class="col-md-3 mb-3">
-                Placas <button class="btn" type="button" ng-click="refreshMzone()"><i class="fas fa-sync"></i></button>
+                Placas
                 <input type="text" class="form-control" id="placa"  ng-model="emergency.placa" ng-keyup="complete(emergency.placa)" placeholder="" value="" required>
                 <ul class="list-group">
                   <li class="list-group-item" ng-repeat="vehicle in vehiclesList" ng-click="fillTextbox(vehicle)">{{vehicle.Registration}}</li>

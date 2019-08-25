@@ -209,14 +209,18 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.complete = function(search){
-    console.log(search);
-    var output=[];
-      angular.forEach($scope.vehicles,function(vehicle){
-        if(vehicle.Registration.toLowerCase().indexOf(search.toLowerCase())>=0){
-          output.push(vehicle);
-        }
-      });
-      $scope.vehiclesList=output;
+    if(search.length > 3){
+      $http.get('./api/vehicles/registration/'+search).then(function(response){
+          vehicles =  response.data;
+          var output=[];
+          angular.forEach(vehicles,function(vehicle){
+            if(vehicle.Registration.toLowerCase().indexOf(search.toLowerCase())>=0){
+              output.push(vehicle);
+            }
+          });
+          $scope.vehiclesList=output;
+      });   
+    }
   }
 
   $scope.fillTextbox=function(vehicle){
