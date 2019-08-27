@@ -6,6 +6,7 @@ var amqp = require('amqplib/callback_api');
 
 var API_URL = process.env.API_URL || "http://localhost:8080/api";
 var RABBITMQ = secrets.get("rabbitmq_user")+":"+secrets.get("rabbitmq_passw")+"@10.0.4.100:5672"
+//var RABBITMQ = "amqp://admin:admin123@192.168.1.70:5672"
 var token =  secrets.get("token_key");
 
 
@@ -156,20 +157,15 @@ router.delete('/notifications/:id', function(req, res, next){
 
 router.post('/mzonevehicle/', function(req, res, next){
 	var placa = {"registration": req.body.placa};
-	amqp.connect('amqp://'+RABBITMQ, function(error0, connection) {
-	if (error0) {
-	    res.status(500, err0);
-	}
-	 connection.createChannel(function(error1, channel) {
-	    if (error1) {
-	      res.status(500, err1);
-	    }
-	    var exchange = connection.exchange('circulocorp', {type: 'direct'});
-	    exchange.publish('mzonehandler', Buffer.from(placa), function (err,result) {
-        	console.log(err,result);
-    	});
-	    res.status(200, "Ok");
-	  });
+	amqp.connect(RABBITMQ, function(err, conn){
+		conn.createChannel(function(err0, ch){
+			ch.assertExchange('circulocorp', 'direct', {durable: true});
+    		ch.publish('circulocorp', 'mzonehandler', Buffer.from(JSON.stringify(placa)));
+    		res.send("OK");
+		});
+		setTimeout(function() { 
+    		conn.close();  
+  		}, 500);
 	});
 });
 
