@@ -31,7 +31,6 @@ router.get('/newemergency', function(req, res){
 });
 
 router.get('/checkemergency/', function(req, res){
-	console.log(req.query.id)
 	res.render('checkemergency', { emergencia: req.query.id });
 })
 

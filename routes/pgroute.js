@@ -93,7 +93,7 @@ router.get('/centinela', function(req, res, next){
 });
 
 router.get('/centinela/:id', function(req, res, next){
-	var sql = "SELECT * from centinela.reportes where id=$1";
+	var sql = "SELECT reportes.*,(select count(*) from centinela.reportehistorico where folio=reportes.folio) as historic from centinela.reportes as reportes where id=$1";
 	pool.query(sql, [req.params.id], (error, results) => {
 	if (error) {
       console.log(error);

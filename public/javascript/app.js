@@ -201,6 +201,14 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   $scope.checkEmergency = function(emergencia){
     $http.get('./sql/centinela/'+emergencia).then(function(response){
       $scope.emergency = response.data[0];
+      if($scope.emergency.status > 4){
+        $scope.emergency.progress = 100;
+      }else if($scope.emergency.historic > 0){
+        var size = ($scope.emergency.historic / 1440) * 100
+        $scope.emergency.progress = size;
+      }else {
+        $scope.emergency.progress = 100;
+      }
     });
   }
 
