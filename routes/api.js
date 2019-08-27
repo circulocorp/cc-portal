@@ -5,7 +5,7 @@ var router = express.Router();
 var amqp = require('amqplib/callback_api');
 
 var API_URL = process.env.API_URL || "http://localhost:8080/api";
-var RABBITMQ = secrets.get("rabbitmq_user")+":"+secrets.get("rabbitmq_passw")+"@10.0.4.100:5672"
+var RABBITMQ = "amqp://"+secrets.get("rabbitmq_user")+":"+secrets.get("rabbitmq_passw")+"@10.0.4.100:5672"
 //var RABBITMQ = "amqp://admin:admin123@192.168.1.70:5672"
 var token =  secrets.get("token_key");
 

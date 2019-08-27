@@ -211,7 +211,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.complete = function(search){
-    if(search != "" && search.length > 3){
+    if(search  && search.length > 3){
       $http.get('./api/vehicles/registration/'+search).then(function(response){
           vehicles =  response.data;
           var output=[];
