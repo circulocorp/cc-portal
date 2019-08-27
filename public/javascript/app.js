@@ -207,7 +207,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
         var size = ($scope.emergency.historic / 1440) * 100
         $scope.emergency.progress = size;
       }else {
-        $scope.emergency.progress = 100;
+        $scope.emergency.progress = 0;
       }
     });
   }
