@@ -27,6 +27,13 @@ router.get('/vehicles/registration/:placas', function(req, res, next){
 	});
 });
 
+router.get('/vehicles/unitid/:unitid', function(req, res, next){
+	request.get(API_URL+'/vehicles/unitid/'+req.params.unitid, {json: true}, (err, re, body) => {
+		res.send(body);
+	});
+});
+
+
 router.patch('/vehicles', function(req, res, next){
 	var vehicle = req.body;
 	var url = API_URL+'/vehicle/'+vehicle["_id"];

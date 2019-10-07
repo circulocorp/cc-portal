@@ -220,11 +220,11 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
 
   $scope.complete = function(search){
     if(search  && search.length > 3){
-      $http.get('./api/vehicles/registration/'+search).then(function(response){
+      $http.get('./api/vehicles/unitid/'+search).then(function(response){
           vehicles =  response.data;
           var output=[];
           angular.forEach(vehicles,function(vehicle){
-            if(vehicle.Registration.toLowerCase().indexOf(search.toLowerCase())>=0){
+            if(vehicle.Unit_Id.toLowerCase().indexOf(search.toLowerCase())>=0){
               output.push(vehicle);
             }
           });
@@ -239,7 +239,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
       $scope.emergency.placa=vehicle.Registration;
       $scope.emergency.marca=vehicle.Make;
       $scope.emergency.unidadyear=vehicle.ModelYear;
-      $scope.emergency.vehicle_Id = vehicle.Id;
+      $scope.emergency.Unit_Id = vehicle.Unit_Id;
       $scope.vehiclesList=null;
     }
     $scope.refreshEmergency()
