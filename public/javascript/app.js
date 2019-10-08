@@ -214,7 +214,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
 
   $scope.removeReport = function(){
     emergencia = $scope.emergency;
-    $http.delete('./sql/centinela/'+emergencia).then(function(response){
+    $http.delete('./sql/centinela/'+emergencia.id).then(function(response){
       $scope.emergency = null;
       $('#modalemergencyForm2').modal('hide');
             $scope.refreshEmergency();
