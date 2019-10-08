@@ -179,7 +179,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   $scope.stopEmergency = function(){
     $scope.emergency.status = 5;
     $http.patch('./sql/centinela/'+$scope.emergency.id, $scope.emergency).then(function(response){
-      $('#modalemergencyForm').modal('hide');   
+      $('#modalemergencyForm').modal('hide');
       $scope.refreshEmergency();
       $scope.emergency = null;
     });
@@ -210,7 +210,20 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
         $scope.emergency.progress = 0;
       }
     });
-  }
+  };
+
+  $scope.removeEmergency = function(emergencia){
+    $http.delete('./sql/centinela/'+emergencia).then(function(response){
+      $scope.emergency = null;
+      $('#modalemergencyForm2').modal('hide');
+            $scope.refreshEmergency();
+    });
+  };
+
+  $scope.deleteReporting = function(emergencia) {
+    $scope.emergency = emergency;
+    $('#modalemergencyForm2').modal();
+  };
 
   $scope.refreshVehicles = function(){
     $http.get('./api/vehicles').then(function(response){
@@ -219,7 +232,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.complete = function(search){
-    if(search  && search.length > 3){
+    if(search  && search.length > 4){
       $http.get('./api/vehicles/unitid/'+search).then(function(response){
           vehicles =  response.data;
           var output=[];

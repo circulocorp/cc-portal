@@ -82,6 +82,17 @@ router.patch('/centinela/:id', function(req, res, next){
 	});
 });
 
+router.delete('/centinela/:id', function(req, res, next){
+	var id = req.params.id;
+	var sql = 'DELETE from centinela.reportes where id=$1';
+	pool.query(sql, [id], (error, results) => {
+		if(error){
+			console.log(error);
+		}
+		res.status(200).json({"status": "ok"});
+	});
+});
+
 router.get('/centinela', function(req, res, next){
 	var sql = "SELECT * from centinela.reportes order by status asc,created desc  limit 50";
 	pool.query(sql, (error, results) => {
