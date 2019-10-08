@@ -212,7 +212,8 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   };
 
-  $scope.removeEmergency = function(emergencia){
+  $scope.removeReport = function(){
+    emergencia = $scope.emergency;
     $http.delete('./sql/centinela/'+emergencia).then(function(response){
       $scope.emergency = null;
       $('#modalemergencyForm2').modal('hide');
@@ -220,7 +221,11 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   };
 
-  $scope.deleteReporting = function(emergencia) {
+  $scope.cancelModalEmergency2 = function(){
+    $('#modalemergencyForm2').modal('hide');
+  }
+
+  $scope.deleteReport = function(emergencia) {
     $scope.emergency = emergencia;
     $('#modalemergencyForm2').modal();
   };
