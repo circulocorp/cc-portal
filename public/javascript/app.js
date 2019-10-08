@@ -221,7 +221,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   };
 
   $scope.deleteReporting = function(emergencia) {
-    $scope.emergency = emergency;
+    $scope.emergency = emergencia;
     $('#modalemergencyForm2').modal();
   };
 
@@ -253,6 +253,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
       $scope.emergency.marca=vehicle.Make;
       $scope.emergency.unidadyear=vehicle.ModelYear;
       $scope.emergency.Unit_Id = vehicle.Unit_Id;
+      $scope.emergency.vehicle_Id = vehicle.vehicle_Id;
       $scope.vehiclesList=null;
     }
     $scope.refreshEmergency()
