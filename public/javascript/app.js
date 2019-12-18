@@ -192,10 +192,14 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.newEmergency = function(){
-    $http.post('./sql/centinela', $scope.emergency).then(function(response){
+    if($scope.emergency.vehicle_Id == "") {
+      $('#modalemergencyAlert').modal();
+    }else{
+      $http.post('./sql/centinela', $scope.emergency).then(function(response){
         $scope.emergency = null;
         window.location = "./emergencia"
-    });
+      });
+    }
   }
 
   $scope.checkEmergency = function(emergencia){
@@ -240,6 +244,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     if(search  && search.length > 4){
       $http.get('./api/vehicles/unitid/'+search).then(function(response){
           vehicles =  response.data;
+          print(vehicles)
           var output=[];
           angular.forEach(vehicles,function(vehicle){
             if(vehicle.Unit_Id.toLowerCase().indexOf(search.toLowerCase())>=0){
@@ -258,8 +263,9 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
       $scope.emergency.marca=vehicle.Make;
       $scope.emergency.unidadyear=vehicle.ModelYear;
       $scope.emergency.Unit_Id = vehicle.Unit_Id;
-      $scope.emergency.vehicle_Id = vehicle.vehicle_Id;
+      $scope.emergency.vehicle_Id = vehicle.Id;
       $scope.vehiclesList=null;
+      console.log($scope.emergency)
     }
     $scope.refreshEmergency()
 
