@@ -10,7 +10,7 @@
   "dependencies": {
     "amqplib": "latest",
     "body-parser": "^1.18.3",
-    "core-js": "^2.5.4",
+    "core-js": "2.6.9",
     "express": "^4.16.4",
     "morgan": "^1.9.1",
     "request": "2.88.0",
@@ -24,7 +24,7 @@
     "zone.js": "~0.8.26",
     "ng-table": "3.0.1",
     "docker-secrets-nodejs": "^1.0.5",
-    "ejs": "latest",
+    "ejs": "2.7.1",
     "pg": "7.9.0"
   }
 }
