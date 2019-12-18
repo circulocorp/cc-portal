@@ -244,7 +244,6 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     if(search  && search.length > 4){
       $http.get('./api/vehicles/unitid/'+search).then(function(response){
           vehicles =  response.data;
-          print(vehicles)
           var output=[];
           angular.forEach(vehicles,function(vehicle){
             if(vehicle.Unit_Id.toLowerCase().indexOf(search.toLowerCase())>=0){
