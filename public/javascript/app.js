@@ -192,7 +192,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
   }
 
   $scope.newEmergency = function(){
-    if($scope.emergency.vehicle_Id == "") {
+    if($scope.emergency.vehicle_Id == "" || $scope.emergency.Unit_Id == "") {
       $('#modalemergencyAlert').modal();
     }else{
       $http.post('./sql/centinela', $scope.emergency).then(function(response){

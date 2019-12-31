@@ -14,7 +14,20 @@
     <div id="wrapper">
 
     
-    <% include sidebar.html %>    
+    <% include sidebar.html %>
+    <div class="modal fade" id="modalemergencyAlert" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Este reporte no se puede guardar porque no cuenta con un id de mzone</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>   
 
       <div id="content-wrapper">
 
@@ -72,7 +85,7 @@
               </div>
               <div class="col-md-3 mb-3">
                 <label for="firstName">Folio MZone</label>
-                <input type="text" class="form-control" id="nombre"  ng-model="emergency.Unit_Id" ng-keyup="complete(emergency.Unit_Id)">
+                <input type="text" class="form-control" id="Unit_Id"  ng-model="emergency.Unit_Id" ng-keyup="complete(emergency.Unit_Id)" required>
                 <ul class="list-group">
                   <li class="list-group-item" ng-repeat="vehicle in vehiclesList" ng-click="fillTextbox(vehicle)">{{vehicle.Unit_Id}}</li>
                 </ul>
@@ -90,9 +103,6 @@
               <div class="col-md-3 mb-3">
                 <label for="modelo">Marca</label>
                 <input type="text" class="form-control" id="marca" ng-model="emergency.marca" placeholder="" value="" required>
-                <div class="invalid-feedback">
-                  Valid last name is required.
-                </div>
               </div>
               <div class="col-md-3 mb-3">
                 <label for="modelo">Modelo</label>
