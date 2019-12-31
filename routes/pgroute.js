@@ -62,7 +62,7 @@ router.post('/centinela', function(req, res, next){
 	var data = req.body;
 	var sql = 'INSERT INTO centinela.reportes (marca, modelo, unidadyear,color, placa, vin,"vehicle_Id",created, status, extras, "Unit_Id") \
 				values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id';
-	pool.query(sql, [data.marca, data.modelo, data.unidadyear, data.color, data.placa, data.serie, data.vehicle_Id, new Date(), 1, data.extras, data.Unit_Id], 
+	pool.query(sql, [data.marca, data.modelo, data.unidadyear, data.color, data.placa, data.serie, '', new Date(), 1, data.extras, data.Unit_Id], 
 		(error, results) => {
 	  if (error) {
       		console.log(error);
