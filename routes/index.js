@@ -1,6 +1,21 @@
 var express = require('express');
 var router = express.Router();
-const request = require('request')
+const request = require('request');
+var secrets = require('docker-secrets-nodejs');
+
+
+var pg_host = process.env.PG_HOST || "192.168.1.71";
+var pg_user = process.env.PG_USER || "circulocorp";
+var pg_pass = secrets.get("pg_pass");
+
+const Pool = require('pg').Pool;
+const pool = new Pool({
+   		user: pg_user,
+  		host: pg_host,
+  		database: 'sos',
+  		password: pg_pass,
+  		port: 5432,
+});
 
 router.get('/', function(req,res){
 	  res.render('index');
@@ -32,6 +47,20 @@ router.get('/newemergency', function(req, res){
 
 router.get('/checkemergency/', function(req, res){
 	res.render('checkemergency', { emergencia: req.query.id });
+})
+
+router.get('/editemergency/', function(req, res){
+	var sql = "SELECT reportes.status from centinela.reportes as reportes where id=$1";
+	pool.query(sql, [req.query.id], (error, results) => {
+	if (error) {
+    	res.render('emergencia');  
+    }
+    	if (results.rowCount > 0 && results.rows[0][0] == 1){
+    		res.render('edit_emergency', { emergencia: req.query.id });
+    	}else {
+    		res.render('checkemergency', { emergencia: req.query.id });
+    	}
+	});
 })
 
 router.get('/historico', function(req, res){

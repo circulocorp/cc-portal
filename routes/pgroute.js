@@ -82,6 +82,17 @@ router.patch('/centinela/:id', function(req, res, next){
 	});
 });
 
+router.put('/centinela/:id', function(req, res, next){
+	var data = req.body;
+	var sql = 'UPDATE centinela.reportes set marca=$2,modelo=$3,unidadyear=$4,color=$5,placa=$6,vin=$7,extras=$8,"Unit_Id"=$9 where id=$1';
+	pool.query(sql, [req.params.id, data.marca,data.modelo,data.unidadyear,data.color,data.placa,data.vin,data.extras, data.Unit_Id], (error, results) => {
+		if(error){
+			console.log(error);	
+		}
+		res.status(200).json({"status": "ok"});
+	});
+});
+
 router.delete('/centinela/:id', function(req, res, next){
 	var id = req.params.id;
 	var sql = 'DELETE from centinela.reportes where id=$1';

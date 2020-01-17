@@ -216,6 +216,17 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     });
   };
 
+  $scope.updateEmergency = function(emergencia){
+    if($scope.emergency.Unit_Id == "") {
+      $('#modalemergencyAlert').modal();
+    }else{
+      $http.put('./sql/centinela', $scope.emergency).then(function(response){
+        $scope.emergency = null;
+        window.location = "./emergencia"
+      });
+    }
+  };
+
   $scope.removeReport = function(){
     emergencia = $scope.emergency;
     $http.delete('./sql/centinela/'+emergencia.id).then(function(response){
