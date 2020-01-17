@@ -220,7 +220,7 @@ app.controller('EmergencyCtl', function($scope,NgTableParams, $http){
     if($scope.emergency.Unit_Id == "") {
       $('#modalemergencyAlert').modal();
     }else{
-      $http.put('./sql/centinela', $scope.emergency).then(function(response){
+      $http.put('./sql/centinela/'+$scope.emergency.id, $scope.emergency).then(function(response){
         $scope.emergency = null;
         window.location = "./emergencia"
       });
