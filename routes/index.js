@@ -55,9 +55,10 @@ router.get('/editemergency/', function(req, res){
 	if (error) {
     	res.render('emergencia');  
     }
+    	console.log(results.rows)
     	if (results.rowCount > 0 && results.rows[0][0] == 1){
     		res.render('edit_emergency', { emergencia: req.query.id });
-    	}else {
+    	} else {
     		res.render('checkemergency', { emergencia: req.query.id });
     	}
 	});
