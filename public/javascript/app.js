@@ -81,15 +81,31 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 
 	$scope.account = {};
 
-	$http.get('./api/serviceaccounts').then(function(response){
-		$scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
-	});
+  $scope.refreshAccounts = function(){
+  	$http.get('./api/serviceaccounts').then(function(response){
+  		$scope.tableParams = new NgTableParams({filter:{}}, { dataset: response.data });
+  	});
+  }
 
 	$scope.newAccount = function(){
 		$scope.account = null;
 		$scope.account = {};
 		$('#modalaccountForm').modal();
 	}
+
+  $scope.saveAccount = function(){
+    var account = $scope.account;
+    if(("_id" in notification) == false){
+      $http.post('./api/serviceaccounts', account).then(function(response){
+        $scope.cancelAccount();
+      });
+    }else{
+      $http.patch('./api/serviceaccounts', account).then(function(response){
+        $scope.cancelAccount();
+      });
+    }
+    $scope.refreshAccounts();
+  }
 
 	$scope.editAccount = function(account){
 		$scope.account = account;
