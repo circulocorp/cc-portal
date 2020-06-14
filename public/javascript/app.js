@@ -115,6 +115,7 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 	$scope.cancelAccount = function(){
 		$('#modalaccountForm').modal('hide');	
 	}
+  $scope.refreshAccounts();
 });
 
 
