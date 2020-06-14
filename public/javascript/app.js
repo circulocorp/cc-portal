@@ -95,7 +95,7 @@ app.controller('ServiceACtl', function ($scope, NgTableParams, $http) {
 
   $scope.saveAccount = function(){
     var account = $scope.account;
-    if(("_id" in notification) == false){
+    if(("_id" in account) == false){
       $http.post('./api/serviceaccounts', account).then(function(response){
         $scope.cancelAccount();
       });
