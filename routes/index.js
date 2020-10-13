@@ -10,61 +10,65 @@ var pg_pass = secrets.get("pg_pass");
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
-   		user: pg_user,
-  		host: pg_host,
-  		database: 'sos',
-  		password: pg_pass,
-  		port: 5432,
+    user: pg_user,
+    host: pg_host,
+    database: 'sos',
+    password: pg_pass,
+    port: 5432,
 });
 
-router.get('/', function(req,res){
-	  res.render('index');
+router.get('/', function (req, res) {
+    res.render('index');
 });
 
-router.get('/vehicles', function(req,res){
-	  res.render('vehicles');
+router.get('/vehicles', function (req, res) {
+    res.render('vehicles');
 });
 
-router.get('/monitoring', function(req,res){
-	  res.render('monitoring');
+router.get('/monitoring', function (req, res) {
+    res.render('monitoring');
 });
 
-router.get('/serviceaccounts', function(req,res){
-	  res.render('accounts');
+router.get('/serviceaccounts', function (req, res) {
+    res.render('accounts');
 });
 
-router.get('/notifications', function(req, res){
-	res.render('notifications');
+router.get('/notifications', function (req, res) {
+    res.render('notifications');
 });
 
-router.get('/emergencia', function(req, res){
-	res.render('emergencia');
+router.get('/emergencia', function (req, res) {
+    res.render('emergencia');
 });
 
-router.get('/newemergency', function(req, res){
-	res.render('new_emergency');
+router.get('/newemergency', function (req, res) {
+    res.render('new_emergency');
 });
 
-router.get('/checkemergency/', function(req, res){
-	res.render('checkemergency', { emergencia: req.query.id });
+router.get('/checkemergency/', function (req, res) {
+    res.render('checkemergency', {emergencia: req.query.id});
 })
 
-router.get('/editemergency/', function(req, res){
-	var sql = "SELECT reportes.status from centinela.reportes as reportes where id=$1";
-	pool.query(sql, [req.query.id], (error, results) => {
-	if (error) {
-    	res.render('emergencia');  
-    }
-    	if (results.rowCount > 0 && results.rows[0]["status"] == 1){
-    		res.render('edit_emergency', { emergencia: req.query.id });
-    	} else {
-    		res.render('checkemergency', { emergencia: req.query.id });
-    	}
-	});
+router.get('/editemergency/', function (req, res) {
+    var sql = "SELECT reportes.status from centinela.reportes as reportes where id=$1";
+    pool.query(sql, [req.query.id], (error, results) => {
+        if (error) {
+            res.render('emergencia');
+        }
+        if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
+            res.render('edit_emergency', {emergencia: req.query.id});
+        } else {
+            res.render('checkemergency', {emergencia: req.query.id});
+        }
+    });
 })
 
-router.get('/historico', function(req, res){
-	res.render('visorsql');
+router.get('/historico', function (req, res) {
+    res.render('visorsql');
+});
+
+router.get('/sirius', function (req, res) {
+    res.render('sirius/index');
 });
 
 module.exports = router;

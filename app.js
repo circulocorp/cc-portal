@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var api = require('./routes/api');
 var sql = require('./routes/pgroute');
+var sirius_route = require('./routes/sirius_route');
 var app = express();
 
 app.set("view options", {layout: true}); 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname, 'node_modules')));
 app.use('/', indexRouter);
 app.use('/api', api);
 app.use('/sql', sql);
+app.use('/sirius_route', sirius_route);
 //app.use(sessionChecker);
 app.use(function(req, res, next){
 	var err = new Error('Not Found');

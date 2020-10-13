@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+    <head>
+
+        <% include ../header.html %>
+
+    </head>
+
+    <body id="page-top" ng-controller="SiriusController">
+
+        <% include ../navbar.html %>
+
+        <div id="wrapper">
+
+
+            <% include ../sidebar.html %>
+
+            <div id="content-wrapper">
+
+                <div class="container-fluid">
+
+                    <!-- Breadcrumbs-->
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Nissan Connected Services / Infinity InTouch Services</a>
+                        </li>
+                    </ol>
+
+
+                    <div class="col-mb-12">
+
+                        <form>
+
+                            <div class="row">
+                                <div class="col-3">
+                                    <h3> Buscar Cliente:</h3>
+
+                                    <div class="form-group">
+                                        <label for="nombre">Nombre</label>
+                                        <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="apellido">Apellido</label>
+                                        <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
+                                    </div>
+
+                                    <!--valid-feedback is-valid / invalid-feedback is-invalid-->
+                                    <div id="mensaje" class="invalid-feedback" style="display: none">
+
+                                    </div>
+                                    <br/>
+
+                                    <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Buscar</button>
+
+
+
+                                </div>
+
+                                <div class="col-9" id="divMensajeGeneral" style="display: none">
+                                    <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none">
+
+                                </div>
+                                </div>
+
+                                <div class="col-9" style="display: none" id="tblClientes">
+                                    <h3> Clientes encontrados</h3>
+                                    <table ng-table="tableParams" class="table table-striped" show-filter="true" cellspacing="0" width="100%">
+                                        <tbody>
+                                            <tr ng-repeat="cliente in $data" ng-click="seleccionarCliente(cliente)">                                               
+                                                <td data-title="'Nombre'" >{{ cliente.primarySubscriber.firstName}}</td>                                                                                            
+                                                <td data-title="'Primer Apellido'" >{{ cliente.primarySubscriber.lastName}}</td>                                                                                            
+                                                <td data-title="'Segundo Apellido'" >{{ cliente.primarySubscriber.secondLastName}}</td>                                                                                            
+                                                <td data-title="'Email'" >{{ cliente.primarySubscriber.contactPoints.emails[0].value}}</td>                                                                                            
+                                                <td data-title="'Teléfono'" >{{ cliente.primarySubscriber.contactPoints.phones[0].value}}</td>                                                                                            
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+
+                        </form>
+                    </div>
+
+
+                    <!-- /.container-fluid -->
+
+                    <!-- Sticky Footer -->
+                    <footer class="sticky-footer">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright © </span>
+                            </div>
+                        </div>
+                    </footer>
+
+                </div>
+                <!-- /.content-wrapper -->
+
+            </div>
+            <!-- /#wrapper -->
+
+            <!-- Scroll to Top Button-->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+
+
+            <% include ../scripts.html %>
+    </body>
+</html>
