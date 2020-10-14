@@ -3,12 +3,22 @@ var app = angular.module('ccportal');
 
 //Sirius Controller
 app.controller('SiriusController', function ($scope, NgTableParams, $http) {
+
     $scope.cliente = {};
     $scope.token = {};
     $scope.listaClientes = [];
-    $scope.respuestaBusquedaCleinte = {};
+    $scope.respuestaBusquedaCliente = {};
+
+    $scope.clienteSeleccionado = {};
+    $scope.vehiculos = [];
+    $scope.vehiculoSeleccionado = {};
+
+    $scope.numeroVin;
+
 
     $scope.consultarCliente = function () {
+
+
 
         $('#nombre').removeClass('is-invalid');
         $('#apellido').removeClass('is-invalid');
@@ -28,6 +38,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
         $('#divMensajeGeneral').hide();
 
         $('#tblClientes').hide();
+        $('#tblVehiculos').hide();
+        $('#divAcciones').hide();
 
         var nombre = $scope.cliente.nombre;
         var apellido = $scope.cliente.apellido;
@@ -55,6 +67,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
             mensaje.show();
 
 
+
+
             esCorrecto = false;
         } else {
             console.log("entro al else");
@@ -71,12 +85,16 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                     mensaje.text('El email no tiene el formato correcto');
                     mensaje.show();
 
+                    $('#Searching_Modal').modal('hide');
+
                     esCorrecto = false;
                 }
             }
         }
 
         if (esCorrecto) {
+            $('#Searching_Modal').modal('show');
+
             $http.get('./sirius_route/obtenberToken').then(function (response) {
                 //var respuestaToken = JSON.stringify(response)
                 console.log("RESPONSE EN EL CONTROLLER: " + response);
@@ -98,21 +116,32 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                                 if (Array.isArray(res['data'])) {
                                     $scope.listaClientes = res['data'];
                                     if (typeof ($scope.listaClientes) !== 'undefined' && $scope.listaClientes !== null && $scope.listaClientes.length !== null && $scope.listaClientes.length > 0) {
+
+                                        $scope.listaClientes.forEach(function (valor, indice, array) {
+                                            valor.isSelected = false;
+                                        });
+
                                         $scope.tableParams = new NgTableParams({filter: {}}, {dataset: $scope.listaClientes});
                                         $('#tblClientes').show();
+
+                                        $('#Searching_Modal').modal('hide');
                                     } else {
                                         mensajeGeneral.addClass('alert alert-danger');
                                         mensajeGeneral.text('No se encontraron resultados');
                                         mensajeGeneral.show();
                                         divMensajeGeneral.show();
+
+                                        $('#Searching_Modal').modal('hide');
                                     }
                                 } else {
-                                    $scope.respuestaBusquedaCleinte = res['data'];
-                                    if ($scope.respuestaBusquedaCleinte.code !== null && $scope.respuestaBusquedaCleinte.code !== '') {
+                                    $scope.respuestaBusquedaCliente = res['data'];
+                                    if ($scope.respuestaBusquedaCliente.code !== null && $scope.respuestaBusquedaCliente.code !== '') {
                                         mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text('Error: ' + $scope.respuestaBusquedaCleinte.status + ' ' + $scope.respuestaBusquedaCleinte.message);
+                                        mensajeGeneral.text('Error: ' + $scope.respuestaBusquedaCliente.status + ' ' + $scope.respuestaBusquedaCliente.message);
                                         mensajeGeneral.show();
                                         divMensajeGeneral.show();
+
+                                        $('#Searching_Modal').modal('hide');
                                     }
                                 }
 
@@ -121,6 +150,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                                 mensajeGeneral.text('Error: ' + res['status'] + ' ' + res['message']);
                                 mensajeGeneral.show();
                                 divMensajeGeneral.show();
+
+                                $('#Searching_Modal').modal('hide');
                             }
                         });
 
@@ -129,12 +160,16 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                         mensajeGeneral.text('No se pudo encontrar el token de acceso.<br/>' + 'Error: ' + response['status'] + ' ' + response['message']);
                         mensajeGeneral.show();
                         divMensajeGeneral.show();
+
+                        $('#Searching_Modal').modal('hide');
                     }
                 } else {
                     mensajeGeneral.addClass('alert alert-danger');
                     mensajeGeneral.text('Ocurrió  un problema al realizar la petición.<br/>' + 'Error: ' + response['status'] + ' ' + response['message']);
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
+
+                    $('#Searching_Modal').modal('hide');
                 }
 
             });
@@ -144,7 +179,71 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
     };
 
     $scope.seleccionarCliente = function (data) {
-        console.log("CLIENTE SELECCIONADO: "+JSON.stringify(data));
+        $scope.clienteSeleccionado = {};
+        $scope.vehiculos = [];
+
+        $('#tblVehiculos').hide();
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+        $('#divAcciones').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        console.log("CLIENTE SELECCIONADO: " + JSON.stringify(data));
+
+        $scope.listaClientes.forEach(function (valor, indice, array) {
+            if (!valor.isSelected && data === valor) {
+                console.log("caundo los objetos con iguales");
+                valor.isSelected = true;
+
+                $scope.clienteSeleccionado = data;
+
+                $scope.vehiculos = $scope.clienteSeleccionado.vehicles;
+
+                if (typeof ($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
+
+
+                    $scope.vehiculos.forEach(function (valor, indice, array) {
+                        valor.isSelected = false;
+                    });
+                    $scope.tableParamsVeviculos = new NgTableParams({filter: {}}, {dataset: $scope.vehiculos});
+
+                    $('#tblVehiculos').show();
+                    $('#divAcciones').show();
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text('El cliente seleccionado no tiene vehículos asignados.');
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                }
+
+            } else {
+                valor.isSelected = false;
+            }
+
+        });
+
+
+
+        $scope.tableParams = new NgTableParams({filter: {}}, {dataset: $scope.listaClientes});
+    };
+
+    $scope.seleccionarVehiculo = function (data) {
+        console.log("VEHICULO SELECCIONADO: " + JSON.stringify(data));
+
+        $scope.vehiculos.forEach(function (valor, indice, array) {
+            if (!valor.isSelected && data === valor) {
+                $scope.vehiculoSeleccionado = data;
+                $scope.vehiculoSeleccionado.isSelected = true;
+            } else {
+                valor.isSelected = false;
+                $scope.vehiculoSeleccionado = {};
+            }
+        });
+
     };
 });
 

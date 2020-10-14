@@ -34,54 +34,102 @@
 
                             <div class="row">
                                 <div class="col-3">
-                                    <h3> Buscar Cliente:</h3>
+                                    <div class="row col-12">
+                                        <h4> Buscar Cliente:</h4>
 
-                                    <div class="form-group">
-                                        <label for="nombre">Nombre</label>
-                                        <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                        <div class="form-group">
+                                            <label for="nombre">Nombre</label>
+                                            <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="apellido">Apellido</label>
+                                            <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
+                                        </div>
+
+                                        <!--valid-feedback is-valid / invalid-feedback is-invalid-->
+                                        <div id="mensaje" class="invalid-feedback" style="display: none">
+
+                                        </div>
+                                        <br/>
+
+                                        <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Buscar</button>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="apellido">Apellido</label>
-                                        <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
+
+                                    <div class="row col-12" style="padding-top: 30px; display: none" id="divAcciones">
+                                        <h4> Acciones vehículo:</h4>
+
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="nombre" ng-model="vehiculoSeleccionado.vin" placeholder="Numero VIN del vehículo" required="true">
+                                        </div>
+
+                                        <div class="col-12" style="padding-bottom: 10px">
+                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Activar Localizacion</button>
+                                        </div>
+                                        <div class="col-12" style="padding-bottom: 10px">
+                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Activar Bloqueo</button>
+                                        </div>
+                                        <div class="col-12" style="padding-bottom: 10px">
+                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Aplicar Localización</button>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Cancelar Localización</button>
+                                        </div>
+
                                     </div>
-                                    <div class="form-group">
-                                        <label for="email">Email</label>
-                                        <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
-                                    </div>
-
-                                    <!--valid-feedback is-valid / invalid-feedback is-invalid-->
-                                    <div id="mensaje" class="invalid-feedback" style="display: none">
-
-                                    </div>
-                                    <br/>
-
-                                    <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Buscar</button>
-
-
 
                                 </div>
 
-                                <div class="col-9" id="divMensajeGeneral" style="display: none">
-                                    <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none">
+
+                                <div class="col-9" >
+
+
+                                    <div class="row" id="divMensajeGeneral" style="display: none">
+                                        <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
+                                    </div>
+
+                                    <div class="row" style="display: none" id="tblClientes">
+                                        <h4> Clientes encontrados</h4>
+                                        <table ng-table="tableParams" class="table table-striped table-dark" >
+                                            <tbody>
+                                                <tr ng-repeat="cliente in $data" ng-click="seleccionarCliente(cliente)" > 
+                                                    <td> 
+                                                        <input type="checkbox" ng-click="seleccionarCliente(cliente)" ng-model="cliente.isSelected" ng-checked="cliente.isSelected"/>
+                                                    </td> 
+                                                    <td data-title="'Nombre'" >{{ cliente.primarySubscriber.firstName}}</td>                                                                                            
+                                                    <td data-title="'Primer Apellido'" >{{ cliente.primarySubscriber.lastName}}</td>                                                                                            
+                                                    <td data-title="'Segundo Apellido'" >{{ cliente.primarySubscriber.secondLastName}}</td>                                                                                            
+                                                    <td data-title="'Email'" >{{ cliente.primarySubscriber.contactPoints.emails[0].value}}</td>                                                                                            
+                                                    <td data-title="'Teléfono'" >{{ cliente.primarySubscriber.contactPoints.phones[0].value}}</td>                                                                                            
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="row" style="display: none; padding-top: 30px" id="tblVehiculos">
+                                        <h4> Vehículos del cliente: <span style="text-decoration: underline #0069D9">{{clienteSeleccionado.primarySubscriber.firstName}} {{clienteSeleccionado.primarySubscriber.lastName}} {{clienteSeleccionado.primarySubscriber.secondLastName}}</span> </h4>
+                                        <table ng-table="tableParamsVeviculos" class="table table-striped " >
+                                            <tbody>
+                                                <tr ng-repeat="vehiculo in $data" ng-click="seleccionarVehiculo(vehiculo)">
+                                                    <td> 
+                                                        <input type="checkbox" ng-click="seleccionarVehiculo(vehiculo)" ng-model="vehiculo.isSelected" ng-checked="vehiculo.isSelected"/>
+                                                    </td> 
+                                                    <td data-title="'VIN'" >{{ vehiculo.vin}}</td>                                                                                            
+                                                    <td data-title="'Marca'" >{{ vehiculo.makeName}}</td>                                                                                            
+                                                    <td data-title="'Modelo'" >{{ vehiculo.modelName}}</td>                                                                                            
+                                                    <td data-title="'Año'" >{{ vehiculo.modelYear}}</td>                                                                                            
+                                                    <td data-title="'Color'" >{{ vehiculo.exteriorColor}}</td>                                                                                            
+                                                    <td data-title="'Estatus'" >{{ vehiculo.status}}</td>                                                                                            
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
                                 </div>
-                                </div>
 
-                                <div class="col-9" style="display: none" id="tblClientes">
-                                    <h3> Clientes encontrados</h3>
-                                    <table ng-table="tableParams" class="table table-striped" show-filter="true" cellspacing="0" width="100%">
-                                        <tbody>
-                                            <tr ng-repeat="cliente in $data" ng-click="seleccionarCliente(cliente)">                                               
-                                                <td data-title="'Nombre'" >{{ cliente.primarySubscriber.firstName}}</td>                                                                                            
-                                                <td data-title="'Primer Apellido'" >{{ cliente.primarySubscriber.lastName}}</td>                                                                                            
-                                                <td data-title="'Segundo Apellido'" >{{ cliente.primarySubscriber.secondLastName}}</td>                                                                                            
-                                                <td data-title="'Email'" >{{ cliente.primarySubscriber.contactPoints.emails[0].value}}</td>                                                                                            
-                                                <td data-title="'Teléfono'" >{{ cliente.primarySubscriber.contactPoints.phones[0].value}}</td>                                                                                            
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                </div>
                             </div>
 
 
@@ -112,6 +160,9 @@
             </a>
 
 
-            <% include ../scripts.html %>
+        </div>
+
+        <% include modal.html %>
+        <% include ../scripts.html %>
     </body>
 </html>
