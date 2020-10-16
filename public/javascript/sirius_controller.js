@@ -1,13 +1,13 @@
 
-var app = angular.module('ccportal');
+var app = angular.module('ccportal', ['ngTable']);
 
 //Sirius Controller
-app.controller('SiriusController', function ($scope, NgTableParams, $http) {
+app.controller('SiriusController', function ($scope, NgTableParams, $http, SiriusService) {
 
     $scope.cliente = {};
-    $scope.token = {};
+    //$scope.token = {};
     $scope.listaClientes = [];
-    $scope.respuestaBusquedaCliente = {};
+    //$scope.respuestaBusquedaCliente = {};
 
     $scope.clienteSeleccionado = {};
     $scope.vehiculos = [];
@@ -15,10 +15,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
 
     $scope.numeroVin;
 
-
     $scope.consultarCliente = function () {
-
-
 
         $('#nombre').removeClass('is-invalid');
         $('#apellido').removeClass('is-invalid');
@@ -63,11 +60,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
             $('#email').addClass('is-invalid');
 
             mensaje.addClass('invalid-feedback');
-            mensaje.text('Debe ingresar el menos un dato de búsqueda');
+            mensaje.text('¡Debe ingresar el menos un dato de búsqueda!');
             mensaje.show();
-
-
-
 
             esCorrecto = false;
         } else {
@@ -82,10 +76,11 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                     $('#email').addClass('is-invalid');
 
                     mensaje.addClass('invalid-feedback');
-                    mensaje.text('El email no tiene el formato correcto');
+                    mensaje.text('¡El email no tiene el formato correcto!');
                     mensaje.show();
 
                     $('#Searching_Modal').modal('hide');
+
 
                     esCorrecto = false;
                 }
@@ -95,79 +90,54 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
         if (esCorrecto) {
             $('#Searching_Modal').modal('show');
 
-            $http.get('./sirius_route/obtenberToken').then(function (response) {
-                //var respuestaToken = JSON.stringify(response)
-                console.log("RESPONSE EN EL CONTROLLER: " + response);
 
-                if (response['status'] === 200) {
-                    $scope.token = response['data'];
+            //Consultamos el token SXMIDMLogin
+            SiriusService.consultaTokenSXMIDMLogin().then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
 
-                    if ($scope.token !== null && $scope.token.access_token) {
-                        $scope.cliente.token = $scope.token.access_token;
+                if (!response.error) {
+                    //$scope.token = response.token;
+                    console.log("TOKEN EN EL CONTROLLER: " + response.token);
 
-                        console.log("TOKEN: " + $scope.token.access_token);
+                    //Consultamos el cliente
+                    $scope.cliente.token = response.token;
 
+                    SiriusService.consultaCliente($scope.cliente).then(response => {
+                        console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
 
-                        $http.post('./sirius_route/consultarCliente', $scope.cliente).then(function (res) {
-                            console.log("RESPUESTA CONSULTA DE CLIENTE: " + JSON.stringify(res));
+                        if (!response.error) {
+                            $scope.listaClientes = response.lista;
+                            console.log("LISTA EN EL CONTROLLER: " + JSON.stringify($scope.listaClientes));
 
-                            if (res['status'] === 200) {
+                            $scope.tableParams = new NgTableParams({}, {dataset: $scope.listaClientes});
+                            $scope.tableParams.reload();
 
-                                if (Array.isArray(res['data'])) {
-                                    $scope.listaClientes = res['data'];
-                                    if (typeof ($scope.listaClientes) !== 'undefined' && $scope.listaClientes !== null && $scope.listaClientes.length !== null && $scope.listaClientes.length > 0) {
+                            $('#tblClientes').show();
+                            $('#Searching_Modal').modal('hide');
 
-                                        $scope.listaClientes.forEach(function (valor, indice, array) {
-                                            valor.isSelected = false;
-                                        });
-
-                                        $scope.tableParams = new NgTableParams({filter: {}}, {dataset: $scope.listaClientes});
-                                        $('#tblClientes').show();
-
-                                        $('#Searching_Modal').modal('hide');
-                                    } else {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text('No se encontraron resultados');
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-
-                                        $('#Searching_Modal').modal('hide');
-                                    }
-                                } else {
-                                    $scope.respuestaBusquedaCliente = res['data'];
-                                    if ($scope.respuestaBusquedaCliente.code !== null && $scope.respuestaBusquedaCliente.code !== '') {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text('Error: ' + $scope.respuestaBusquedaCliente.status + ' ' + $scope.respuestaBusquedaCliente.message);
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-
-                                        $('#Searching_Modal').modal('hide');
-                                    }
-                                }
-
+                        } else {
+                            mensajeGeneral.addClass('alert alert-danger');
+                            if (response.status === 1002) {
+                                mensajeGeneral.text(response.message);
                             } else {
-                                mensajeGeneral.addClass('alert alert-danger');
-                                mensajeGeneral.text('Error: ' + res['status'] + ' ' + res['message']);
-                                mensajeGeneral.show();
-                                divMensajeGeneral.show();
-
-                                $('#Searching_Modal').modal('hide');
+                                mensajeGeneral.text('Ocurrio un problema al consultar el cliente.\n' + 'Error: ' + response.status + ' ' + response.message);
                             }
-                        });
 
-                    } else {
-                        mensajeGeneral.addClass('alert alert-danger');
-                        mensajeGeneral.text('No se pudo encontrar el token de acceso.<br/>' + 'Error: ' + response['status'] + ' ' + response['message']);
-                        mensajeGeneral.show();
-                        divMensajeGeneral.show();
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
 
-                        $('#Searching_Modal').modal('hide');
-                    }
+                            $('#Searching_Modal').modal('hide');
+                        }
+
+                    });
+
                 } else {
                     mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió  un problema al realizar la petición.<br/>' + 'Error: ' + response['status'] + ' ' + response['message']);
+                    mensajeGeneral.text('Ocurrio un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
 
                     $('#Searching_Modal').modal('hide');
                 }
@@ -181,6 +151,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
     $scope.seleccionarCliente = function (data) {
         $scope.clienteSeleccionado = {};
         $scope.vehiculos = [];
+        $scope.vehiculoSeleccionado = {};
 
         $('#tblVehiculos').hide();
         $('#mensajeGeneral').removeClass('alert alert-danger');
@@ -188,6 +159,14 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
         $('#mensajeGeneral').hide();
         $('#divMensajeGeneral').hide();
         $('#divAcciones').hide();
+
+        $('#vin').removeClass('is-invalid');
+        $('#vin').removeClass('is-valid');
+
+        $('#mensajeVin').removeClass('invalid-feedback');
+        $('#mensajeVin').removeClass('valid-feedback');
+        $('#mensajeVin').text('');
+        $('#mensajeVin').hide();
 
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
@@ -205,11 +184,12 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
 
                 if (typeof ($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
 
-
                     $scope.vehiculos.forEach(function (valor, indice, array) {
                         valor.isSelected = false;
                     });
+
                     $scope.tableParamsVeviculos = new NgTableParams({filter: {}}, {dataset: $scope.vehiculos});
+                    $scope.tableParams.reload();
 
                     $('#tblVehiculos').show();
                     $('#divAcciones').show();
@@ -218,6 +198,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
                     mensajeGeneral.text('El cliente seleccionado no tiene vehículos asignados.');
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
                 }
 
             } else {
@@ -226,13 +207,20 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
 
         });
 
-
-
         $scope.tableParams = new NgTableParams({filter: {}}, {dataset: $scope.listaClientes});
     };
 
     $scope.seleccionarVehiculo = function (data) {
         console.log("VEHICULO SELECCIONADO: " + JSON.stringify(data));
+        $scope.vehiculoSeleccionado = {};
+
+        $('#vin').removeClass('is-invalid');
+        $('#vin').removeClass('is-valid');
+
+        $('#mensajeVin').removeClass('invalid-feedback');
+        $('#mensajeVin').removeClass('valid-feedback');
+        $('#mensajeVin').text('');
+        $('#mensajeVin').hide();
 
         $scope.vehiculos.forEach(function (valor, indice, array) {
             if (!valor.isSelected && data === valor) {
@@ -245,5 +233,330 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http) {
         });
 
     };
+
+    $scope.activarLocalizacion = function () {
+        $scope.token_sxm_idm_login = {};
+        $scope.token_sxm_cloud = {};
+
+        $('#vin').removeClass('is-invalid');
+        $('#vin').removeClass('is-valid');
+
+        $('#mensajeVin').removeClass('invalid-feedback');
+        $('#mensajeVin').removeClass('valid-feedback');
+        $('#mensajeVin').text('');
+        $('#mensajeVin').hide();
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').removeClass('alert alert-success');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var vin = $scope.vehiculoSeleccionado.vin;
+        var mensajeVin = $('#mensajeVin');
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        var esCorrecto = true;
+
+        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+
+            $('#vin').addClass('is-invalid');
+
+            mensajeVin.addClass('invalid-feedback');
+            mensajeVin.text('Debe ingresar el número VIN');
+            mensajeVin.show();
+
+            esCorrecto = false;
+        } else {
+            if (vin.length !== 17) {
+                $('#vin').addClass('is-invalid');
+
+                mensajeVin.addClass('invalid-feedback');
+                mensajeVin.text('El numero VIN debe de ser de 17 caracteres');
+                mensajeVin.show();
+
+                esCorrecto = false;
+            }
+
+        }
+
+        console.log("VIN: " + vin);
+
+        if (esCorrecto) {
+            $('#Searching_Modal').modal('show');
+
+            //Consultamos el token SXMIDMLogin
+            SiriusService.consultaTokenSXMIDMLogin().then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                if (!response.error) {
+                    var tokenSXMIDMLogin = response.token;
+                    console.log("TOKEN EN EL CONTROLLER: " + tokenSXMIDMLogin);
+
+                    //Consultamos el token SXMCloud
+                    SiriusService.consultaTokenSXMCloud().then(response => {
+                        console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                        if (!response.error) {
+                            var tokenSXMCloud = response.token;
+                            console.log("TOKEN EN EL CONTROLLER: " + tokenSXMCloud);
+
+                            var vinRequest = {};
+                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
+                            vinRequest.tokenSXMCloud = tokenSXMCloud;
+                            vinRequest.vin = vin;
+
+                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
+                                console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                                if (!response.error) {
+
+                                    if (response.status === 1005) {
+                                        //Aqui activamos la localizacion
+                                        SiriusService.activarLocalizacion(vinRequest).then(response => {
+                                            console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                                            if (!response.error) {
+                                                var svcReqId = response.svcReqId;
+                                                console.log("ID EN EL CONTROLLER: " + svcReqId);
+
+                                                mensajeGeneral.addClass('alert alert-success');
+                                                mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
+                                                mensajeGeneral.show();
+                                                divMensajeGeneral.show();
+                                                window.scrollTo(0, 0);
+
+                                                $('#Searching_Modal').modal('hide');
+                                            } else {
+                                                mensajeGeneral.addClass('alert alert-danger');
+                                                mensajeGeneral.text('Ocurrió un problema al activar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                                mensajeGeneral.show();
+                                                divMensajeGeneral.show();
+                                                window.scrollTo(0, 0);
+
+                                                $('#Searching_Modal').modal('hide');
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    mensajeGeneral.addClass('alert alert-danger');
+
+                                    if (response.status === 1003 || response.status === 1004) {
+                                        mensajeGeneral.text(response.message);
+                                    } else {
+                                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                    }
+
+
+                                    mensajeGeneral.show();
+                                    divMensajeGeneral.show();
+                                    window.scrollTo(0, 0);
+
+                                    $('#Searching_Modal').modal('hide');
+                                }
+                            });
+
+
+                        } else {
+                            mensajeGeneral.addClass('alert alert-danger');
+                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
+
+                            $('#Searching_Modal').modal('hide');
+                        }
+                    });
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $('#Searching_Modal').modal('hide');
+                }
+            });
+
+        }
+
+    };
+
+    $scope.activarBloqueo = function () {
+
+    };
+
+    $scope.aplazarLocalizacion = function () {
+
+    };
+
+    $scope.cancelarLocalizacion = function () {
+        $scope.token_sxm_idm_login = {};
+        $scope.token_sxm_cloud = {};
+
+        $('#vin').removeClass('is-invalid');
+        $('#vin').removeClass('is-valid');
+
+        $('#mensajeVin').removeClass('invalid-feedback');
+        $('#mensajeVin').removeClass('valid-feedback');
+        $('#mensajeVin').text('');
+        $('#mensajeVin').hide();
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').removeClass('alert alert-success');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var vin = $scope.vehiculoSeleccionado.vin;
+        var mensajeVin = $('#mensajeVin');
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        var esCorrecto = true;
+
+        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+
+            $('#vin').addClass('is-invalid');
+
+            mensajeVin.addClass('invalid-feedback');
+            mensajeVin.text('Debe ingresar el número VIN');
+            mensajeVin.show();
+
+            esCorrecto = false;
+        } else {
+            if (vin.length !== 17) {
+                $('#vin').addClass('is-invalid');
+
+                mensajeVin.addClass('invalid-feedback');
+                mensajeVin.text('El numero VIN debe de ser de 17 caracteres');
+                mensajeVin.show();
+
+                esCorrecto = false;
+            }
+
+        }
+
+        console.log("VIN: " + vin);
+
+        if (esCorrecto) {
+            $('#Searching_Modal').modal('show');
+
+            //Consultamos el token SXMIDMLogin
+            SiriusService.consultaTokenSXMIDMLogin().then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                if (!response.error) {
+                    var tokenSXMIDMLogin = response.token;
+                    console.log("TOKEN EN EL CONTROLLER: " + tokenSXMIDMLogin);
+
+                    //Consultamos el token SXMCloud
+                    SiriusService.consultaTokenSXMCloud().then(response => {
+                        console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                        if (!response.error) {
+                            var tokenSXMCloud = response.token;
+                            console.log("TOKEN EN EL CONTROLLER: " + tokenSXMCloud);
+
+                            var vinRequest = {};
+                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
+                            vinRequest.tokenSXMCloud = tokenSXMCloud;
+                            vinRequest.vin = vin;
+
+                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
+                                console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                                if (!response.error) {
+                                    if (response.status === 1005) {
+                                        mensajeGeneral.addClass('alert alert-danger');
+                                        mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                        mensajeGeneral.show();
+                                        divMensajeGeneral.show();
+                                        window.scrollTo(0, 0);
+
+                                        $('#Searching_Modal').modal('hide');
+                                    } 
+
+                                } else {
+
+                                    if (response.status === 1004) {
+                                        //Aqui cancelamos la localizacion
+                                        SiriusService.cancelarLocalizacion(vinRequest).then(response => {
+                                            console.log("RESPUESTA EN EL CONTROLLER: " + JSON.stringify(response));
+
+                                            if (!response.error) {
+                                                var svcReqId = response.svcReqId;
+                                                console.log("ID EN EL CONTROLLER: " + svcReqId);
+
+                                                mensajeGeneral.addClass('alert alert-success');
+                                                mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
+                                                mensajeGeneral.show();
+                                                divMensajeGeneral.show();
+                                                window.scrollTo(0, 0);
+
+                                                $('#Searching_Modal').modal('hide');
+                                            } else {
+                                                mensajeGeneral.addClass('alert alert-danger');
+                                                mensajeGeneral.text('Ocurrió un problema al cancelar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                                mensajeGeneral.show();
+                                                divMensajeGeneral.show();
+                                                window.scrollTo(0, 0);
+
+                                                $('#Searching_Modal').modal('hide');
+                                            }
+                                        });
+
+                                    } else {
+                                        mensajeGeneral.addClass('alert alert-danger');
+
+                                        if (response.status === 1003) {
+                                            mensajeGeneral.text(response.message);
+                                        } else {
+                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                        }
+
+
+                                        mensajeGeneral.show();
+                                        divMensajeGeneral.show();
+                                        window.scrollTo(0, 0);
+
+                                        $('#Searching_Modal').modal('hide');
+                                    }
+
+                                }
+                            });
+
+
+                        } else {
+                            mensajeGeneral.addClass('alert alert-danger');
+                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
+
+                            $('#Searching_Modal').modal('hide');
+                        }
+                    });
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $('#Searching_Modal').modal('hide');
+                }
+            });
+
+        }
+
+    };
+
+
 });
+
+
 

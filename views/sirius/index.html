@@ -37,46 +37,54 @@
                                     <div class="row col-12">
                                         <h4> Buscar Cliente:</h4>
 
-                                        <div class="form-group">
+                                        <div class="col-12 form-group">
                                             <label for="nombre">Nombre</label>
                                             <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
                                         </div>
-                                        <div class="form-group">
+                                        <div class="col-12 form-group">
                                             <label for="apellido">Apellido</label>
                                             <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
                                         </div>
-                                        <div class="form-group">
+                                        <div class="col-12 form-group">
                                             <label for="email">Email</label>
                                             <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
                                         </div>
 
                                         <!--valid-feedback is-valid / invalid-feedback is-invalid-->
-                                        <div id="mensaje" class="invalid-feedback" style="display: none">
+                                        <div id="mensaje" class="col-12 invalid-feedback" style="display: none">
 
                                         </div>
-                                        <br/>
+                                        <br/><br/>
 
-                                        <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Buscar</button>
+                                        <div class="col-12">
+                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" style="float: right">Buscar</button>
+                                        </div>
+
                                     </div>
 
                                     <div class="row col-12" style="padding-top: 30px; display: none" id="divAcciones">
                                         <h4> Acciones vehículo:</h4>
 
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="nombre" ng-model="vehiculoSeleccionado.vin" placeholder="Numero VIN del vehículo" required="true">
+                                        <div class="col-12 form-group">
+                                            <input type="text" class="form-control" id="vin" ng-model="vehiculoSeleccionado.vin" placeholder="Numero VIN del vehículo" required="true">
                                         </div>
+                                        <!--valid-feedback is-valid / invalid-feedback is-invalid-->
+                                        <div id="mensajeVin" class="col-12 invalid-feedback" style="display: none; padding-bottom: 10px">
+
+                                        </div>
+                                        <br/><br/>
 
                                         <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Activar Localizacion</button>
+                                            <button type="button" class="btn btn-primary" ng-click="activarLocalizacion()" style="float: right">Activar Localizacion</button>
                                         </div>
                                         <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Activar Bloqueo</button>
+                                            <button type="button" class="btn btn-primary" ng-click="activarBloqueo()" style="float: right">Activar Bloqueo</button>
                                         </div>
                                         <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Aplicar Localización</button>
+                                            <button type="button" class="btn btn-primary" ng-click="aplazarLocalizacion()" style="float: right">Aplazar Localización</button>
                                         </div>
                                         <div class="col-12">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" >Cancelar Localización</button>
+                                            <button type="button" class="btn btn-primary" ng-click="cancelarLocalizacion()" style="float: right">Cancelar Localización</button>
                                         </div>
 
                                     </div>
@@ -87,7 +95,7 @@
                                 <div class="col-9" >
 
 
-                                    <div class="row" id="divMensajeGeneral" style="display: none">
+                                    <div class="row" id="divMensajeGeneral" style="display: none; white-space: pre-line;">
                                         <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
                                     </div>
 
