@@ -23,12 +23,10 @@ var TENANT_ID_SMX_CLOUD = 'Nissanmx';
 var CV_APP_TYPE = "OTHER";
 var CV_API_KEY = "C37712F28F9F418E9580033D4601987E";
 
-
 //Variables para las acciones sobre el vehiculo
 var VIN_EXECUTE_TRACKER = "";
 var URL_EXECUTE_TRACKER = "https://rts.cv000-telematics.net/telematicsservices/v1/vehicles/";
 var X_API_KEY_EXECUTE_TRACKER = "{{apikey}}";
-var CV_SESSIONID_EXECUTE_TRACKER = "3DB1ADA0-E717-11EA-8C04-0A58A9FEAC2A";
 
 router.get('/SXM-IDM-Login', function (req, res, next) {
 
@@ -45,7 +43,7 @@ router.get('/SXM-IDM-Login', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [SXM-IDM-Login]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [SXM-IDM-Login]: " + response.body);
             res.send(response.body);
         }
     });
@@ -73,7 +71,7 @@ router.get('/SXM-Cloud', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [SXM-Cloud]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [SXM-Cloud]: " + response.body);
             res.send(response.body);
         }
     });
@@ -109,7 +107,7 @@ router.post('/consultarCliente', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [consultarCliente]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [consultarCliente]: " + response.body);
             res.send(response.body);
         }
     });
@@ -121,7 +119,7 @@ router.post('/estatusLocalizacion', function (req, res, next) {
 
     var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
     var token_sxm_cloud = vinRequest.tokenSXMCloud;
-    VIN_EXECUTE_TRACKER = "1N6AA1E50MZ502498"; //vinRequest.vin;
+    VIN_EXECUTE_TRACKER = vinRequest.vin;
 
     var options = {
         'method': 'GET',
@@ -137,7 +135,7 @@ router.post('/estatusLocalizacion', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [estatusLocalizacion]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [estatusLocalizacion]: " + response.body);
             res.send(response.body);
         }
     });
@@ -149,7 +147,9 @@ router.post('/activarLocalizacion', function (req, res, next) {
 
     var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
     var token_sxm_cloud = vinRequest.tokenSXMCloud;
-    VIN_EXECUTE_TRACKER = "1N6AA1E50MZ502498"; //vinRequest.vin;
+
+    VIN_EXECUTE_TRACKER = vinRequest.vin;
+    var session_id = vinRequest.sessionId;
 
     var options = {
         'method': 'POST',
@@ -157,7 +157,8 @@ router.post('/activarLocalizacion', function (req, res, next) {
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token_sxm_cloud,
-            'AccessToken': token_sxm_idm_login
+            'AccessToken': token_sxm_idm_login,
+            'CV-SessionId': session_id
         },
         body: JSON.stringify({'track': {'type': 'Theft', 'duration': 'PT00H06M', 'state': 'Active'}})
 
@@ -166,7 +167,7 @@ router.post('/activarLocalizacion', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [activarLocalizacion]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [activarLocalizacion]: " + response.body);
             res.send(response.body);
         }
     });
@@ -178,7 +179,8 @@ router.post('/cancelarLocalizacion', function (req, res, next) {
 
     var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
     var token_sxm_cloud = vinRequest.tokenSXMCloud;
-    VIN_EXECUTE_TRACKER = "1N6AA1E50MZ502498"; //vinRequest.vin;
+
+    VIN_EXECUTE_TRACKER = vinRequest.vin;
 
     var options = {
         'method': 'DELETE',
@@ -193,7 +195,7 @@ router.post('/cancelarLocalizacion', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [cancelarLocalizacion]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [cancelarLocalizacion]: " + response.body);
             res.send(response.body);
         }
     });
@@ -201,17 +203,21 @@ router.post('/cancelarLocalizacion', function (req, res, next) {
 
 router.post('/bloquearLocalizacion', function (req, res, next) {
 
-    var token_sxm_idm_login = req.token_sxm_idm_login;
-    var token_sxm_cloud = req.token_sxm_cloud;
-    VIN_EXECUTE_TRACKER = req.vin;
+    var vinRequest = req.body;
+
+    var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
+    var token_sxm_cloud = vinRequest.tokenSXMCloud;
+
+    VIN_EXECUTE_TRACKER = vinRequest.vin;
+    var session_id = vinRequest.sessionId;
 
     var options = {
         'method': 'PUT',
-        'url': URL_EXECUTE_TRACKER,
+        'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token_sxm_cloud,
-            'CV-SessionId': CV_SESSIONID_EXECUTE_TRACKER,
+            'CV-SessionId': session_id,
             'x-api-key': X_API_KEY_EXECUTE_TRACKER,
             'AccessToken': token_sxm_idm_login
         },
@@ -222,11 +228,43 @@ router.post('/bloquearLocalizacion', function (req, res, next) {
         if (error) {
             throw new Error(error);
         } else {
-            console.log("RESPONSE EN EL ROUTE [bloquearLocalizacion]: " + response.body);
+            console.log("RESPUESTA EN EL ROUTE [bloquearLocalizacion]: " + response.body);
             res.send(response.body);
         }
     });
 });
 
+router.post('/aplazarLocalizacion', function (req, res, next) {
+
+    var vinRequest = req.body;
+
+    var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
+    var token_sxm_cloud = vinRequest.tokenSXMCloud;
+    var svc_req_id = vinRequest.svcReqId;
+
+    VIN_EXECUTE_TRACKER = vinRequest.vin;
+
+    var options = {
+        'method': 'PUT',
+        'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
+        'headers': {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token_sxm_cloud,
+            'x-api-key': '{{apikey}}',
+            'AccessToken': token_sxm_idm_login
+        },
+        body: JSON.stringify({"svcReqId": svc_req_id, "track": {"type": "Theft", "duration": "PT00H06M"}})
+
+    };
+    request(options, function (error, response) {
+        if (error) {
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [aplazarLocalizacion]: " + response.body);
+            res.send(response.body);
+        }
+    });
+
+});
 
 module.exports = router;

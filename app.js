@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var api = require('./routes/api');
 var sql = require('./routes/pgroute');
 var sirius_route = require('./routes/sirius_route');
+var sirius_repository = require('./routes/sirius_repository');
 var app = express();
 
 app.set("view options", {layout: true}); 
@@ -27,6 +28,7 @@ app.use('/', indexRouter);
 app.use('/api', api);
 app.use('/sql', sql);
 app.use('/sirius_route', sirius_route);
+app.use('/sirius_repository', sirius_repository);
 //app.use(sessionChecker);
 app.use(function(req, res, next){
 	var err = new Error('Not Found');
