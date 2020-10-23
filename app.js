@@ -1,7 +1,7 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-var ejs = require('ejs'); 
+var ejs = require('ejs');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
@@ -11,7 +11,7 @@ var sirius_route = require('./routes/sirius_route');
 var sirius_repository = require('./routes/sirius_repository');
 var app = express();
 
-app.set("view options", {layout: true}); 
+app.set("view options", {layout: true});
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({'extended':'false'}));
+app.use(bodyParser.urlencoded({'extended': 'false'}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
@@ -30,10 +30,10 @@ app.use('/sql', sql);
 app.use('/sirius_route', sirius_route);
 app.use('/sirius_repository', sirius_repository);
 //app.use(sessionChecker);
-app.use(function(req, res, next){
-	var err = new Error('Not Found');
-	err.status = 404;
-	next();
+app.use(function (req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next();
 });
 
 

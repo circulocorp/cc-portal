@@ -113,6 +113,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                     });
 
+
                 } else {
                     mensajeGeneral.addClass('alert alert-danger');
                     mensajeGeneral.text('Ocurrio un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);

@@ -308,11 +308,11 @@ app.service('SiriusService', function ($http) {
                     } else {
                         if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
 
-                            vinRequest.svcReqId = respuestaObject['svcReqId'];
-                            vinRequest.eventType = "CANCEL_TRACKER";
-                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
-                                console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/saveTracker]: " + JSON.stringify(response));
-                            });
+//                            vinRequest.svcReqId = respuestaObject['svcReqId'];
+//                            vinRequest.eventType = "CANCEL_TRACKER";
+//                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
+//                                console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/saveTracker]: " + JSON.stringify(response));
+//                            });
 
                             $http.post('./sirius_repository/deleteTracker', vinRequest).then(function (response) {
                                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/deleteTracker]: " + JSON.stringify(response));
@@ -348,6 +348,7 @@ app.service('SiriusService', function ($http) {
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
+            var idSession = "";
             $http.post('./sirius_repository/getTracker', vinRequest).then(function (response) {
                 console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
@@ -356,51 +357,57 @@ app.service('SiriusService', function ($http) {
                 console.log("RESPUESTA TRACKER [bloquearLocalizacion/getTracker]: " + JSON.stringify(trackerObject));
                 vinRequest.sessionId = trackerObject[0]['session_id'];
                 console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(vinRequest.sessionId));
-            });
+                idSession = vinRequest.sessionId;
+                console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(idSession));
 
-            $http.post('./sirius_route/bloquearLocalizacion', vinRequest).then(function (response) {
-                console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion]: " + JSON.stringify(response));
+                vinRequest.sessionId = idSession;
+                console.log("+++RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(vinRequest.sessionId));
 
-                var respuestaObject;
-                if (response['status'] === 200) {
-                    respuestaObject = response['data'];
+                $http.post('./sirius_route/bloquearLocalizacion', vinRequest).then(function (response) {
+                    console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion]: " + JSON.stringify(response));
 
-                    if (Object.entries(respuestaObject).length === 0) {
-                        respuesta.error = true;
-                        respuesta.status = 1005;
-                        respuesta.message = "La localización no se encuentra activa, no se puede aplicar el bloqueo.";
-                        respuesta.tracker = null;
-                        resolve(respuesta);
-                    } else {
-                        if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
+                    var respuestaObject;
+                    if (response['status'] === 200) {
+                        respuestaObject = response['data'];
 
-                            vinRequest.svcReqId = respuestaObject['svcReqId'];
-                            vinRequest.eventType = "BLOCK_TRACKER";
-                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
-                                console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/saveTracker]: " + JSON.stringify(response));
-                            });
-
-                            respuesta.error = false;
-                            respuesta.status = null;
-                            respuesta.message = "El bloqueo de la localización se realizo con exito.";
-                            respuesta.svcReqId = respuestaObject['svcReqId'];
-                            resolve(respuesta);
-                        } else {
+                        if (Object.entries(respuestaObject).length === 0) {
                             respuesta.error = true;
-                            respuesta.status = respuestaObject['status'];
-                            respuesta.message = respuestaObject['message'];
+                            respuesta.status = 1005;
+                            respuesta.message = "La localización no se encuentra activa, no se puede aplicar el bloqueo.";
                             respuesta.tracker = null;
                             resolve(respuesta);
-                        }
-                    }
+                        } else {
+                            if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
 
-                } else {
-                    respuesta.error = true;
-                    respuesta.status = response['status'];
-                    respuesta.message = response['message'];
-                    respuesta.tracker = null;
-                    resolve(respuesta);
-                }
+                                vinRequest.svcReqId = respuestaObject['svcReqId'];
+                                vinRequest.eventType = "BLOCK_TRACKER";
+                                $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
+                                    console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/saveTracker]: " + JSON.stringify(response));
+                                });
+
+                                respuesta.error = false;
+                                respuesta.status = null;
+                                respuesta.message = "El bloqueo de la localización se realizo con exito.";
+                                respuesta.svcReqId = respuestaObject['svcReqId'];
+                                resolve(respuesta);
+                            } else {
+                                respuesta.error = true;
+                                respuesta.status = respuestaObject['status'];
+                                respuesta.message = respuestaObject['message'];
+                                respuesta.tracker = null;
+                                resolve(respuesta);
+                            }
+                        }
+
+                    } else {
+                        respuesta.error = true;
+                        respuesta.status = response['status'];
+                        respuesta.message = response['message'];
+                        respuesta.tracker = null;
+                        resolve(respuesta);
+                    }
+                });
+
             });
         });
     };

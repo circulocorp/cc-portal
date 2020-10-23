@@ -1,3 +1,7 @@
+var environment = require('../routes/sirius_config.js');
+var conf;
+environment.environment === "STAGIN" ? conf = require('../routes/sirius_staging.js') : conf = require('../routes/sirius_prod.js');
+
 var express = require('express');
 var request = require('request');
 var secrets = require('docker-secrets-nodejs');
@@ -6,11 +10,11 @@ var router = express.Router();
 
 const Pool = require('pg').Pool;
 const pool = new Pool({
-    host: '127.0.0.1',
-    database: 'sirius',
-    user: 'postgres',
-    password: 'root',
-    port: 5432
+    host: conf.host, //'127.0.0.1',
+    database: conf.database, //'sirius',
+    user: conf.user, //'postgres',
+    password: conf.password, //'root',
+    port: conf.port//5432
 });
 
 router.post('/saveTracker', function (req, res, next) {
