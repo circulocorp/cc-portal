@@ -11,13 +11,13 @@ exports.CLIENT_ID = "NISSAN_CIRCULO_SVL_MX";
 exports.CLIENT_SECRET = "KmhpUzlTKiprZT9FeDlmTFpFVDYyZlJAYyNJWiYx";
 
 //Variables para EndPoint: SXM-Cloud
-exports.URL_SMX_CLOUD = "https://access.cv000-telematics.net/auth/oauth2/realms/root/realms/nissanmx/access_token";
+exports.URL_SMX_CLOUD = "https://access.cv300-telematics.net/auth/oauth2/realms/root/realms/nissanmx/access_token";
 exports.GRANT_TYPE_SMX_CLOUD = 'password';
 exports.CLIENT_ID_SMX_CLOUD = 'nmx-svl-696f-473d-818a-dc4d909f85475';
-exports.CLIENT_SECRET_SMX_CLOUD = 'P9EAjpyTHvw4vKNJxHymvaQUMqLHWXUB7XrS';
+exports.CLIENT_SECRET_SMX_CLOUD = 'sREvc58H5J33K8g6CAwW2hh9dvtRLJ7AsA8';
 exports.SCOPE_SMX_CLOUD = 'rts';
 exports.USERNAME_SMX_CLOUD = 'sa-circulo-svl-nissanmx';
-exports.PASSWORD_SMX_CLOUD = 'h%#thB&8hT9PY9bH$zUvE6vCm%XrVFJRq';
+exports.PASSWORD_SMX_CLOUD = 'Ckx5PDXy#M6BH!u3J68FZSrSpCgEDL';
 exports.TENANT_ID_SMX_CLOUD = 'Nissanmx';
 
 //Variables para EndPoint: consultarCliente
@@ -26,7 +26,7 @@ exports.CV_API_KEY = "C37712F28F9F418E9580033D4601987E";
 
 //Variables para las acciones sobre el vehiculo
 exports.VIN_EXECUTE_TRACKER = "";
-exports.URL_EXECUTE_TRACKER = "https://rts.cv300-telematics.net/telematicsservices/v1/vehicles";
+exports.URL_EXECUTE_TRACKER = "https://rts.cv300-telematics.net/telematicsservices/v1/vehicles/";
 exports.X_API_KEY_EXECUTE_TRACKER = "{{apikey}}";
 
 //Variables para la conexion a la base de datos

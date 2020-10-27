@@ -4,4 +4,4 @@
  * and open the template in the editor.
  */
 
-exports.environment = 'STAGIN';
+exports.environment = 'PROD';

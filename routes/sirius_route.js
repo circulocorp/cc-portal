@@ -16,7 +16,7 @@ var CLIENT_SECRET = conf.CLIENT_SECRET;//"KkxCQUMzSXZ1azNTbE1FU0wxaVMkbC0rd3JVej
 //Variables para EndPoint: SXM-Cloud
 var URL_SMX_CLOUD = conf.URL_SMX_CLOUD;//"https://access.cv000-telematics.net/auth/oauth2/realms/root/realms/nissanmx/access_token";
 var GRANT_TYPE_SMX_CLOUD = conf.GRANT_TYPE_SMX_CLOUD;//'password';
-var CLIENT_ID_SMX_CLOUD = conf.CLIENT_ID_SMX_CLOUD//'nmx-svl-696f-473d-818a-dc4d909f85475';
+var CLIENT_ID_SMX_CLOUD = conf.CLIENT_ID_SMX_CLOUD;//'nmx-svl-696f-473d-818a-dc4d909f85475';
 var CLIENT_SECRET_SMX_CLOUD = conf.CLIENT_SECRET_SMX_CLOUD;//'P9EAjpyTHvw4vKNJxHymvaQUMqLHWXUB7XrS';
 var SCOPE_SMX_CLOUD = conf.SCOPE_SMX_CLOUD;//'rts';
 var USERNAME_SMX_CLOUD = conf.USERNAME_SMX_CLOUD;//'sa-circulo-svl-nissanmx';
