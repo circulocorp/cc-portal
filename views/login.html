@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+    <head>
+        <% include header.html %>
+        <link href="./css/style_login.css" rel="stylesheet" type="text/css">
+                
+    </head>
+
+    <body id="page-top" ng-controller="LoginController">
+
+        <div class="wrapper fadeInDown">
+            <div id="formContent">
+                <!-- Tabs Titles -->
+
+                <!-- Icon -->
+                <div class="fadeIn first" style="padding-top: 15px; padding-bottom: 15px">
+                    <img src="./images/logo_circulo.jpg" style="width: 200px; height: 200px" id="icon" alt="Circulo Corp" />
+                </div>
+
+                <!-- Login Form -->
+                <form>
+                    <input type="text" id="usuario" name="usuario" class="fadeIn second" ng-model="usuario.usuario" placeholder="Usuario" required="true">
+                    <input type="password" id="password" name="password" class="fadeIn third" ng-model="usuario.password" placeholder="Password" required="true">
+                    <button type="button" class="fadeIn fourth" ng-click="consultarUsuario()" id="btnLogin">Entrar</button>
+                    <div id="loading" class="fadeIn fourth" style="display: none">
+                        <img src="./images/load.gif" style="width: 40px; height: 40px" />
+                    </div>
+                </form>
+
+                <!-- Remind Passowrd -->
+                <div id="formFooter" style="padding-right: 10px; padding-left: 10px; padding-bottom: 10px">
+                    <div id="mensaje" class="alert alert-primary" role="alert" style="display: none">
+                        mensaje del sistema
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+
+        <% include modals.html %>
+        <% include scripts.html %>
+    </body>
+
+</html>

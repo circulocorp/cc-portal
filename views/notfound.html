@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+    <head>
+        <% include header.html %>
+        <link href="./css/style_login.css" rel="stylesheet" type="text/css">
+                
+    </head>
+
+    <body id="page-top" ng-controller="LoginController" >
+
+        <div class="wrapper fadeInDown">
+            <div id="formContent">
+                <!-- Tabs Titles -->
+
+                <!-- Icon -->
+                <div class="fadeIn first" style="padding-top: 15px; padding-bottom: 15px">
+                    <img src="./images/sad.png"  id="icon" alt="Recurso no encontrado" />
+                </div>
+
+                <div class="fadeIn second">
+                    <h1 style="color: #303144">RECURSO NO ENCONTRADO</h1>
+                </div>
+
+                <div id="formFooter" style="padding-right: 10px; padding-left: 10px; padding-bottom: 10px">
+                    <a href="javascript:goBack();"> <span class="fas fa-angle-double-left"></span> Regresar</a>          
+                </div>
+
+            </div>
+        </div>
+
+        <% include scripts.html %>
+    </body>
+
+</html>

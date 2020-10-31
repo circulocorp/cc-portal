@@ -2,6 +2,44 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/vmade-workspace/cc-portal/bin/www</file>
+            <file>file:/D:/vmade-workspace/cc-portal/app.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/dashboard.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/header.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/scripts.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/modal_vehicle.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/modals.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/sirius_config.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/api.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/app.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/package.json</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/sirius/index.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/sidebar.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/index.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/modal_emergencia.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/modal_account.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/login_service.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/sirius_route.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/navbar.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/vehicles.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/checkemergency.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/pgroute.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/index.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/new_emergency.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/validaciones.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/login.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/edit_emergency.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/emergencia.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/css/style_login.css</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/sirius_prod.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/routes/sirius_repository.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/sirius_service.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/notifications.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/accounts.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/public/javascript/sirius_controller.js</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/visorsql.html</file>
+            <file>file:/D:/vmade-workspace/cc-portal/views/modal_notifications.html</file>
+        </group>
     </open-files>
 </project-private>

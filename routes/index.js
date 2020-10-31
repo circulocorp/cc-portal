@@ -1,4 +1,5 @@
 var express = require('express');
+//var passport = require("passport");
 var router = express.Router();
 const request = require('request');
 var secrets = require('docker-secrets-nodejs');
@@ -18,6 +19,10 @@ const pool = new Pool({
 });
 
 router.get('/', function (req, res) {
+    res.render('login');
+});
+
+router.get('/index', function (req, res) {
     res.render('index');
 });
 
@@ -69,6 +74,14 @@ router.get('/historico', function (req, res) {
 
 router.get('/sirius', function (req, res) {
     res.render('sirius/index');
+});
+
+//Showing login form 
+router.get("/login", function (req, res) {
+    res.render("login");
+});
+router.get("/notfound", function (req, res) {
+    res.render("notfound");
 });
 
 module.exports = router;

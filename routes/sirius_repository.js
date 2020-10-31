@@ -17,11 +17,33 @@ const pool = new Pool({
     port: conf.port//5432
 });
 
+router.post('/getUsuario', function (req, res, next) {
+    console.log("PARAMETROS: " + JSON.stringify(req.body));
+
+    var data = req.body;
+    var sql = "SELECT * FROM users us WHERE us.user=$1 AND us.password=$2 AND us.status=true";
+
+    pool.query(sql, [data.usuario, data.password], (error, results) => {
+        if (error) {
+            console.log("ERROR AL CONSULTAR EL USUARIO: " + error);
+            throw new Error(error);
+        } else {
+            console.log("RESULTADO AL CONSULTAR EL USUARIO: : " + JSON.stringify(results));
+            if (results.rows !== null && results.rows.length > 0) {
+                res.status(200).json({"status": true, "message": "Consulta de usuario con exito", "usuario": results.rows});
+            } else {
+                res.status(200).json({"status": true, "message": "No se encontro información", "usuario": results.rows});
+            }
+
+        }
+    });
+});
+
 router.post('/saveTracker', function (req, res, next) {
     console.log("BODY EN EL REPOSITORY: " + JSON.stringify(req.body));
 
     var data = req.body;
-    var sql = 'INSERT INTO sirius.tracker(vin, session_id, svc_req_id, event_type) VALUES ($1, $2, $3, $4) RETURNING tracker_id';
+    var sql = 'INSERT INTO tracker(vin, session_id, svc_req_id, event_type) VALUES ($1, $2, $3, $4) RETURNING tracker_id';
 
     pool.query(sql, [data.vin, data.sessionId, data.svcReqId, data.eventType], (error, results) => {
         if (error) {
@@ -38,7 +60,7 @@ router.post('/deleteTracker', function (req, res, next) {
     console.log("PARAMETROS: " + JSON.stringify(req.body));
 
     var data = req.body;
-    var sql = 'DELETE FROM sirius.tracker WHERE vin=$1';
+    var sql = 'DELETE FROM tracker WHERE vin=$1';
 
     pool.query(sql, [data.vin], (error, results) => {
         if (error) {
@@ -56,7 +78,7 @@ router.post('/getTracker', function (req, res, next) {
     console.log("PARAMETROS: " + JSON.stringify(req.body));
 
     var data = req.body;
-    var sql = "SELECT * FROM sirius.tracker WHERE vin=$1 AND event_type='ACTIVE_TRACKER' ORDER BY tracker_id ASC LIMIT 1";
+    var sql = "SELECT * FROM tracker WHERE vin=$1 AND event_type='ACTIVE_TRACKER' ORDER BY tracker_id ASC LIMIT 1";
 
     pool.query(sql, [data.vin], (error, results) => {
         if (error) {

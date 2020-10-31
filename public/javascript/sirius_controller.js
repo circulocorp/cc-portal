@@ -4,12 +4,15 @@ var app = angular.module('ccportal', ['ngTable']);
 //Sirius Controller
 app.controller('SiriusController', function ($scope, NgTableParams, $http, SiriusService) {
 
+    $scope.usuarioSesion = new Object();
     $scope.cliente = {};
     $scope.listaClientes = [];
     $scope.clienteSeleccionado = {};
     $scope.vehiculos = [];
     $scope.vehiculoSeleccionado = {};
     $scope.numeroVin;
+
+
 
     $scope.consultarCliente = function () {
 
@@ -65,7 +68,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensaje.text('¡El email no tiene el formato correcto!');
                     mensaje.show();
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
 
                     esCorrecto = false;
                 }
@@ -73,7 +76,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -94,7 +97,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             $scope.tableParams.reload();
 
                             $('#tblClientes').show();
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
 
                         } else {
                             mensajeGeneral.addClass('alert alert-danger');
@@ -108,7 +111,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
 
                     });
@@ -121,7 +124,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
 
             });
@@ -259,7 +262,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -291,7 +294,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
-                                    $('#Searching_Modal').modal('hide');
+                                    $('#Loading_Modal').modal('hide');
 
                                 } else {
                                     mensajeGeneral.addClass('alert alert-danger');
@@ -307,7 +310,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
-                                    $('#Searching_Modal').modal('hide');
+                                    $('#Loading_Modal').modal('hide');
                                 }
                             });
 
@@ -319,7 +322,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
                     });
 
@@ -330,7 +333,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
             });
 
@@ -386,7 +389,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -432,7 +435,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     } else {
                                                         mensajeGeneral.addClass('alert alert-success');
                                                         mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.');
@@ -440,7 +443,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
 
@@ -452,7 +455,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
 
-                                                $('#Searching_Modal').modal('hide');
+                                                $('#Loading_Modal').modal('hide');
                                             }
                                         });
                                     }
@@ -470,7 +473,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
-                                    $('#Searching_Modal').modal('hide');
+                                    $('#Loading_Modal').modal('hide');
                                 }
                             });
 
@@ -482,7 +485,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
                     });
 
@@ -493,7 +496,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
             });
 
@@ -549,7 +552,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -582,7 +585,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 } else {
@@ -603,7 +606,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
 
                                                     } else {
                                                         mensajeGeneral.addClass('alert alert-danger');
@@ -612,7 +615,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
 
@@ -624,7 +627,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
 
-                                                $('#Searching_Modal').modal('hide');
+                                                $('#Loading_Modal').modal('hide');
                                             }
                                         });
 
@@ -641,7 +644,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 }
@@ -655,7 +658,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
                     });
 
@@ -666,7 +669,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
             });
 
@@ -722,7 +725,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -755,7 +758,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 } else {
@@ -776,7 +779,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     } else {
                                                         mensajeGeneral.addClass('alert alert-success');
                                                         mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
@@ -784,7 +787,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
 
@@ -796,7 +799,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
 
-                                                $('#Searching_Modal').modal('hide');
+                                                $('#Loading_Modal').modal('hide');
                                             }
                                         });
 
@@ -814,7 +817,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 }
@@ -828,7 +831,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
                     });
 
@@ -839,7 +842,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
             });
 
@@ -895,7 +898,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
 
         if (esCorrecto) {
-            $('#Searching_Modal').modal('show');
+            $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
@@ -928,7 +931,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 } else {
@@ -949,7 +952,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     } else {
                                                         mensajeGeneral.addClass('alert alert-success');
                                                         mensajeGeneral.text('El aplazamiento de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
@@ -957,7 +960,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
-                                                        $('#Searching_Modal').modal('hide');
+                                                        $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
 
@@ -969,7 +972,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
 
-                                                $('#Searching_Modal').modal('hide');
+                                                $('#Loading_Modal').modal('hide');
                                             }
                                         });
 
@@ -987,7 +990,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
-                                        $('#Searching_Modal').modal('hide');
+                                        $('#Loading_Modal').modal('hide');
                                     }
 
                                 }
@@ -1001,7 +1004,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            $('#Searching_Modal').modal('hide');
+                            $('#Loading_Modal').modal('hide');
                         }
                     });
 
@@ -1012,14 +1015,152 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    $('#Searching_Modal').modal('hide');
+                    $('#Loading_Modal').modal('hide');
                 }
             });
 
         }
     };
 
+    $scope.getUserSession = function () {
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+            window.location.href = '/login';
+        } else {
+            var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
+            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+            $scope.usuarioSesion = JSON.parse(plaintext);
+
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+                window.location.href = '/login';
+            } else {
+                 //console.log(window.location.href);
+            }
+        }
+
+    };
 });
 
+//Login Controller
+app.controller('LoginController', function ($scope, NgTableParams, $http, LoginService) {
+
+    $scope.usuario = {};
+    $scope.usuarioSesion = new Object();
+
+    $scope.consultarUsuario = function () {
+
+        $('#mensaje').removeClass('alert-primary');
+        $('#mensaje').removeClass('alert-secondary');
+        $('#mensaje').removeClass('alert-success');
+        $('#mensaje').removeClass('alert-danger');
+        $('#mensaje').removeClass('alert-warning');
+        $('#mensaje').removeClass('alert-info');
+        $('#mensaje').removeClass('alert-light');
+        $('#mensaje').removeClass('alert-dark');
+        $('#mensaje').text('');
+        $('#mensaje').hide();
+
+        $('#loading').hide();
+
+        var usuario = $scope.usuario.usuario;
+        var password = $scope.usuario.password;
+        var mensaje = $('#mensaje');
+        var loading = $('#loading');
+        var esCorrecto = true;
+
+        if ((usuario === null || usuario === '' || typeof (usuario) === 'undefined')) {
+
+            mensaje.addClass('alert-warning');
+            mensaje.text('¡El usuario es requerido!');
+            mensaje.show();
+
+            esCorrecto = false;
+            return;
+        }
+
+        if ((password === null || password === '' || typeof (password) === 'undefined')) {
+            mensaje.addClass('alert-warning');
+            mensaje.text('¡El password es requerido!');
+            mensaje.show();
+
+            esCorrecto = false;
+            return;
+        }
+
+        if (esCorrecto) {
+            $('#Loading_Modal').modal('show');
+            loading.show();
+
+            $scope.usuario.password = hex_sha1($scope.usuario.password);
+
+            LoginService.consultarUsuario($scope.usuario).then(response => {
+
+                if (!response.error) {
+                    mensaje.addClass('alert-success');
+                    mensaje.text(response.message);
+                    mensaje.show();
+
+                    $('#Loading_Modal').modal('hide');
+                    loading.hide();
+                    $(".modal-backdrop").remove();
+                    $("#Loading_Modal").remove();
+
+                    $scope.usuario = response.usuario[0];
+
+                    var encrypted = CryptoJS.AES.encrypt(JSON.stringify($scope.usuario), "circulocorp");
+                    localStorage.setItem('usuarioSession', encrypted);
+
+                    window.location.href = '/index';
+                } else {
+                    mensaje.addClass('alert-danger');
+                    mensaje.text(response.message);
+                    mensaje.show();
+
+                    $('#Loading_Modal').modal('hide');
+                    loading.hide();
+                    $(".modal-backdrop").remove();
+                    $("#Loading_Modal").remove();
+                }
+
+            });
+        }
+    };
+
+    $scope.cerrarSesion = function () {
+        $scope.usuario = {};
+        $scope.usuarioSesion = new Object();
+
+        localStorage.removeItem('usuarioSession');
+
+        window.location.href = '/login';
+    };
+
+    $scope.getUserSession = function () {
+
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+            window.location.href = '/login';
+        } else {
+            var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
+            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+            $scope.usuarioSesion = JSON.parse(plaintext);
+
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+                window.location.href = '/login';
+            } else {
+                //console.log(window.location.href);
+            }
+        }
+
+    };
+
+    $scope.showModal = function () {
+        $('#Loading_Modal').modal('show');
+
+    };
+    $scope.hideModal = function () {
+        $('#Loading_Modal').modal('hide');
+    };
+});
 
 

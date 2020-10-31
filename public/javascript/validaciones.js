@@ -23,3 +23,7 @@ function generateUUID() {
         return v.toString(16).toUpperCase();
     });
 }
+
+function goBack() {
+  window.history.back();
+}

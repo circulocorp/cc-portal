@@ -31,9 +31,10 @@ app.use('/sirius_route', sirius_route);
 app.use('/sirius_repository', sirius_repository);
 //app.use(sessionChecker);
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
+    var err = new Error('Recurso no encontrado');
     err.status = 404;
-    next();
+    res.redirect('/notfound');
+    next(err);
 });
 
 
