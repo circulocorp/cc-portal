@@ -34,6 +34,6 @@ exports.X_API_KEY_EXECUTE_TRACKER = "{{apikey}}";
 exports.host = "127.0.0.1";
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "root";
+exports.password = "Pass$word01";
 exports.port = 5432;
 
