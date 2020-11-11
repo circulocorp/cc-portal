@@ -29,11 +29,25 @@ exports.VIN_EXECUTE_TRACKER = "";
 exports.URL_EXECUTE_TRACKER = "https://rts.cv000-telematics.net/telematicsservices/v1/vehicles/";
 exports.X_API_KEY_EXECUTE_TRACKER = "{{apikey}}";
 
+//variables para la conexion con MZone
+exports.URL_MZONE_TOKEN = "https://login.mzoneweb.net/connect/token";
+exports.GRANT_TYPE_MZONE = "password";
+exports.CLIENT_ID_MZONE = "mz-a3tek";
+exports.CLIENT_SECRET_MZONE = "WJ4wUJo79qFsMm4T9Rj7dKw4";
+exports.SCOPE_MZONE = "openid mz6-api.all mz_username";
+exports.USERNAME_MZONE = "$1R1V$";
+exports.PASSWORD_MZONE = "$1R1V$2020";
 
 //Variables para la conexion a la base de datos
-exports.host = "127.0.0.1";
+//Cambiar los siguieentes valores dependiendo el servidor
+//Para el servidor actual de los servicios: exports.password = "Pass$word01";
+//Para el servidor SIRIUS: exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; exports.password = "Pass$word01";
+exports.host = "127.0.0.1";//"sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "Pass$word01";
+exports.password = "root";//"Pass$word01";
 exports.port = 5432;
 
+//COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION
+exports.isTest = true;
+exports.isTestCont = 0;

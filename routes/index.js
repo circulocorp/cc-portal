@@ -76,7 +76,10 @@ router.get('/sirius', function (req, res) {
     res.render('sirius/index');
 });
 
-//Showing login form 
+router.get('/shells', function (req, res) {
+    res.render('sirius/shells');
+});
+
 router.get("/login", function (req, res) {
     res.render("login");
 });

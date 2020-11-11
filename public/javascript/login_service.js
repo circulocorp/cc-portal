@@ -30,7 +30,7 @@ app.service('LoginService', function ($http) {
                         } else {
                             respuesta.error = true;
                             respuesta.status = response['status'];
-                            respuesta.message = 'No se encotro el usuario';
+                            respuesta.message = 'No se encontro el usuario';
                             respuesta.usuario = null;
                             resolve(respuesta);
                         }
@@ -38,7 +38,7 @@ app.service('LoginService', function ($http) {
                     } else {
                         respuesta.error = true;
                         respuesta.status = response['status'];
-                        respuesta.message = 'No se encotro el usuario';
+                        respuesta.message = 'No se encontro el usuario';
                         respuesta.usuario = null;
                         resolve(respuesta);
                     }

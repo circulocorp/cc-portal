@@ -21,8 +21,8 @@ app.service('SiriusService', function ($http) {
                             token = respuestaObject['access_token'];
 
                             respuesta.error = false;
-                            respuesta.status = null;
-                            respuesta.message = null;
+                            respuesta.status = 200;
+                            respuesta.message = "Consulta exitosa";
                             respuesta.token = token;
                             resolve(respuesta);
                         } else {
@@ -70,8 +70,8 @@ app.service('SiriusService', function ($http) {
                             token = respuestaObject['access_token'];
 
                             respuesta.error = false;
-                            respuesta.status = null;
-                            respuesta.message = null;
+                            respuesta.status = 200;
+                            respuesta.message = "Consulta exitosa";
                             respuesta.token = token;
                             resolve(respuesta);
                         } else {
@@ -169,6 +169,7 @@ app.service('SiriusService', function ($http) {
 
                 var respuestaObject;
                 var tracker;
+
                 if (response['status'] === 200) {
                     respuestaObject = response['data'];
 
@@ -177,8 +178,8 @@ app.service('SiriusService', function ($http) {
                         if (Object.entries(respuestaObject).length === 0) {
                             respuesta.error = false;
                             respuesta.status = 1005;
-                            respuesta.message = "El vehículo con el VIN: " + vinRequest.vin + " NO tiene una localización activa.";
-                            respuesta.tracker = null;
+                            respuesta.message = "El vehículo con el VIN: " + vinRequest.vin + " NO tiene una localización activa.\n" + JSON.stringify(respuestaObject);
+                            respuesta.tracker = respuestaObject;
                             resolve(respuesta);
                         } else {
 
@@ -251,28 +252,150 @@ app.service('SiriusService', function ($http) {
             $http.post('./sirius_route/activarLocalizacion', vinRequest).then(function (response) {
                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion]: " + JSON.stringify(response));
 
-                var respuestaObject;
+
                 if (response['status'] === 200) {
-                    respuestaObject = response['data'];
+                    var respuestaObject = response['data'];
 
                     if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
 
                         vinRequest.svcReqId = respuestaObject['svcReqId'];
                         vinRequest.eventType = "ACTIVE_TRACKER";
+
                         $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
                             console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(response));
+
+
+                            if (response['status'] === 200) {
+                                var respuestaSaveTarcker = response['data'];
+                                console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(respuestaSaveTarcker));
+
+                                $http.post('./sirius_repository/getShellByStatus', vinRequest).then(function (response) {
+                                    console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/getShellByStatus]: " + JSON.stringify(response));
+
+
+                                    if (response['status'] === 200) {
+                                        var respuestaGetShellTarcker = response['data'];
+                                        console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/getShellByStatus]: " + JSON.stringify(respuestaGetShellTarcker));
+
+                                        if (respuestaGetShellTarcker['shell'] !== null && respuestaGetShellTarcker['shell'].length > 0) {
+                                            var shell = respuestaGetShellTarcker['shell'][0];
+                                            console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/SHELL]: " + JSON.stringify(shell));
+
+                                            shell.description = vinRequest.vin;
+                                            shell.registration = vinRequest.vin;
+                                            shell.vin = vinRequest.vin;
+                                            shell.isFavorite = true;
+                                            shell.status = true;
+                                            shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                                            $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                                                console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShell]: " + JSON.stringify(response));
+
+
+                                                if (response['status'] === 200) {
+                                                    var respuestaUpdateShell = response['data'];
+                                                    console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShell]: " + JSON.stringify(respuestaUpdateShell));
+
+                                                    $http.get('./sirius_route/getTokenMzone').then(function (responseTokenMzone) {
+                                                        console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(responseTokenMzone));
+
+                                                        var respuestaObject;
+                                                        var token;
+
+                                                        if (responseTokenMzone['status'] === 200) {
+                                                            respuestaObject = responseTokenMzone['data'];
+
+                                                            if (respuestaObject !== null) {
+
+                                                                if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                    token = respuestaObject['access_token'];
+                                                                    shell.token = token;
+
+                                                                    $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                        console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
+
+                                                                        if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
+                                                                            respuesta.error = false;
+                                                                            respuesta.status = null;
+                                                                            respuesta.message = "Activación correcta";
+                                                                            respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                                            resolve(respuesta);
+
+                                                                        } else {
+                                                                            respuesta.error = true;
+                                                                            respuesta.status = 2009;
+                                                                            respuesta.message = "La activación fue exitosa, sin embargo, ocurrio un problema al actualizar el cascaron en la API MZone/MProfile";
+                                                                            respuesta.svcReqId = null;
+                                                                            resolve(respuesta);
+                                                                        }
+                                                                    });
+
+                                                                } else {
+                                                                    respuesta.error = true;
+                                                                    respuesta.status = 2008;
+                                                                    respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone\n" + respuestaObject['error_description'];
+                                                                    respuesta.svcReqId = null;
+                                                                    resolve(respuesta);
+                                                                }
+
+                                                            } else {
+                                                                respuesta.error = true;
+                                                                respuesta.status = 2007;
+                                                                respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                respuesta.svcReqId = null;
+                                                                resolve(respuesta);
+                                                            }
+                                                        } else {
+                                                            respuesta.error = true;
+                                                            respuesta.status = 2006;
+                                                            respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                            respuesta.svcReqId = null;
+                                                            resolve(respuesta);
+                                                        }
+                                                    });
+
+
+                                                } else {
+                                                    respuesta.error = true;
+                                                    respuesta.status = 2005;
+                                                    respuesta.message = "La activación fue exitosa, sin embargo, No se pudo actualizar el cascaron MZone/MProfile con ID [" + shell.id + "]";
+                                                    respuesta.svcReqId = null;
+                                                    resolve(respuesta);
+                                                }
+                                            });
+                                        } else {
+                                            respuesta.error = true;
+                                            respuesta.status = 2004;
+                                            respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile libre para el envio de posiciones";
+                                            respuesta.svcReqId = null;
+                                            resolve(respuesta);
+                                        }
+
+
+                                    } else {
+                                        respuesta.error = true;
+                                        respuesta.status = 2003;
+                                        respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile libre para el envio de posiciones";
+                                        respuesta.svcReqId = null;
+                                        resolve(respuesta);
+                                    }
+                                });
+
+                            } else {
+                                respuesta.error = true;
+                                respuesta.status = 2002;
+                                respuesta.message = "La activación fue exitosa, sinembargo, Ocurrio un problema al registrar el TRACKER en la base de datos";
+                                respuesta.svcReqId = null;
+                                resolve(respuesta);
+                            }
                         });
 
-                        respuesta.error = false;
-                        respuesta.status = null;
-                        respuesta.message = "Activación correcta";
-                        respuesta.svcReqId = respuestaObject['svcReqId'];
-                        resolve(respuesta);
+
                     } else {
                         respuesta.error = true;
-                        respuesta.status = respuestaObject['status'];
-                        respuesta.message = respuestaObject['message'];
-                        respuesta.tracker = null;
+                        respuesta.status = 2001;
+                        respuesta.message = "No se recibio la respuesta con el valor svcReqId";
+                        respuesta.svcReqId = null;
                         resolve(respuesta);
                     }
 
@@ -280,7 +403,7 @@ app.service('SiriusService', function ($http) {
                     respuesta.error = true;
                     respuesta.status = response['status'];
                     respuesta.message = response['message'];
-                    respuesta.tracker = null;
+                    respuesta.svcReqId = null;
                     resolve(respuesta);
                 }
             });
@@ -295,38 +418,148 @@ app.service('SiriusService', function ($http) {
             $http.post('./sirius_route/cancelarLocalizacion', vinRequest).then(function (response) {
                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion]: " + JSON.stringify(response));
 
-                var respuestaObject;
-                if (response['status'] === 200) {
-                    respuestaObject = response['data'];
 
-                    if (Object.entries(respuestaObject).length === 0) {
+                if (response['status'] === 200) {
+                    var respuestaCancelarLocalizacion = response['data'];
+
+                    if (Object.entries(respuestaCancelarLocalizacion).length === 0) {
                         respuesta.error = true;
-                        respuesta.status = 1005;
+                        respuesta.status = 3001;
                         respuesta.message = "La localización no se encuentra activa, no se puede aplicar la canleación.";
                         respuesta.tracker = null;
                         resolve(respuesta);
                     } else {
-                        if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
-
-//                            vinRequest.svcReqId = respuestaObject['svcReqId'];
-//                            vinRequest.eventType = "CANCEL_TRACKER";
-//                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
-//                                console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/saveTracker]: " + JSON.stringify(response));
-//                            });
+                        if (respuestaCancelarLocalizacion['svcReqId'] !== null && respuestaCancelarLocalizacion['svcReqId'] !== '' && typeof (respuestaCancelarLocalizacion['svcReqId']) !== 'undefined') {
 
                             $http.post('./sirius_repository/deleteTracker', vinRequest).then(function (response) {
                                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/deleteTracker]: " + JSON.stringify(response));
+
+                                if (response['status'] === 200) {
+
+                                    $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function (response) {
+                                        console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/getShellByVIN]: " + JSON.stringify(response));
+
+                                        if (response['status'] === 200) {
+                                            var respuestaGetShellTarcker = response['data'];
+                                            console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/getShellByVIN]: " + JSON.stringify(respuestaGetShellTarcker));
+
+                                            if (respuestaGetShellTarcker['shell'] !== null && respuestaGetShellTarcker['shell'].length > 0) {
+                                                var shell = respuestaGetShellTarcker['shell'][0];
+                                                console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/SHELL]: " + JSON.stringify(shell));
+
+                                                shell.description = shell.id + " LIBRE";
+                                                shell.registration = shell.id + " LIBRE";
+                                                shell.vin = shell.id + " LIBRE";
+                                                shell.isFavorite = false;
+                                                shell.status = false;
+                                                shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                                                $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                                                    console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShell]: " + JSON.stringify(response));
+
+
+                                                    if (response['status'] === 200) {
+                                                        var respuestaUpdateShell = response['data'];
+                                                        console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShell]: " + JSON.stringify(respuestaUpdateShell));
+
+                                                        $http.get('./sirius_route/getTokenMzone').then(function (response) {
+                                                            console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(response));
+
+
+                                                            if (response['status'] === 200) {
+                                                                var respuestaObject = response['data'];
+
+                                                                if (respuestaObject !== null) {
+
+                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                        var token = respuestaObject['access_token'];
+                                                                        shell.token = token;
+
+                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                            console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
+
+                                                                            if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
+                                                                                respuesta.error = false;
+                                                                                respuesta.status = null;
+                                                                                respuesta.message = "Cancelación correcta";
+                                                                                respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                                                resolve(respuesta);
+
+                                                                            } else {
+                                                                                respuesta.error = true;
+                                                                                respuesta.status = 3009;
+                                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, ocurrio un problema al actualizar el cascaron en la API MZone/MProfile";
+                                                                                respuesta.svcReqId = null;
+                                                                                resolve(respuesta);
+                                                                            }
+                                                                        });
+
+                                                                    } else {
+                                                                        respuesta.error = true;
+                                                                        respuesta.status = 3008;
+                                                                        respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone\n" + respuestaObject['error_description'];
+                                                                        respuesta.svcReqId = null;
+                                                                        resolve(respuesta);
+                                                                    }
+
+                                                                } else {
+                                                                    respuesta.error = true;
+                                                                    respuesta.status = 3007;
+                                                                    respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                    respuesta.svcReqId = null;
+                                                                    resolve(respuesta);
+                                                                }
+                                                            } else {
+                                                                respuesta.error = true;
+                                                                respuesta.status = 3006;
+                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                respuesta.svcReqId = null;
+                                                                resolve(respuesta);
+                                                            }
+                                                        });
+
+
+                                                    } else {
+                                                        respuesta.error = true;
+                                                        respuesta.status = 3005;
+                                                        respuesta.message = "La cancelación fue exitosa, sin embargo, No se pudo actualizar en la base de datos el cascaron MZone/MProfile con ID [" + shell.id + "] para poder ser liberado";
+                                                        respuesta.svcReqId = null;
+                                                        resolve(respuesta);
+                                                    }
+                                                });
+
+                                            } else {
+                                                respuesta.error = true;
+                                                respuesta.status = 3004;
+                                                respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                                respuesta.svcReqId = null;
+                                                resolve(respuesta);
+                                            }
+
+
+                                        } else {
+                                            respuesta.error = true;
+                                            respuesta.status = 3003;
+                                            respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                            respuesta.svcReqId = null;
+                                            resolve(respuesta);
+                                        }
+                                    });
+
+                                } else {
+                                    respuesta.error = true;
+                                    respuesta.status = 3002;
+                                    respuesta.message = "La cancelación se realizo con exito, sin embargo ocurrio un problema al eliminar el TRACKER de la base de datos\n" + response['message'];
+                                    respuesta.tracker = null;
+                                    resolve(respuesta);
+                                }
                             });
 
-                            respuesta.error = false;
-                            respuesta.status = null;
-                            respuesta.message = "La cancelación de la localización se realizo con exito.";
-                            respuesta.svcReqId = respuestaObject['svcReqId'];
-                            resolve(respuesta);
+
                         } else {
                             respuesta.error = true;
-                            respuesta.status = respuestaObject['status'];
-                            respuesta.message = respuestaObject['message'];
+                            respuesta.status = respuestaCancelarLocalizacion['status'];
+                            respuesta.message = respuestaCancelarLocalizacion['message'];
                             respuesta.tracker = null;
                             resolve(respuesta);
                         }
@@ -473,5 +706,7 @@ app.service('SiriusService', function ($http) {
             });
         });
     };
+
+
 });
 

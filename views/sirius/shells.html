@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ccportal">
+
+    <head>
+
+        <% include ../header.html %>
+
+    </head>
+
+    <body id="page-top" ng-controller="ShellController" ng-init="getUserSession()">
+
+        <% include ../navbar.html %>
+
+        <div id="wrapper">
+
+
+            <% include ../sidebar.html %>
+
+            <div id="content-wrapper">
+
+                <div class="container-fluid">
+
+                    <!-- Breadcrumbs-->
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Cascarones Mzone / MProfile</a>
+                        </li>
+                    </ol>
+
+
+                    <div class="col-mb-12">
+
+                        <form>
+
+
+
+                            <div class="row col-12" >
+                                <div class="col-7" style="float: left">
+                                    <button type="button" class="btn btn-primary" ng-click="consultarShells()">Consultar</button>
+                                    <button type="button" class="btn btn-primary" ng-click="actualizarShells()" style=" margin-left: 15px">Actualizar</button>
+                                </div>
+                                <div class="col-5">
+                                    <h5> 
+                                        <i class="fas fa-square alert-danger" style="color: #F8D7DA"></i> Cascarones con localización activa<br/>
+                                        <i class="fas fa-square alert-success" style="color: #D4EDDA"></i> Cascarones libres
+                                    </h5>
+                                </div>
+
+                            </div>
+
+                            <div class="row col-12" id="divMensajeGeneral" style="display: none; white-space: pre-line; margin-top: 30px">
+                                <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
+                            </div>                                    
+
+                            <div class="row col-12" style="margin-top: 30px">
+                                
+                                <div class=" col-12" id="tblShells" style="overflow-x:scroll; margin-top: 15px">
+
+                                    <table ng-table="tableParams" class="table table-bordered table-sm"  style=" max-width:100%; width:100%; white-space: nowrap;">
+                                        <tbody>
+                                            <tr ng-repeat="shell in $data"  ng-class="shell.status === true ? 'table-danger' : 'table-success'" class="shell.status === true ? 'table-danger' : 'table-success'" style="background-color: {{shell.status}} === true ? 'table-danger' : 'table-success'">                                                     
+                                                <td data-title="'ID'" style="width: 100%">{{ shell.id}}</td>                                                                                            
+                                                <td data-title="'vehicle_Id'" style="width: 100%">{{ shell.vehicle_Id}}</td>                                                                                            
+                                                <td data-title="'unit_Id'" style="width: 100%">{{ shell.unit_Id}}</td>                                                                                            
+                                                <td data-title="'vehicleType_Id'" style="width: 100%">{{ shell.vehicleType_Id}}</td>                                                                                            
+                                                <td data-title="'utcStartDate'" style="width: 100%">{{ shell.utcStartDate}}</td>                                                                                            
+                                                <td data-title="'cofDueDate'" style="width: 100%">{{ shell.cofDueDate}}</td>                                                                                            
+                                                <td data-title="'purchaseDate'" style="width: 100%">{{ shell.purchaseDate}}</td>                                                                                            
+                                                <td data-title="'description'" style="width: 100%">{{ shell.description}}</td>                                                                                            
+                                                <td data-title="'registration'" style="width: 100%">{{ shell.registration}}</td>                                                                                            
+                                                <td data-title="'VIN'" style="width: 100%">{{ shell.vin}}</td>                                                                                            
+                                                <td data-title="'isFavorite'" style="width: 100%">{{ shell.isFavorite}}</td>                                                                                            
+                                                <td data-title="'status'" style="width: 100%">{{ shell.status}}</td>                                                                                            
+                                                <td data-title="'lastUpdate'" style="width: 100%">{{ shell.lastUpdate}}</td>                                                                                            
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>                                    
+
+
+                            </div>
+
+
+                        </form>
+                    </div>
+
+
+                    <!-- /.container-fluid -->
+
+                    <!-- Sticky Footer -->
+                    <footer class="sticky-footer">
+                        <div class="container my-auto">
+                            <div class="copyright text-center my-auto">
+                                <span>Copyright © </span>
+                            </div>
+                        </div>
+                    </footer>
+
+                </div>
+                <!-- /.content-wrapper -->
+
+            </div>
+            <!-- /#wrapper -->
+
+            <!-- Scroll to Top Button-->
+            <a class="scroll-to-top rounded" href="#page-top">
+                <i class="fas fa-angle-up"></i>
+            </a>
+
+
+        </div>
+
+        <% include ../modals.html %>
+        <% include ../scripts.html %>
+    </body>
+</html>

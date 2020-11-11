@@ -12,8 +12,6 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
     $scope.vehiculoSeleccionado = {};
     $scope.numeroVin;
 
-
-
     $scope.consultarCliente = function () {
 
         $('#nombre').removeClass('is-invalid');
@@ -203,12 +201,14 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         $('#mensajeVin').hide();
 
         $scope.vehiculos.forEach(function (valor, indice, array) {
-            if (!valor.isSelected && data === valor) {
+
+            if (!valor.isSelected && data.vin === valor.vin) {
                 $scope.vehiculoSeleccionado = data;
                 $scope.vehiculoSeleccionado.isSelected = true;
+
             } else {
                 valor.isSelected = false;
-                $scope.vehiculoSeleccionado = {};
+                //$scope.vehiculoSeleccionado = {};
             }
         });
 
@@ -289,7 +289,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                 if (!response.error) {
 
                                     mensajeGeneral.addClass('alert alert-success');
-                                    mensajeGeneral.text('Localizacion encontrada: ' + JSON.stringify(response) + ' .');
+                                    mensajeGeneral.text(response.message);
                                     mensajeGeneral.show();
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
@@ -317,7 +317,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                         } else {
                             mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + response.status + ' ' + response.message);
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
@@ -392,18 +392,18 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
             $('#Loading_Modal').modal('show');
 
             //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+            SiriusService.consultaTokenSXMIDMLogin().then(responseTokenSXMIDMLogin => {
+                console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(responseTokenSXMIDMLogin));
 
-                if (!response.error) {
-                    var tokenSXMIDMLogin = response.token;
+                if (!responseTokenSXMIDMLogin.error) {
+                    var tokenSXMIDMLogin = responseTokenSXMIDMLogin.token;
 
                     //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMCloud]: " + JSON.stringify(response));
+                    SiriusService.consultaTokenSXMCloud().then(responseTokenSXMCloud => {
+                        console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaTokenSXMCloud]: " + JSON.stringify(responseTokenSXMCloud));
 
-                        if (!response.error) {
-                            var tokenSXMCloud = response.token;
+                        if (!responseTokenSXMCloud.error) {
+                            var tokenSXMCloud = responseTokenSXMCloud.token;
 
                             var vinRequest = {};
                             vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
@@ -411,34 +411,67 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             vinRequest.vin = vin;
                             vinRequest.sessionId = generateUUID();
 
-                            console.log("SESSION ID: " + vinRequest.sessionId);
+                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(responseEstatusLocalizacion => {
+                                console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacion));
 
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
+                                if (!responseEstatusLocalizacion.error) {
 
-                                if (!response.error) {
-
-                                    if (response.status === 1005) {
+                                    if (responseEstatusLocalizacion.status === 1005) {
                                         //Aqui activamos la localizacion
-                                        SiriusService.activarLocalizacion(vinRequest).then(response => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion]: " + JSON.stringify(response));
+                                        SiriusService.activarLocalizacion(vinRequest).then(responseActivarLocalizacion => {
+                                            console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/activarLocalizacion]: " + JSON.stringify(responseActivarLocalizacion));
 
-                                            if (!response.error) {
-                                                var svcReqId = response.svcReqId;
+                                            if (!responseActivarLocalizacion.error) {
+                                                var svcReqId = responseActivarLocalizacion.svcReqId;
 
-                                                //sleep(2000);
-                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                                    if (response.tracker) {
-                                                        mensajeGeneral.addClass('alert alert-danger');
-                                                        mensajeGeneral.text('Ocurrió un problema al activar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
+                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(responseEstatusLocalizacionFinal => {
+                                                    console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacionFinal));
 
-                                                        $('#Loading_Modal').modal('hide');
+                                                    if (!responseEstatusLocalizacionFinal.error) {
+
+                                                        //Eliminar esta linea al subir a produccion
+                                                        //responseEstatusLocalizacionFinal.status = 1006;
+                                                        //responseEstatusLocalizacionFinal.message = "";
+
+                                                        if (responseEstatusLocalizacionFinal.status === 1005) {
+                                                            mensajeGeneral.addClass('alert alert-danger');
+                                                            mensajeGeneral.text('Ocurrió un problema al activar la localización del vehículo con el vin ' + vin + '.\n' + responseEstatusLocalizacionFinal.message);
+                                                            mensajeGeneral.show();
+                                                            divMensajeGeneral.show();
+                                                            window.scrollTo(0, 0);
+
+                                                            $('#Loading_Modal').modal('hide');
+                                                        } else {
+                                                            if (responseEstatusLocalizacionFinal.status === 1006) {
+                                                                mensajeGeneral.addClass('alert alert-success');
+                                                                mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + responseEstatusLocalizacionFinal.message);
+                                                                mensajeGeneral.show();
+                                                                divMensajeGeneral.show();
+                                                                window.scrollTo(0, 0);
+
+                                                                $('#Loading_Modal').modal('hide');
+                                                            }
+                                                        }
+
+
                                                     } else {
-                                                        mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.');
+                                                        if (responseEstatusLocalizacionFinal.status === 1006) {
+                                                            var mensaje = responseEstatusLocalizacionFinal.message.split('\n');
+                                                            mensajeGeneral.addClass('alert alert-success');
+                                                            
+                                                            mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n'+mensaje[1]);
+                                                        } else {
+                                                            mensajeGeneral.addClass('alert alert-danger');
+
+                                                            if (responseEstatusLocalizacionFinal.status === 1004 || responseEstatusLocalizacionFinal.status === 1005 || responseEstatusLocalizacionFinal.status === 1007 || responseEstatusLocalizacionFinal.status === 1008) {
+                                                                mensajeGeneral.text(responseEstatusLocalizacionFinal.message);
+                                                            } else {
+                                                                mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + responseEstatusLocalizacionFinal.status + ' ' + responseEstatusLocalizacionFinal.message);
+                                                            }
+                                                        }
+
+
+
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
@@ -447,10 +480,9 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                     }
                                                 });
 
-
                                             } else {
                                                 mensajeGeneral.addClass('alert alert-danger');
-                                                mensajeGeneral.text('Ocurrió un problema al activar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                                mensajeGeneral.text('Error: ' + responseActivarLocalizacion.status + ' ' + responseActivarLocalizacion.message);
                                                 mensajeGeneral.show();
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
@@ -458,14 +490,24 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 $('#Loading_Modal').modal('hide');
                                             }
                                         });
+
+                                    } else {
+                                        mensajeGeneral.addClass('alert alert-danger');
+                                        mensajeGeneral.text('Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);
+                                        mensajeGeneral.show();
+                                        divMensajeGeneral.show();
+                                        window.scrollTo(0, 0);
+
+                                        $('#Loading_Modal').modal('hide');
                                     }
+
                                 } else {
                                     mensajeGeneral.addClass('alert alert-danger');
 
-                                    if (response.status === 1004 || response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                        mensajeGeneral.text(response.message);
+                                    if (responseEstatusLocalizacion.status === 1004 || responseEstatusLocalizacion.status === 1006 || responseEstatusLocalizacion.status === 1007 || responseEstatusLocalizacion.status === 1008) {
+                                        mensajeGeneral.text(responseEstatusLocalizacion.message);
                                     } else {
-                                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);
                                     }
 
 
@@ -480,7 +522,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                         } else {
                             mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + responseTokenSXMCloud.status + ' ' + responseTokenSXMCloud.message);
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
@@ -491,7 +533,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                 } else {
                     mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + responseTokenSXMIDMLogin.status + ' ' + responseTokenSXMIDMLogin.message);
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
@@ -729,14 +771,14 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+                console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
 
                 if (!response.error) {
                     var tokenSXMIDMLogin = response.token;
 
                     //Consultamos el token SXMCloud
                     SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMCloud]: " + JSON.stringify(response));
+                        console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaTokenSXMCloud]: " + JSON.stringify(response));
 
                         if (!response.error) {
                             var tokenSXMCloud = response.token;
@@ -748,11 +790,15 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                             //sleep(2000);
                             SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
+                                console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(response));
+
+                                //Eliminar estas lineas al subir a produccion
+                                //response.error = true;
+                                //response.status = 1006;
 
                                 if (!response.error) {
                                     if (response.status === 1005) {
-                                        mensajeGeneral.addClass('alert alert-danger');
+                                         mensajeGeneral.addClass('alert alert-danger');
                                         mensajeGeneral.text(response.status + ' ' + response.message);
                                         mensajeGeneral.show();
                                         divMensajeGeneral.show();
@@ -766,23 +812,34 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     if (response.status === 1006 || response.status === 1007 || response.status === 1008) {
                                         //Aqui cancelamos la localizacion
                                         SiriusService.cancelarLocalizacion(vinRequest).then(response => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion]: " + JSON.stringify(response));
+                                            console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/cancelarLocalizacion]: " + JSON.stringify(response));
 
                                             if (!response.error) {
                                                 var svcReqId = response.svcReqId;
 
                                                 SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                                    if (response.tracker) {
-                                                        mensajeGeneral.addClass('alert alert-danger');
-                                                        mensajeGeneral.text('Ocurrió un problema al cancelar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                                    console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(response));
+
+                                                    if (!response.error) {
+
+                                                        mensajeGeneral.addClass('alert alert-success');
+                                                        mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + response.message);
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
                                                         $('#Loading_Modal').modal('hide');
+
                                                     } else {
-                                                        mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
+                                                        mensajeGeneral.addClass('alert alert-danger');
+
+                                                        if (response.status === 1004 || response.status === 1005 || response.status === 1006 || response.status === 1007 || response.status === 1008) {
+                                                            mensajeGeneral.text(response.message);
+                                                        } else {
+                                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                                        }
+
+
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
@@ -790,6 +847,26 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
+
+//                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
+//                                                    if (response.tracker) {
+//                                                        mensajeGeneral.addClass('alert alert-danger');
+//                                                        mensajeGeneral.text('Ocurrió un problema al cancelar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
+//                                                        mensajeGeneral.show();
+//                                                        divMensajeGeneral.show();
+//                                                        window.scrollTo(0, 0);
+//
+//                                                        $('#Loading_Modal').modal('hide');
+//                                                    } else {
+//                                                        mensajeGeneral.addClass('alert alert-success');
+//                                                        mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
+//                                                        mensajeGeneral.show();
+//                                                        divMensajeGeneral.show();
+//                                                        window.scrollTo(0, 0);
+//
+//                                                        $('#Loading_Modal').modal('hide');
+//                                                    }
+//                                                });
 
 
                                             } else {
@@ -826,7 +903,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                         } else {
                             mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + response.status + ' ' + response.message);
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
@@ -1034,7 +1111,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
             if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
                 window.location.href = '/login';
             } else {
-                 //console.log(window.location.href);
+                //console.log(window.location.href);
             }
         }
 
@@ -1158,9 +1235,357 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
         $('#Loading_Modal').modal('show');
 
     };
+
     $scope.hideModal = function () {
         $('#Loading_Modal').modal('hide');
     };
 });
 
+//Shell Controller
+app.controller('ShellController', function ($scope, NgTableParams, $http, ShellService) {
+
+    $scope.shells = [];
+    $scope.token = {};
+    $scope.listShellsDB = [];
+    $scope.listShellsMZone = [];
+
+
+    $scope.consultarShells = function () {
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+
+        //<div class="modal-backdrop fade show"></div>
+        $('#Loading_Modal').modal('show');
+
+        //const div = document.createElement('div');
+        //div.className = 'modal-backdrop fade show';
+        //document.getElementById('page-top').appendChild(div);
+
+        ShellService.consultarShells().then(response => {
+
+            console.log("RESPUESTA EN EL CONTROLLER [consultarShells]: " + JSON.stringify(response));
+
+            if (!response.error) {
+                $scope.shells = response.shells;
+
+                if ($scope.shells !== null && $scope.shells.length > 0) {
+                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                    $scope.tableParams.reload();
+
+                    $('#Loading_Modal').modal('hide');
+
+                    setTimeout(function () {
+                        $('#Loading_Modal').modal('hide');
+                    }, 1000);
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text(response.message);
+
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $scope.shells = [];
+                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                    $scope.tableParams.reload();
+
+                    $('#Loading_Modal').modal('hide');
+                    setTimeout(function () {
+                        $('#Loading_Modal').modal('hide');
+                    }, 1000);
+                }
+
+            } else {
+                mensajeGeneral.addClass('alert alert-danger');
+                mensajeGeneral.text(response.message);
+
+                mensajeGeneral.show();
+                divMensajeGeneral.show();
+                window.scrollTo(0, 0);
+
+                $scope.shells = [];
+
+                $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                $scope.tableParams.reload();
+
+                $('#Loading_Modal').modal('hide');
+                setTimeout(function () {
+                    $('#Loading_Modal').modal('hide');
+                }, 1000);
+            }
+
+        });
+
+    };
+
+    $scope.actualizarShells = function () {
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        $('#Loading_Modal').modal('show');
+
+
+        //Se consultan los shells en base de datos
+        ShellService.consultarShells().then(response => {
+            //$('#Loading_Modal').modal('show');
+
+            console.log("RESPUESTA EN EL CONTROLLER [consultarShells]: " + JSON.stringify(response));
+
+            if (!response.error) {
+                $scope.listShellsDB = response.shells;
+                console.log("LISTA SHELLS BD: " + JSON.stringify($scope.listShellsDB));
+
+                //Consultamos el token MZone
+                ShellService.consultaTokenMzone().then(response => {
+                    console.log("RESPUESTA EN EL CONTROLLER [consultaTokenMzone]: " + JSON.stringify(response));
+
+                    if (!response.error) {
+
+
+                        $scope.token.token = response.token;
+
+                        //Consultamos los shells en MZone
+                        ShellService.consultaShellsMzone($scope.token).then(response => {
+                            console.log("RESPUESTA EN EL CONTROLLER [consultaShellsMzone]: " + JSON.stringify(response));
+
+                            if (!response.error) {
+                                $scope.listaShellsMZone = response.lista;
+                                console.log("LISTA SHELLS MZONE: " + JSON.stringify($scope.listaShellsMZone));
+
+                                if ($scope.listaShellsMZone === null || $scope.listaShellsMZone.length <= 0) {
+                                    mensajeGeneral.addClass('alert alert-danger');
+                                    mensajeGeneral.text('No se encontraron registros en la plataforma de MZone');
+
+                                    mensajeGeneral.show();
+                                    divMensajeGeneral.show();
+                                    window.scrollTo(0, 0);
+
+                                    $('#Loading_Modal').modal('hide');
+                                    //$(".modal-backdrop").remove();
+                                    //$("#Loading_Modal").remove();
+                                } else {
+
+                                    //var shellTemp = {"id": "3d1c7a39-c1ad-460d-bc91-eaff332bac33", "unit_Description": "a3tek0033", "unit_Id": "e390eafd-19ed-480d-a3cf-968655e25816", "vehicleType_Id": "dab92997-8cf0-4d51-b32d-fc98e3316827", "cofDueDate": "2013-07-19T00:00:00Z", "purchaseDate": "2013-07-19T00:00:00Z", "registration": "VIN1002", "vin": "VIN1002", "description": "VIN1002"};
+                                    //$scope.listaShellsMZone.push(shellTemp);
+                                    //console.log("+++++++++++++++++++++++++LISTA MODIFICADA: " + JSON.stringify($scope.listaShellsMZone));
+
+                                    if ($scope.listaShellsMZone.length > 0) {
+
+                                        if ($scope.listShellsDB === null || $scope.listShellsDB.length <= 0) {
+                                            for (var i = 0; i < $scope.listaShellsMZone.length; i++) {
+                                                var shell = {};
+                                                shell.id = $scope.listaShellsMZone[i]["unit_Description"];
+                                                shell.vehicle_Id = $scope.listaShellsMZone[i]["id"];
+                                                shell.unit_Id = $scope.listaShellsMZone[i]["unit_Id"];
+                                                shell.vehicleType_Id = $scope.listaShellsMZone[i]["vehicleType_Id"];
+                                                shell.utcStartDate = $scope.listaShellsMZone[i]["utcStartDate"];
+                                                shell.cofDueDate = $scope.listaShellsMZone[i]["cofDueDate"];
+                                                shell.purchaseDate = $scope.listaShellsMZone[i]["purchaseDate"];
+                                                shell.description = $scope.listaShellsMZone[i]["description"];
+                                                shell.registration = $scope.listaShellsMZone[i]["registration"];
+                                                shell.vin = $scope.listaShellsMZone[i]["vin"];
+                                                shell.isFavorite = false;
+                                                shell.status = false;
+                                                shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                                                console.log("SHELL: " + JSON.stringify(shell));
+
+                                                ShellService.registrarShell(shell).then(response => {
+                                                    console.log("RESPUESTA EN EL CONTROLLER [registrarShell]: " + JSON.stringify(response));
+                                                });
+
+
+                                                //$(".modal-backdrop").remove();
+                                                //$("#Loading_Modal").remove();
+                                            }
+
+                                            $scope.consultarShells();
+                                            window.scrollTo(0, 0);
+                                            $('#Loading_Modal').modal('hide');
+                                        } else {
+
+                                            //var id = "";
+
+                                            for (var i = 0; i < $scope.listaShellsMZone.length; i++) {
+                                                var existe = false;
+
+                                                for (var z = 0; z < $scope.listShellsDB.length; z++) {
+                                                    if ($scope.listaShellsMZone[i]["unit_Description"] === $scope.listShellsDB[z]["id"]) {
+                                                        if ($scope.listShellsDB[z]["status"] === null || $scope.listShellsDB[z]["isFavorite"] === false) {
+
+                                                            var shell = {};
+                                                            shell.id = $scope.listaShellsMZone[i]["unit_Description"];
+                                                            shell.vehicle_Id = $scope.listaShellsMZone[i]["id"];
+                                                            shell.unit_Id = $scope.listaShellsMZone[i]["unit_Id"];
+                                                            shell.vehicleType_Id = $scope.listaShellsMZone[i]["vehicleType_Id"];
+                                                            shell.utcStartDate = $scope.listaShellsMZone[i]["utcStartDate"];
+                                                            shell.cofDueDate = $scope.listaShellsMZone[i]["cofDueDate"];
+                                                            shell.purchaseDate = $scope.listaShellsMZone[i]["purchaseDate"];
+                                                            shell.description = $scope.listaShellsMZone[i]["description"];
+                                                            shell.registration = $scope.listaShellsMZone[i]["registration"];
+                                                            shell.vin = $scope.listaShellsMZone[i]["vin"];
+                                                            shell.isFavorite = false;
+                                                            shell.status = false;
+                                                            shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+                                                            //$scope.listShellsDB[z]["lastUpdate"] = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                                                            ShellService.actualizarShell(shell).then(response => {
+                                                                console.log("RESPUESTA EN EL CONTROLLER [actualizarShell]: " + JSON.stringify(response));
+                                                            });
+
+                                                            //id = $scope.listShellsDB[z]["id"];
+                                                            existe = true;
+                                                            break;
+                                                        } else {
+                                                            existe = false;
+                                                        }
+
+                                                    }
+                                                }
+
+                                                if (!existe) {
+                                                    var shell = {};
+                                                    //console.log("ID: " + id);
+                                                    //var idSub = id.charAt(id.length - 1);//id.substring(id.length - 1, 1);
+                                                    //console.log("ID: " + idSub);
+                                                    //var idNum = parseInt(idSub);
+                                                    //console.log("ID: " + idNum);
+
+                                                    shell.id = $scope.listaShellsMZone[i]["unit_Description"];
+                                                    shell.vehicle_Id = $scope.listaShellsMZone[i]["id"];
+                                                    shell.unit_Id = $scope.listaShellsMZone[i]["unit_Id"];
+                                                    shell.vehicleType_Id = $scope.listaShellsMZone[i]["vehicleType_Id"];
+                                                    shell.utcStartDate = $scope.listaShellsMZone[i]["utcStartDate"];
+                                                    shell.cofDueDate = $scope.listaShellsMZone[i]["cofDueDate"];
+                                                    shell.purchaseDate = $scope.listaShellsMZone[i]["purchaseDate"];
+                                                    shell.description = $scope.listaShellsMZone[i]["description"];
+                                                    shell.registration = $scope.listaShellsMZone[i]["registration"];
+                                                    shell.vin = $scope.listaShellsMZone[i]["vin"];
+                                                    shell.isFavorite = false;
+                                                    shell.status = false;
+                                                    shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                                                    console.log("SHELL: " + JSON.stringify(shell));
+
+                                                    ShellService.registrarShell(shell).then(response => {
+                                                        console.log("RESPUESTA EN EL CONTROLLER [registrarShell]: " + JSON.stringify(response));
+                                                    });
+                                                }
+                                            }
+
+                                            $scope.consultarShells();
+                                            window.scrollTo(0, 0);
+                                            $('#Loading_Modal').modal('hide');
+                                            //$(".modal-backdrop").remove();
+                                            //$("#Loading_Modal").remove();
+                                        }
+
+                                    } else {
+                                        mensajeGeneral.addClass('alert alert-danger');
+                                        mensajeGeneral.text('No se encontraron registros en la plataforma de MZone');
+
+                                        mensajeGeneral.show();
+                                        divMensajeGeneral.show();
+                                        window.scrollTo(0, 0);
+
+                                        $('#Loading_Modal').modal('hide');
+                                        //$(".modal-backdrop").remove();
+                                        //$("#Loading_Modal").remove();
+                                    }
+                                }
+
+                            } else {
+                                mensajeGeneral.addClass('alert alert-danger');
+                                if (response.status === 1003) {
+                                    mensajeGeneral.text(response.message);
+                                } else {
+                                    mensajeGeneral.text('Ocurrio un problema al consultar los shells mzone.\n' + 'Error: ' + response.status + ' ' + response.message);
+                                }
+
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
+
+                                $('#Loading_Modal').modal('hide');
+                                //$(".modal-backdrop").remove();
+                                //$("#Loading_Modal").remove();
+                            }
+
+                        });
+
+
+                    } else {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text('Ocurrio un problema la obtener el token MZone.\n' + 'Error: ' + response.status + ' ' + response.message);
+
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
+
+                        $('#Loading_Modal').modal('hide');
+                        //$(".modal-backdrop").remove();
+                        //$("#Loading_Modal").remove();
+                    }
+
+                });
+
+
+            } else {
+
+                mensajeGeneral.addClass('alert alert-danger');
+                mensajeGeneral.text(response.message);
+
+                mensajeGeneral.show();
+                divMensajeGeneral.show();
+                window.scrollTo(0, 0);
+
+                $('#Loading_Modal').modal('hide');
+                //$(".modal-backdrop").remove();
+                //$("#Loading_Modal").remove();
+
+                $scope.shells = [];
+
+                $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                $scope.tableParams.reload();
+
+            }
+
+        });
+
+    };
+
+    $scope.getUserSession = function () {
+
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+            window.location.href = '/login';
+        } else {
+            var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
+            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+            $scope.usuarioSesion = JSON.parse(plaintext);
+
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+                window.location.href = '/login';
+            } else {
+                //console.log(window.location.href);
+            }
+        }
+
+    };
+
+});
 

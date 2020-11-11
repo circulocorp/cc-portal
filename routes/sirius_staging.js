@@ -29,9 +29,18 @@ exports.VIN_EXECUTE_TRACKER = "";
 exports.URL_EXECUTE_TRACKER = "https://rts.cv300-telematics.net/telematicsservices/v1/vehicles/";
 exports.X_API_KEY_EXECUTE_TRACKER = "{{apikey}}";
 
+//variables para la conexion con MZone
+exports.URL_MZONE_TOKEN = "https://login.mzoneweb.net/connect/token";
+exports.GRANT_TYPE_MZONE = "password";
+exports.CLIENT_ID_MZONE = "mz-a3tek";
+exports.CLIENT_SECRET_MZONE = "WJ4wUJo79qFsMm4T9Rj7dKw4";
+exports.SCOPE_MZONE = "openid mz6-api.all mz_username";
+exports.USERNAME_MZONE= "$1R1V$";
+exports.PASSWORD_MZONE = "$1R1V$2020";
+
 //Variables para la conexion a la base de datos
 exports.host = "127.0.0.1";
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "root";
+exports.password = "Pass$word01";//"root";
 exports.port = 5432;
