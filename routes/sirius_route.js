@@ -402,7 +402,7 @@ router.post('/updateShellsMzone', function (req, res, next) {
             'Authorization': 'Bearer ' + shell.token,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({"unit_Description": shell.unit_Description,
+        body: JSON.stringify({"unit_Description": shell.id,
             "unit_Id": shell.unit_Id,
             "vehicleType_Id": shell.vehicleType_Id,
             "utcStartDate": shell.utcStartDate,

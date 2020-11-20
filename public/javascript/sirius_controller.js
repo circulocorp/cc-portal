@@ -458,8 +458,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         if (responseEstatusLocalizacionFinal.status === 1006) {
                                                             var mensaje = responseEstatusLocalizacionFinal.message.split('\n');
                                                             mensajeGeneral.addClass('alert alert-success');
-                                                            
-                                                            mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n'+mensaje[1]);
+
+                                                            mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + mensaje[1]);
                                                         } else {
                                                             mensajeGeneral.addClass('alert alert-danger');
 
@@ -798,7 +798,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                                 if (!response.error) {
                                     if (response.status === 1005) {
-                                         mensajeGeneral.addClass('alert alert-danger');
+                                        mensajeGeneral.addClass('alert alert-danger');
                                         mensajeGeneral.text(response.status + ' ' + response.message);
                                         mensajeGeneral.show();
                                         divMensajeGeneral.show();
@@ -1097,6 +1097,89 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
             });
 
         }
+    };
+
+    $scope.actualizarShell = function () {
+        $scope.token_sxm_idm_login = {};
+        $scope.token_sxm_cloud = {};
+
+        $('#vin').removeClass('is-invalid');
+        $('#vin').removeClass('is-valid');
+
+        $('#mensajeVin').removeClass('invalid-feedback');
+        $('#mensajeVin').removeClass('valid-feedback');
+        $('#mensajeVin').text('');
+        $('#mensajeVin').hide();
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').removeClass('alert alert-success');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var vin = $scope.vehiculoSeleccionado.vin;
+        var mensajeVin = $('#mensajeVin');
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        var esCorrecto = true;
+
+//        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+//
+//            $('#vin').addClass('is-invalid');
+//
+//            mensajeVin.addClass('invalid-feedback');
+//            mensajeVin.text('Debe ingresar el número VIN');
+//            mensajeVin.show();
+//
+//            esCorrecto = false;
+//        } else {
+//            if (vin.length !== 17) {
+//                $('#vin').addClass('is-invalid');
+//
+//                mensajeVin.addClass('invalid-feedback');
+//                mensajeVin.text('El numero VIN debe de ser de 17 caracteres');
+//                mensajeVin.show();
+//
+//                esCorrecto = false;
+//            }
+//
+//        }
+
+        if (esCorrecto) {
+            $('#Loading_Modal').modal('show');
+
+            var vinRequest = {};
+            vinRequest.vin = vin;
+
+            SiriusService.actualizarShell(vinRequest).then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER [actualizarShell]: " + JSON.stringify(response));
+
+                if (!response.error) {
+
+                    mensajeGeneral.addClass('alert alert-success');
+                    mensajeGeneral.text('La actualización del perfil con el vin ' + vin + ' se realizó con exito.\n' + response.message);
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $('#Loading_Modal').modal('hide');
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text(response.message);
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $('#Loading_Modal').modal('hide');
+                }
+            });
+
+
+
+        }
+
     };
 
     $scope.getUserSession = function () {

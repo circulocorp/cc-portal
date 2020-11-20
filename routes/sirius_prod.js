@@ -42,10 +42,10 @@ exports.PASSWORD_MZONE = "$1R1V$2020";
 //Cambiar los siguieentes valores dependiendo el servidor
 //Para el servidor actual de los servicios: exports.password = "Pass$word01";
 //Para el servidor SIRIUS: exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; exports.password = "Pass$word01";
-exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";//"127.0.0.1";//
+exports.host = "127.0.0.1";//"sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "Pass$word01";//"root";//
+exports.password = "root";//"Pass$word01";//
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION

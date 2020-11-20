@@ -324,7 +324,7 @@ app.service('SiriusService', function ($http) {
                                                                         } else {
                                                                             respuesta.error = true;
                                                                             respuesta.status = 2009;
-                                                                            respuesta.message = "La activación fue exitosa, sin embargo, ocurrio un problema al actualizar el cascaron en la API MZone/MProfile";
+                                                                            respuesta.message = "La activación fue exitosa, sin embargo, ocurrio un problema al actualizar el perfil en la API MZone/MProfile";
                                                                             respuesta.svcReqId = null;
                                                                             resolve(respuesta);
                                                                         }
@@ -341,14 +341,14 @@ app.service('SiriusService', function ($http) {
                                                             } else {
                                                                 respuesta.error = true;
                                                                 respuesta.status = 2007;
-                                                                respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
                                                                 respuesta.svcReqId = null;
                                                                 resolve(respuesta);
                                                             }
                                                         } else {
                                                             respuesta.error = true;
                                                             respuesta.status = 2006;
-                                                            respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                            respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
                                                             respuesta.svcReqId = null;
                                                             resolve(respuesta);
                                                         }
@@ -358,7 +358,7 @@ app.service('SiriusService', function ($http) {
                                                 } else {
                                                     respuesta.error = true;
                                                     respuesta.status = 2005;
-                                                    respuesta.message = "La activación fue exitosa, sin embargo, No se pudo actualizar el cascaron MZone/MProfile con ID [" + shell.id + "]";
+                                                    respuesta.message = "La activación fue exitosa, sin embargo, No se pudo actualizar el perfil MZone/MProfile con ID [" + shell.id + "]";
                                                     respuesta.svcReqId = null;
                                                     resolve(respuesta);
                                                 }
@@ -366,7 +366,7 @@ app.service('SiriusService', function ($http) {
                                         } else {
                                             respuesta.error = true;
                                             respuesta.status = 2004;
-                                            respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile libre para el envio de posiciones";
+                                            respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile libre para el envio de posiciones";
                                             respuesta.svcReqId = null;
                                             resolve(respuesta);
                                         }
@@ -375,7 +375,7 @@ app.service('SiriusService', function ($http) {
                                     } else {
                                         respuesta.error = true;
                                         respuesta.status = 2003;
-                                        respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile libre para el envio de posiciones";
+                                        respuesta.message = "La activación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile libre para el envio de posiciones";
                                         respuesta.svcReqId = null;
                                         resolve(respuesta);
                                     }
@@ -488,7 +488,7 @@ app.service('SiriusService', function ($http) {
                                                                             } else {
                                                                                 respuesta.error = true;
                                                                                 respuesta.status = 3009;
-                                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, ocurrio un problema al actualizar el cascaron en la API MZone/MProfile";
+                                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, ocurrio un problema al actualizar el perfil en la API MZone/MProfile";
                                                                                 respuesta.svcReqId = null;
                                                                                 resolve(respuesta);
                                                                             }
@@ -505,14 +505,14 @@ app.service('SiriusService', function ($http) {
                                                                 } else {
                                                                     respuesta.error = true;
                                                                     respuesta.status = 3007;
-                                                                    respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                    respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
                                                                     respuesta.svcReqId = null;
                                                                     resolve(respuesta);
                                                                 }
                                                             } else {
                                                                 respuesta.error = true;
                                                                 respuesta.status = 3006;
-                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el cascaron en la API MZone/MProfile";
+                                                                respuesta.message = "La cancelación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
                                                                 respuesta.svcReqId = null;
                                                                 resolve(respuesta);
                                                             }
@@ -522,7 +522,7 @@ app.service('SiriusService', function ($http) {
                                                     } else {
                                                         respuesta.error = true;
                                                         respuesta.status = 3005;
-                                                        respuesta.message = "La cancelación fue exitosa, sin embargo, No se pudo actualizar en la base de datos el cascaron MZone/MProfile con ID [" + shell.id + "] para poder ser liberado";
+                                                        respuesta.message = "La cancelación fue exitosa, sin embargo, No se pudo actualizar en la base de datos el perfil MZone/MProfile con ID [" + shell.id + "] para poder ser liberado";
                                                         respuesta.svcReqId = null;
                                                         resolve(respuesta);
                                                     }
@@ -531,7 +531,7 @@ app.service('SiriusService', function ($http) {
                                             } else {
                                                 respuesta.error = true;
                                                 respuesta.status = 3004;
-                                                respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                                respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
                                                 respuesta.svcReqId = null;
                                                 resolve(respuesta);
                                             }
@@ -540,7 +540,7 @@ app.service('SiriusService', function ($http) {
                                         } else {
                                             respuesta.error = true;
                                             respuesta.status = 3003;
-                                            respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un cascaron MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                            respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
                                             respuesta.svcReqId = null;
                                             resolve(respuesta);
                                         }
@@ -707,6 +707,123 @@ app.service('SiriusService', function ($http) {
         });
     };
 
+    this.actualizarShell = function (vinRequest) {
 
+        return new Promise((resolve, reject) => {
+            var respuesta = new Object();
+
+            $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function (response) {
+                console.log("RESPUESTA EN EL SERVICE [actualizarShell/getShellByVIN]: " + JSON.stringify(response));
+
+                if (response['status'] === 200) {
+                    var respuestaGetShellTarcker = response['data'];
+                    console.log("RESPUESTA EN EL SERVICE [actualizarShell/getShellByVIN]: " + JSON.stringify(respuestaGetShellTarcker));
+
+                    if (respuestaGetShellTarcker['shell'] !== null && respuestaGetShellTarcker['shell'].length > 0) {
+                        var shell = respuestaGetShellTarcker['shell'][0];
+                        console.log("RESPUESTA EN EL SERVICE [actualizarShell/SHELL]: " + JSON.stringify(shell));
+
+                        shell.description = shell.id + " LIBRE";
+                        shell.registration = shell.id + " LIBRE";
+                        shell.vin = shell.id + " LIBRE";
+                        shell.isFavorite = false;
+                        shell.status = false;
+                        shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
+
+                        $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                            console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShell]: " + JSON.stringify(response));
+
+
+                            if (response['status'] === 200) {
+                                var respuestaUpdateShell = response['data'];
+                                console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShell]: " + JSON.stringify(respuestaUpdateShell));
+
+                                $http.get('./sirius_route/getTokenMzone').then(function (response) {
+                                    console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(response));
+
+
+                                    if (response['status'] === 200) {
+                                        var respuestaObject = response['data'];
+
+                                        if (respuestaObject !== null) {
+
+                                            if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                var token = respuestaObject['access_token'];
+                                                shell.token = token;
+
+                                                $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                    console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
+
+                                                    if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
+                                                        respuesta.error = false;
+                                                        respuesta.status = null;
+                                                        respuesta.message = "Actualización correcta";
+                                                        respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                        resolve(respuesta);
+
+                                                    } else {
+                                                        respuesta.error = true;
+                                                        respuesta.status = 3009;
+                                                        respuesta.message = "Ocurrio un problema al actualizar el perfil en la API MZone/MProfile";
+                                                        respuesta.svcReqId = null;
+                                                        resolve(respuesta);
+                                                    }
+                                                });
+
+                                            } else {
+                                                respuesta.error = true;
+                                                respuesta.status = 3008;
+                                                respuesta.message = "Hubo un problema con la consulta del TOKEN MZone\n" + respuestaObject['error_description'];
+                                                respuesta.svcReqId = null;
+                                                resolve(respuesta);
+                                            }
+
+                                        } else {
+                                            respuesta.error = true;
+                                            respuesta.status = 3007;
+                                            respuesta.message = "Hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                            respuesta.svcReqId = null;
+                                            resolve(respuesta);
+                                        }
+                                    } else {
+                                        respuesta.error = true;
+                                        respuesta.status = 3006;
+                                        respuesta.message = "Hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                        respuesta.svcReqId = null;
+                                        resolve(respuesta);
+                                    }
+                                });
+
+
+                            } else {
+                                respuesta.error = true;
+                                respuesta.status = 3005;
+                                respuesta.message = "No se pudo actualizar en la base de datos el perfil MZone/MProfile con ID [" + shell.id + "] para poder ser liberado";
+                                respuesta.svcReqId = null;
+                                resolve(respuesta);
+                            }
+                        });
+
+                    } else {
+                        respuesta.error = true;
+                        respuesta.status = 3004;
+                        respuesta.message = "No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                        respuesta.svcReqId = null;
+                        resolve(respuesta);
+                    }
+
+
+                } else {
+                    respuesta.error = true;
+                    respuesta.status = 3003;
+                    respuesta.message = "No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                    respuesta.svcReqId = null;
+                    resolve(respuesta);
+                }
+            });
+
+
+        });
+    };
 });
 
