@@ -49,5 +49,5 @@ exports.password = "root";//"Pass$word01";//
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION
-exports.isTest = false;
+exports.isTest = true;
 exports.isTestCont = 0;

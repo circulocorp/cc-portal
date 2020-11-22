@@ -825,5 +825,30 @@ app.service('SiriusService', function ($http) {
 
         });
     };
+
+    this.saveSystemEvents = function (systemEvent) {
+
+        return new Promise((resolve, reject) => {
+            var respuesta = new Object();
+
+            $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
+                console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
+
+                if (systemEventResponse['status'] === 200) {
+                    respuesta.error = false;
+                    respuesta.status = systemEventResponse['status'];
+
+                    resolve(respuesta);
+                } else {
+                    respuesta.error = true;
+                    respuesta.status = systemEventResponse['status'];
+
+                    resolve(respuesta);
+                }
+            });
+
+        });
+
+    };
 });
 

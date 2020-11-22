@@ -43,6 +43,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         var divMensajeGeneral = $('#divMensajeGeneral');
         var esCorrecto = true;
 
+        var busqueda = "";
+
         if ((nombre === null || nombre === '' || typeof (nombre) === 'undefined') && (apellido === null || apellido === '' || typeof (apellido) === 'undefined') && (email === null || email === '' || typeof (email) === 'undefined')) {
             $scope.cliente = {};
 
@@ -71,6 +73,16 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     esCorrecto = false;
                 }
             }
+        }
+
+        if ((nombre !== null && nombre !== '' && typeof (nombre) !== 'undefined')) {
+            busqueda += "NOMBRE: " + nombre;
+        }
+        if ((apellido !== null && apellido !== '' && typeof (apellido) !== 'undefined')) {
+            busqueda += ", APELLIDO: " + apellido;
+        }
+        if ((email !== null && email !== '' && typeof (email) !== 'undefined')) {
+            busqueda += ", EMAIL: " + email;
         }
 
         if (esCorrecto) {
@@ -111,6 +123,17 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
                             $('#Loading_Modal').modal('hide');
                         }
+
+                        var systemEvent = new Object();
+                        systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+                        systemEvent.userEmail = $scope.usuarioSesion.user;
+                        systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+                        systemEvent.action = "CONSULTAR CLIENTE";
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto al cliente con los parametros: " + busqueda;
+
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+
+                        });
 
                     });
 
@@ -264,6 +287,13 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
+            var systemEvent = new Object();
+            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+            systemEvent.userEmail = $scope.usuarioSesion.user;
+            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+            systemEvent.action = "CONSULTAR LOCALIZACION";
+
+
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
                 console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
@@ -294,6 +324,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
+                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                    });
+
                                     $('#Loading_Modal').modal('hide');
 
                                 } else {
@@ -310,8 +344,15 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
+                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                    });
+
                                     $('#Loading_Modal').modal('hide');
                                 }
+
+
+
                             });
 
 
@@ -321,6 +362,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
+
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                            });
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -332,6 +377,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vin + "\n" + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                    });
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -391,6 +440,13 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
+            var systemEvent = new Object();
+            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+            systemEvent.userEmail = $scope.usuarioSesion.user;
+            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+            systemEvent.action = "ACTIVAR LOCALIZACION";
+
+
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(responseTokenSXMIDMLogin => {
                 console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(responseTokenSXMIDMLogin));
@@ -440,6 +496,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                             divMensajeGeneral.show();
                                                             window.scrollTo(0, 0);
 
+                                                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                            });
+
                                                             $('#Loading_Modal').modal('hide');
                                                         } else {
                                                             if (responseEstatusLocalizacionFinal.status === 1006) {
@@ -448,6 +508,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                                 mensajeGeneral.show();
                                                                 divMensajeGeneral.show();
                                                                 window.scrollTo(0, 0);
+
+                                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                                });
 
                                                                 $('#Loading_Modal').modal('hide');
                                                             }
@@ -471,6 +535,9 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         }
 
 
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
 
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
@@ -487,6 +554,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
 
+                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                });
+
                                                 $('#Loading_Modal').modal('hide');
                                             }
                                         });
@@ -497,6 +568,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         mensajeGeneral.show();
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
+
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -515,8 +590,14 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     divMensajeGeneral.show();
                                     window.scrollTo(0, 0);
 
+                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                    });
+
                                     $('#Loading_Modal').modal('hide');
                                 }
+
+
                             });
 
 
@@ -526,6 +607,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
+
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                            });
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -537,6 +622,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                    });
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -596,6 +685,12 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
+            var systemEvent = new Object();
+            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+            systemEvent.userEmail = $scope.usuarioSesion.user;
+            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+            systemEvent.action = "ACTIVAR BLOQUE0";
+
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
                 console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
@@ -627,6 +722,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -643,10 +742,14 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
                                                     if (response.tracker) {
                                                         mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('El bloqueo de localización del vehículo con el vin ' + vin + ' se realizó conexito.\n' + JSON.stringify(response.tracker));
+                                                        mensajeGeneral.text('El bloqueo de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + JSON.stringify(response.tracker));
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
+
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
 
                                                         $('#Loading_Modal').modal('hide');
 
@@ -656,6 +759,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
+
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
 
                                                         $('#Loading_Modal').modal('hide');
                                                     }
@@ -668,6 +775,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 mensajeGeneral.show();
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
+
+                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                });
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -686,6 +797,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -700,6 +815,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                            });
+
                             $('#Loading_Modal').modal('hide');
                         }
                     });
@@ -710,6 +829,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                    });
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -769,6 +892,12 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
+            var systemEvent = new Object();
+            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+            systemEvent.userEmail = $scope.usuarioSesion.user;
+            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+            systemEvent.action = "CANCELAR LOCALIZACION";
+
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
                 console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
@@ -804,6 +933,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -828,6 +961,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
+
                                                         $('#Loading_Modal').modal('hide');
 
                                                     } else {
@@ -844,29 +981,13 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
+
                                                         $('#Loading_Modal').modal('hide');
                                                     }
                                                 });
-
-//                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-//                                                    if (response.tracker) {
-//                                                        mensajeGeneral.addClass('alert alert-danger');
-//                                                        mensajeGeneral.text('Ocurrió un problema al cancelar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-//                                                        mensajeGeneral.show();
-//                                                        divMensajeGeneral.show();
-//                                                        window.scrollTo(0, 0);
-//
-//                                                        $('#Loading_Modal').modal('hide');
-//                                                    } else {
-//                                                        mensajeGeneral.addClass('alert alert-success');
-//                                                        mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
-//                                                        mensajeGeneral.show();
-//                                                        divMensajeGeneral.show();
-//                                                        window.scrollTo(0, 0);
-//
-//                                                        $('#Loading_Modal').modal('hide');
-//                                                    }
-//                                                });
 
 
                                             } else {
@@ -875,6 +996,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 mensajeGeneral.show();
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
+
+                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                });
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -894,6 +1019,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -908,6 +1037,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                            });
+
                             $('#Loading_Modal').modal('hide');
                         }
                     });
@@ -918,6 +1051,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                    });
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -977,6 +1114,12 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
+            var systemEvent = new Object();
+            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+            systemEvent.userEmail = $scope.usuarioSesion.user;
+            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+            systemEvent.action = "APLAZAR LOCALIZACION";
+
             //Consultamos el token SXMIDMLogin
             SiriusService.consultaTokenSXMIDMLogin().then(response => {
                 console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
@@ -1008,6 +1151,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -1029,13 +1176,21 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
 
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
+
                                                         $('#Loading_Modal').modal('hide');
                                                     } else {
                                                         mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('El aplazamiento de localización del vehículo con el vin ' + vin + ' se realizó conexito.');
+                                                        mensajeGeneral.text('El aplazamiento de localización del vehículo con el vin ' + vin + ' se realizó con exito.');
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
                                                         window.scrollTo(0, 0);
+
+                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                        });
 
                                                         $('#Loading_Modal').modal('hide');
                                                     }
@@ -1048,6 +1203,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 mensajeGeneral.show();
                                                 divMensajeGeneral.show();
                                                 window.scrollTo(0, 0);
+
+                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                                });
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -1067,6 +1226,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         divMensajeGeneral.show();
                                         window.scrollTo(0, 0);
 
+                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
+                                        });
+
                                         $('#Loading_Modal').modal('hide');
                                     }
 
@@ -1081,6 +1244,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {
+                            });
+
                             $('#Loading_Modal').modal('hide');
                         }
                     });
@@ -1091,6 +1258,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+                    });
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -1266,6 +1437,11 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
                     $("#Loading_Modal").remove();
 
                     $scope.usuario = response.usuario[0];
+                    console.log("SESSION: " + JSON.stringify($scope.usuario));
+                    console.log("SESSION ENVIROTMEN: " + JSON.stringify(response.environment));
+
+                    $scope.usuario.environment = response.environment;
+                    console.log("SESSION ENVIROTMEN: " + JSON.stringify($scope.usuario.environment));
 
                     var encrypted = CryptoJS.AES.encrypt(JSON.stringify($scope.usuario), "circulocorp");
                     localStorage.setItem('usuarioSession', encrypted);
@@ -1287,12 +1463,29 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
     };
 
     $scope.cerrarSesion = function () {
-        $scope.usuario = {};
-        $scope.usuarioSesion = new Object();
 
-        localStorage.removeItem('usuarioSession');
+        this.getUserSession();
 
-        window.location.href = '/login';
+        var systemEvent = new Object();
+        systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+        systemEvent.userEmail = $scope.usuarioSesion.user;
+        systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+        systemEvent.action = "FINALIZAR SESIÓN";
+        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " finalizo sesión";
+
+        console.log("EVEN SYSTEM: " + JSON.stringify(systemEvent));
+
+        LoginService.saveSystemEvents(systemEvent).then(response => {
+
+            if (!response.error) {
+                $scope.usuario = {};
+                $scope.usuarioSesion = new Object();
+
+                localStorage.removeItem('usuarioSession');
+
+                window.location.href = '/login';
+            }
+        });
     };
 
     $scope.getUserSession = function () {
@@ -1332,6 +1525,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
     $scope.listShellsDB = [];
     $scope.listShellsMZone = [];
 
+    $scope.usuarioSesion = new Object();
 
     $scope.consultarShells = function () {
 
@@ -1386,6 +1580,19 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
                     }, 1000);
                 }
 
+                var systemEvent = new Object();
+                systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+                systemEvent.userEmail = $scope.usuarioSesion.user;
+                systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+                systemEvent.action = "CONSULTA DE PERFILES";
+                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto perfiles Mzone/Mprofile";
+
+                console.log("EVEN SYSTEM: " + JSON.stringify(systemEvent));
+
+                ShellService.saveSystemEvents(systemEvent).then(response => {
+
+                });
+
             } else {
                 mensajeGeneral.addClass('alert alert-danger');
                 mensajeGeneral.text(response.message);
@@ -1420,7 +1627,6 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
         var divMensajeGeneral = $('#divMensajeGeneral');
 
         $('#Loading_Modal').modal('show');
-
 
         //Se consultan los shells en base de datos
         ShellService.consultarShells().then(response => {
@@ -1570,6 +1776,19 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
                                                 }
                                             }
 
+
+                                            var systemEvent = new Object();
+                                            systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+                                            systemEvent.userEmail = $scope.usuarioSesion.user;
+                                            systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+                                            systemEvent.action = "ACTUALIZAR PERFILES";
+                                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " actualizo la tabla de perfiles Mzone/Mprofile";
+
+                                            ShellService.saveSystemEvents(systemEvent).then(response => {
+
+                                            });
+
+
                                             $scope.consultarShells();
                                             window.scrollTo(0, 0);
                                             $('#Loading_Modal').modal('hide');
@@ -1589,6 +1808,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
                                         //$(".modal-backdrop").remove();
                                         //$("#Loading_Modal").remove();
                                     }
+
                                 }
 
                             } else {
@@ -1672,3 +1892,153 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
 });
 
+//Logs Controller
+app.controller('LogController', function ($scope, NgTableParams, $http, LogService) {
+
+    $scope.usuario = {};
+    $scope.usuarioSesion = new Object();
+    $scope.logsBusqueda = {};
+    $scope.fechaIni = '';
+    $scope.fechaFin = '';
+
+    $scope.seleccionarFechaIni = function () {
+        $scope.logsBusqueda.fechaIni = $scope.logsBusqueda.fechaIni + " 00:00:00";
+    };
+    $scope.seleccionarFechaFin = function () {
+        $scope.logsBusqueda.fechaFin = $scope.logsBusqueda.fechaFin + " 23:59:59";
+    };
+
+    $scope.consultarLogs = function () {
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof ($scope.fechaIni) !== "undefined") && ($scope.fechaFin === null || $scope.fechaFin === "" || typeof ($scope.fechaFin) === "undefined")) {
+            mensajeGeneral.addClass('alert alert-danger');
+            mensajeGeneral.text("Seleccione una Fecha Final");
+            mensajeGeneral.show();
+            divMensajeGeneral.show();
+            return;
+        }
+        if (($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof ($scope.fechaFin) !== "undefined") && ($scope.fechaIni === null || $scope.fechaIni === "" || typeof ($scope.fechaIni) === "undefined")) {
+            mensajeGeneral.addClass('alert alert-danger');
+            mensajeGeneral.text("Seleccione una Fecha Inicial");
+            mensajeGeneral.show();
+            divMensajeGeneral.show();
+            return;
+        }
+
+        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof ($scope.fechaIni) !== "undefined") && ($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof ($scope.fechaFin) !== "undefined")) {
+            
+            $scope.logsBusqueda.fechaIni = $scope.fechaIni + " 00:00:00";
+            $scope.logsBusqueda.fechaFin = $scope.fechaFin + " 23:59:59";
+            
+            if ($scope.logsBusqueda.fechaIni > $scope.logsBusqueda.fechaFin) {
+                mensajeGeneral.addClass('alert alert-danger');
+                mensajeGeneral.text("La Fecha Inicial no puede ser mayor a la Fecha Final");
+                mensajeGeneral.show();
+                divMensajeGeneral.show();
+                return;
+            }
+        }
+
+        $('#Loading_Modal').modal('show');
+
+
+
+        LogService.consultarLogs($scope.logsBusqueda).then(response => {
+
+            console.log("RESPUESTA EN EL CONTROLLER [consultarLogs]: " + JSON.stringify(response));
+
+            if (!response.error) {
+                $scope.logs = response.logs;
+
+                if ($scope.logs !== null && $scope.logs.length > 0) {
+                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                    $scope.tableParams.reload();
+
+                    $('#Loading_Modal').modal('hide');
+
+                    setTimeout(function () {
+                        $('#Loading_Modal').modal('hide');
+                    }, 1000);
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text(response.message);
+
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    $scope.logs = [];
+                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                    $scope.tableParams.reload();
+
+                    $('#Loading_Modal').modal('hide');
+                    setTimeout(function () {
+                        $('#Loading_Modal').modal('hide');
+                    }, 1000);
+                }
+
+                var systemEvent = new Object();
+                systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+                systemEvent.userEmail = $scope.usuarioSesion.user;
+                systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+                systemEvent.action = "CONSULTA DE LOGS";
+                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto logs Mzone/Mprofile";
+
+                console.log("EVEN SYSTEM: " + JSON.stringify(systemEvent));
+
+                LogService.saveSystemEvents(systemEvent).then(response => {
+
+                });
+
+            } else {
+                mensajeGeneral.addClass('alert alert-danger');
+                mensajeGeneral.text(response.message);
+
+                mensajeGeneral.show();
+                divMensajeGeneral.show();
+                window.scrollTo(0, 0);
+
+                $scope.logs = [];
+
+                $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                $scope.tableParams.reload();
+
+                $('#Loading_Modal').modal('hide');
+                setTimeout(function () {
+                    $('#Loading_Modal').modal('hide');
+                }, 1000);
+            }
+
+        });
+
+    };
+
+    $scope.getUserSession = function () {
+
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+            window.location.href = '/login';
+        } else {
+            var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
+            var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+            $scope.usuarioSesion = JSON.parse(plaintext);
+
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+                window.location.href = '/login';
+            } else {
+                //console.log(window.location.href);
+            }
+        }
+
+    };
+
+});

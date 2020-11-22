@@ -80,6 +80,10 @@ router.get('/shells', function (req, res) {
     res.render('sirius/shells');
 });
 
+router.get('/logs', function (req, res) {
+    res.render('sirius/logs');
+});
+
 router.get("/login", function (req, res) {
     res.render("login");
 });

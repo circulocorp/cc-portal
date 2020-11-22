@@ -29,10 +29,15 @@ router.post('/getUsuario', function (req, res, next) {
             throw new Error(error);
         } else {
             console.log("RESULTADO AL CONSULTAR EL USUARIO: " + JSON.stringify(results));
+            console.log("RESULTADO AL CONSULTAR EL USUARIO: " + JSON.stringify(environment.environment));
+            var env = environment.environment;
+            env = env.replace(/["]+/g, '');
+            console.log("RESULTADO AL CONSULTAR EL USUARIO: " + JSON.stringify(env));
+
             if (results.rows !== null && results.rows.length > 0) {
-                res.status(200).json({"status": true, "message": "Consulta de usuario con exito", "usuario": results.rows});
+                res.status(200).json({"status": true, "message": "Consulta de usuario con exito", "usuario": results.rows, "environment": env});
             } else {
-                res.status(200).json({"status": true, "message": "No se encontro información", "usuario": results.rows});
+                res.status(200).json({"status": true, "message": "No se encontro información", "usuario": results.rows, "environment": env});
             }
 
         }
@@ -180,6 +185,68 @@ router.post('/getShellByVIN', function (req, res, next) {
         } else {
             console.log("RESULTADO AL CONSULTAR EL SHELL POR VIN:  " + JSON.stringify(results));
             res.status(200).json({"status": true, "message": "Consulta de tracker con exito", "shell": results.rows});
+        }
+    });
+});
+
+router.post('/getLogs', function (req, res, next) {
+    console.log("BODY EN EL REPOSITORY [getLogs]: " + JSON.stringify(req.body));
+
+    var data = req.body;
+    var queryUsuario = "";
+    var queryFecha = "";
+
+    console.log("DATA EN EL REPOSITORY [getLogs]: " + data);
+    console.log("USUARIO EN EL REPOSITORY [getLogs]: " + data.usuario);
+    console.log("FECHAINI EN EL REPOSITORY [getLogs]: " + data.fechaIni);
+    console.log("FECHAFIN EN EL REPOSITORY [getLogs]: " + data.fechaFin);
+
+    if (data !== null && data !== "" && data !== "undefined") {
+        if (data.usuario !== null && data.usuario !== "" && typeof (data.usuario) !== "undefined") {
+            queryUsuario = "AND (user_name LIKE '%" + data.usuario + "%' OR user_email LIKE '%" + data.usuario + "%') ";
+        }
+
+        if ((data.fechaIni !== null && data.fechaIni !== "" && typeof (data.fechaIni) !== "undefined") && (data.fechaFin !== null && data.fechaFin !== "" && typeof (data.fechaFin) !== "undefined")) {
+            queryFecha = "AND (TO_TIMESTAMP(created_date, 'YYYY/MM/DD HH24:MI:SS') >= TO_TIMESTAMP('" + data.fechaIni + "', 'YYYY/MM/DD HH24:MI:SS') AND TO_TIMESTAMP(created_date, 'YYYY/MM/DD HH24:MI:SS') <= TO_TIMESTAMP('" + data.fechaFin + "', 'YYYY/MM/DD HH24:MI:SS')) ";
+        }
+    }
+
+
+    var sql = "SELECT * FROM system_events "
+            + "WHERE 1=1 "
+            + queryUsuario
+            + queryFecha
+            + "ORDER BY created_date DESC ";
+
+    pool.query(sql, [], (error, results) => {
+        if (error) {
+            console.log("ERROR AL CONSULTAR LOS LOGS SIRIUS: " + error);
+            throw new Error(error);
+        } else {
+            console.log("RESULTADO AL CONSULTAR LOS LOGS SIRIUS: " + JSON.stringify(results));
+            if (results.rows !== null && results.rows.length > 0) {
+                res.status(200).json({"status": true, "message": "Consulta de logs con exito", "logs": results.rows});
+            } else {
+                res.status(200).json({"status": true, "message": "No se encontro información", "logs": results.rows});
+            }
+
+        }
+    });
+});
+
+router.post('/saveSystemEvents', function (req, res, next) {
+    console.log("BODY EN EL REPOSITORY [saveSystemEvents]: " + JSON.stringify(req.body));
+
+    var data = req.body;
+    var sql = 'INSERT INTO system_events(created_date, user_email, user_name, action, observations) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+
+    pool.query(sql, [data.date, data.userEmail, data.userName, data.action, data.observation], (error, results) => {
+        if (error) {
+            console.log("ERROR AL REGISTRAR EL SYSTEMEVENT: " + error);
+            throw new Error(error);
+        } else {
+            console.log("RESULTADO AL REGISTRAR EL SYSTEMEVENT: : " + JSON.stringify(results));
+            res.status(200).json({"status": true, "message": "Registro de systemevent con exito", "systemEvent": results.rows});
         }
     });
 });
