@@ -1445,7 +1445,6 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
 
                     var encrypted = CryptoJS.AES.encrypt(JSON.stringify($scope.usuario), "circulocorp");
                     localStorage.setItem('usuarioSession', encrypted);
-
                     window.location.href = '/index';
                 } else {
                     mensaje.addClass('alert-danger');
@@ -1482,7 +1481,6 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
                 $scope.usuarioSesion = new Object();
 
                 localStorage.removeItem('usuarioSession');
-
                 window.location.href = '/login';
             }
         });
@@ -1934,10 +1932,10 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
         }
 
         if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof ($scope.fechaIni) !== "undefined") && ($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof ($scope.fechaFin) !== "undefined")) {
-            
+
             $scope.logsBusqueda.fechaIni = $scope.fechaIni + " 00:00:00";
             $scope.logsBusqueda.fechaFin = $scope.fechaFin + " 23:59:59";
-            
+
             if ($scope.logsBusqueda.fechaIni > $scope.logsBusqueda.fechaFin) {
                 mensajeGeneral.addClass('alert alert-danger');
                 mensajeGeneral.text("La Fecha Inicial no puede ser mayor a la Fecha Final");

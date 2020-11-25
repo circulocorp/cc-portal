@@ -40,6 +40,18 @@ app.service('LoginService', function ($http) {
                             $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
                                 console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
                             });
+                            /**
+                              * PASAMOS LOS DATOS AL LOCAL STORAGE DE NODE JS
+                            **/
+                              $http({
+                                method : "POST",
+                                url : "/passLocalStorage",
+                                params: { user: respuesta.usuario[0].user }
+                              }).then(function mySuccess(response) {
+                                console.log('succes al envio');
+                              }, function myError(response) {
+                                console.log('failed al envio');
+                              });
 
                             resolve(respuesta);
                         } else {
@@ -81,19 +93,18 @@ app.service('LoginService', function ($http) {
                 if (systemEventResponse['status'] === 200) {
                     respuesta.error = false;
                     respuesta.status = systemEventResponse['status'];
-                    
+
                      resolve(respuesta);
                 } else {
                     respuesta.error = true;
                     respuesta.status = systemEventResponse['status'];
-                    
+
                      resolve(respuesta);
                 }
             });
-          
+
         });
 
     };
 
 });
-
