@@ -189,6 +189,37 @@ router.post('/getShellByVIN', function (req, res, next) {
     });
 });
 
+router.post('/getRequestMapByUser', function (req, res, next) {
+    console.log("BODY EN EL REPOSITORY [getLogs]: " + JSON.stringify(req.body));
+
+    var data = req.body;
+    var queryUsuario = data.user;
+
+    console.log("DATA EN EL REPOSITORY [getRequestMapByUser]: " + data);
+    console.log("USUARIO EN EL REPOSITORY [getRequestMapByUser]: " + data.user);
+    var sql = "SELECT " +
+                "id, " +
+                "user_email, " +
+                "url_permission, " +
+                "status " +
+              "FROM request_map " +
+              "WHERE user_email = '" + data.user +"'";
+
+    pool.query(sql, [], (error, results) => {
+        if (error) {
+            console.log("ERROR AL CONSULTAR LOS REQUEST MAP: " + error);
+            throw new Error(error);
+        } else {
+            console.log("RESULTADO AL CONSULTAR LOS REQUEST MAP: " + JSON.stringify(results));
+            if (results.rows !== null && results.rows.length > 0) {
+                res.status(200).json({"status": true, "message": "Consulta de request_map con exito", "logs": results.rows});
+            } else {
+                res.status(200).json({"status": true, "message": "No se encontro información", "request_map": results.rows});
+            }
+        }
+    });
+});
+
 router.post('/getLogs', function (req, res, next) {
     console.log("BODY EN EL REPOSITORY [getLogs]: " + JSON.stringify(req.body));
 

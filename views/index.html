@@ -4,7 +4,14 @@
     <head>
 
         <% include header.html %>
-
+        <script>
+        function load() {
+          console.log('que mamadas dijera mi cuñado');
+          console.log(localStorage.getItem('usuarioSession'));
+          var node_localStorage = localStorage;
+        }
+        window.onload = load;
+        </script>
     </head>
 
     <body id="page-top" ng-controller="LoginController" ng-init="getUserSession()">
@@ -14,7 +21,7 @@
         <div id="wrapper">
 
 
-            <% include sidebar.html %>     
+            <% include sidebar.html %>
 
             <div id="content-wrapper">
 
@@ -34,9 +41,9 @@
                         <div class="card-header">
                             <i class="fas fa-chart-area"></i>
                             Metrics</div>
-                        <div class="card-body">                            
+                        <div class="card-body">
                             <canvas id="myAreaChart" width="100%" height="30">
-                                
+
                             </canvas>
                         </div>
                         <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
@@ -69,7 +76,7 @@
         <% include scripts.html %>
         <script src="/javascript/dashboard.js"></script>
 
-        
+
     </body>
 
 </html>

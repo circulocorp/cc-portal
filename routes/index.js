@@ -17,10 +17,58 @@ const pool = new Pool({
     password: pg_pass,
     port: 5432,
 });
+/**
+  * FUNCION PARA INTERCEPTAR TODAS LAS URLs DEL SISTEMA,
+  * NO APLICARAN PARA /login /notfound Y LAS QUE VAYAMOS DESCARTANDO
+**/
+router.use(function (req, res, next) {
+  console.log('HORA: ', Date.now());
+  console.log('Request URL:', req.originalUrl);
+  console.log('Request Type:', req.method);
+  if (typeof localStorage === "undefined" || localStorage === null) {
+     var LocalStorage = require('node-localstorage').LocalStorage;
+     localStorage = new LocalStorage('./scratch');
+  }
+  console.log('interceptando la url para el user: ');
+  console.log(localStorage.getItem('usuarioSession'));
+
+/*
+  var sql = "SELECT " +
+            	"id, " +
+            	"user_email, " +
+            	"url_permission, " +
+            	"status " +
+            "FROM request_map " +
+            "WHERE user_email = $1";
+  pool.query(sql, [req.query.id], (error, results) => {
+      if (error) {
+          res.render('emergencia');
+      }
+      if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
+          res.render('edit_emergency', {emergencia: req.query.id});
+      } else {
+          res.render('checkemergency', {emergencia: req.query.id});
+      }
+  });
+*/
+
+  next();
+});
 
 router.get('/', function (req, res) {
     res.render('login');
 });
+
+
+// a middleware sub-stack shows request info for any type of HTTP request to the /user/:id path
+/*router.use('/index', function(req, res, next) {
+  console.log('Request URL:', req.originalUrl);
+  next();
+}, function (req, res, next) {
+  console.log('Request Type:', req.method);
+  next();
+});*/
+
 
 router.get('/index', function (req, res) {
     res.render('index');
@@ -80,8 +128,28 @@ router.get('/shells', function (req, res) {
     res.render('sirius/shells');
 });
 
+
+
 router.get('/logs', function (req, res) {
     res.render('sirius/logs');
+});
+
+router.use('/logs', function (req, res, next) {
+  console.log('Request Type:', req.method);
+  next();
+});
+
+router.post("/passLocalStorage", function (req, res) {
+    console.log('llamado del lado del passLocalStorage');
+    console.log(req.query);
+    if (typeof localStorage === "undefined" || localStorage === null) {
+       var LocalStorage = require('node-localstorage').LocalStorage;
+       localStorage = new LocalStorage('./scratch');
+    }
+
+  localStorage.setItem('usuarioSession', req.query.user);
+  console.log(localStorage.getItem('usuarioSession'));
+
 });
 
 router.get("/login", function (req, res) {

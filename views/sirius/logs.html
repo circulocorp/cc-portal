@@ -62,7 +62,7 @@
 
                             <div class="row col-12" id="divMensajeGeneral" style="display: none; white-space: pre-line; margin-top: 30px">
                                 <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
-                            </div>                                    
+                            </div>
 
                             <div class="row col-12" style="margin-top: 30px">
 
@@ -70,17 +70,17 @@
 
                                     <table ng-table="tableParams" class="table table-bordered table-sm"  style=" max-width:100%; width:100%; white-space: nowrap;">
                                         <tbody>
-                                            <tr ng-repeat="log in $data" >                                                     
-                                                <td data-title="'ID'" style="width: 100%">{{ log.id}}</td>                                                                                            
-                                                <td data-title="'FECHA'" style="width: 100%">{{ log.created_date}}</td>                                                                                            
-                                                <td data-title="'ACCIÓN'" style="width: 100%">{{ log.action}}</td>                                                                                            
-                                                <td data-title="'USUARIO'" style="width: 100%">{{ log.user_name}}</td>                                                                                            
-                                                <td data-title="'DETALLE'" style="width: 100%">{{ log.observations}}</td>                                                                                                                                                                                                                                       
+                                            <tr ng-repeat="log in $data" >
+                                                <td data-title="'ID'" style="width: 100px">{{ log.id}}</td>                                                                                            
+                                                <td data-title="'FECHA'" style="width: 100%">{{ log.created_date}}</td>
+                                                <td data-title="'ACCIÓN'" style="width: 100%">{{ log.action}}</td>
+                                                <td data-title="'USUARIO'" style="width: 100%">{{ log.user_name}}</td>
+                                                <td data-title="'DETALLE'" style="width: 100%">{{ log.observations}}</td>
                                             </tr>
                                         </tbody>
                                     </table>
 
-                                </div>                                    
+                                </div>
 
 
                             </div>
