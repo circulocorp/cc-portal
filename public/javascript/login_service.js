@@ -38,28 +38,39 @@ app.service('LoginService', function ($http) {
                             systemEvent.observation = "El usuario " + respuesta.usuario[0].user + " inicio sesión con exito";
 
                             $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
-                                console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
-                            });
-                            /**
-                              * CONSULTAMOS LOS REQUEST MAP DEL USUARIO EN SESION
-                            **/
-                            $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
-                                console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
-                            });
-                            /**
-                              * PASAMOS LOS DATOS AL LOCAL STORAGE DE NODE JS
-                            **/
-                              $http({
-                                method : "POST",
-                                url : "/passLocalStorage",
-                                params: { user: respuesta.usuario[0].user }
-                              }).then(function mySuccess(response) {
-                                console.log('succes al envio');
-                              }, function myError(response) {
-                                console.log('failed al envio');
-                              });
+                                if (systemEventResponse['status'] === 200) {
+                                    respuestaObject = systemEventResponse['data'];
 
-                            resolve(respuesta);
+                                    console.log("SYSTEM EVENT EN EL SERVICE [sirius_repository/saveSystemEvents]: " + JSON.stringify(respuestaObject));
+
+                                    /**
+                                     * CONSULTAMOS EL REQUEST_MAP EN LA BASE DE DATOS
+                                     **/
+                                    $http.post('./sirius_repository/getRequestMapByUser', {user: respuesta.usuario[0].user}).then(function (requestMapResponse) {
+                                        console.log("REQUEST MAP EN EL SERVICE [sirius_repository/getRequestMapByUser]: " + JSON.stringify(requestMapResponse));
+
+                                        if (requestMapResponse['status'] === 200) {
+                                            var respuestaObjectRequestMap = requestMapResponse['data'];
+                                            console.log("REQUEST MAP EN EL SERVICE: " + JSON.stringify(respuestaObjectRequestMap));
+
+                                            /**
+                                             * PASAMOS LOS DATOS AL LOCAL STORAGE DE NODE JS
+                                             **/
+                                            $http.post('/passLocalStorage', {user: respuesta.usuario[0].user, reqmap: respuestaObjectRequestMap.request_map}).then(function (localStorageResponse) {
+
+                                                console.log('PASS LOCAL STORAGE EN EL SERVICE' + JSON.stringify(localStorageResponse));
+
+                                            });
+
+                                            resolve(respuesta);
+                                        }
+
+                                    });
+
+                                }
+
+                            });
+
                         } else {
                             respuesta.error = true;
                             respuesta.status = response['status'];
@@ -100,12 +111,12 @@ app.service('LoginService', function ($http) {
                     respuesta.error = false;
                     respuesta.status = systemEventResponse['status'];
 
-                     resolve(respuesta);
+                    resolve(respuesta);
                 } else {
                     respuesta.error = true;
                     respuesta.status = systemEventResponse['status'];
 
-                     resolve(respuesta);
+                    resolve(respuesta);
                 }
             });
 

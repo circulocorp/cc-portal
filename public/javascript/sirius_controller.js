@@ -579,7 +579,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                 } else {
                                     mensajeGeneral.addClass('alert alert-danger');
 
-                                    if (responseEstatusLocalizacion.status === 1004 || responseEstatusLocalizacion.status === 1006 || responseEstatusLocalizacion.status === 1007 || responseEstatusLocalizacion.status === 1008) {
+                                    if (responseEstatusLocalizacion.status === 1004 || responseEstatusLocalizacion.status === 1006 || responseEstatusLocalizacion.status === 1007 || responseEstatusLocalizacion.status === 1008 || responseEstatusLocalizacion.status === 1009) {
                                         mensajeGeneral.text(responseEstatusLocalizacion.message);
                                     } else {
                                         mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);

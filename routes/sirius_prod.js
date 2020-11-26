@@ -38,6 +38,9 @@ exports.SCOPE_MZONE = "openid mz6-api.all mz_username";
 exports.USERNAME_MZONE = "$1R1V$";
 exports.PASSWORD_MZONE = "$1R1V$2020";
 
+exports.USERNAME_MZONE_HIJA = "ADMIN@3461";
+exports.PASSWORD_MZONE_HIJA = "A3TEKCC3461";
+
 //Variables para la conexion a la base de datos
 //Cambiar los siguieentes valores dependiendo el servidor
 //Para el servidor actual de los servicios: exports.password = "Pass$word01";
@@ -45,7 +48,7 @@ exports.PASSWORD_MZONE = "$1R1V$2020";
 exports.host = "127.0.0.1";//"sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "admin";//"Pass$word01";//
+exports.password = "root";//"Pass$word01";//
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION

@@ -38,6 +38,9 @@ exports.SCOPE_MZONE = "openid mz6-api.all mz_username";
 exports.USERNAME_MZONE = "$1R1V$";
 exports.PASSWORD_MZONE = "$1R1V$2020";
 
+exports.USERNAME_MZONE_HIJA = "ADMIN@3461";
+exports.PASSWORD_MZONE_HIJA = "A3TEKCC3461";
+
 //Variables para la conexion a la base de datos
 //Cambiar los siguieentes valores dependiendo el servidor
 //Para el servidor actual de los servicios: exports.password = "Pass$word01";

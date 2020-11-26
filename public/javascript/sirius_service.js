@@ -198,6 +198,12 @@ app.service('SiriusService', function ($http) {
                                     respuesta.message = "La localización para el vehículo con el VIN " + vinRequest.vin + " tiene un estatus " + tracker['status'] + ".\n " + JSON.stringify(tracker) + "";
                                     respuesta.tracker = tracker;
                                     resolve(respuesta);
+                                } else if (tracker['status'] === "ACTIVATION_IN_PROGRESS") {
+                                    respuesta.error = true;
+                                    respuesta.status = 1009;
+                                    respuesta.message = "La localización para el vehículo con el VIN " + vinRequest.vin + " tiene un estatus " + tracker['status'] + ".\n " + JSON.stringify(tracker) + "";
+                                    respuesta.tracker = tracker;
+                                    resolve(respuesta);
                                 } else {
                                     respuesta.error = true;
                                     respuesta.status = 1008;
@@ -321,6 +327,67 @@ app.service('SiriusService', function ($http) {
                                                                             respuesta.svcReqId = respuestaObject['svcReqId'];
                                                                             resolve(respuesta);
 
+
+
+                                                                            //Segunda llamada para actualizar el perfil en MZone/MProfile
+                                                                            $http.get('./sirius_route/getTokenMzoneHija').then(function (responseTokenMzone) {
+                                                                                console.log("RESPUESTA EN EL SERVICE [getTokenMzoneHija]: " + JSON.stringify(responseTokenMzone));
+
+                                                                                var respuestaObject;
+                                                                                var token;
+
+                                                                                if (responseTokenMzone['status'] === 200) {
+                                                                                    respuestaObject = responseTokenMzone['data'];
+
+                                                                                    if (respuestaObject !== null) {
+
+                                                                                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                                            token = respuestaObject['access_token'];
+                                                                                            shell.token = token;
+
+                                                                                            $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                                                console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
+
+                                                                                                if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
+                                                                                                    respuesta.error = false;
+                                                                                                    respuesta.status = null;
+                                                                                                    respuesta.message = "Activación correcta";
+                                                                                                    respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                                                                    resolve(respuesta);
+
+                                                                                                } else {
+                                                                                                    respuesta.error = true;
+                                                                                                    respuesta.status = 2009;
+                                                                                                    respuesta.message = "La activación fue exitosa, sin embargo, ocurrio un problema al actualizar el perfil en la API MZone/MProfile";
+                                                                                                    respuesta.svcReqId = null;
+                                                                                                    resolve(respuesta);
+                                                                                                }
+                                                                                            });
+
+                                                                                        } else {
+                                                                                            respuesta.error = true;
+                                                                                            respuesta.status = 2008;
+                                                                                            respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone\n" + respuestaObject['error_description'];
+                                                                                            respuesta.svcReqId = null;
+                                                                                            resolve(respuesta);
+                                                                                        }
+
+                                                                                    } else {
+                                                                                        respuesta.error = true;
+                                                                                        respuesta.status = 2007;
+                                                                                        respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                                                                        respuesta.svcReqId = null;
+                                                                                        resolve(respuesta);
+                                                                                    }
+                                                                                } else {
+                                                                                    respuesta.error = true;
+                                                                                    respuesta.status = 2006;
+                                                                                    respuesta.message = "La activación fue exitosa, sin embargo, hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                                                                    respuesta.svcReqId = null;
+                                                                                    resolve(respuesta);
+                                                                                }
+                                                                            });
+
                                                                         } else {
                                                                             respuesta.error = true;
                                                                             respuesta.status = 2009;
@@ -353,6 +420,9 @@ app.service('SiriusService', function ($http) {
                                                             resolve(respuesta);
                                                         }
                                                     });
+
+
+
 
 
                                                 } else {
@@ -760,6 +830,64 @@ app.service('SiriusService', function ($http) {
                                                         respuesta.message = "Actualización correcta";
                                                         respuesta.svcReqId = respuestaObject['svcReqId'];
                                                         resolve(respuesta);
+
+
+                                                        //Segunda llamada para actualizar el perfil en MZone/MProfile
+                                                        $http.get('./sirius_route/getTokenMzoneHija').then(function (response) {
+                                                            console.log("RESPUESTA EN EL SERVICE [getTokenMzoneHija]: " + JSON.stringify(response));
+
+
+                                                            if (response['status'] === 200) {
+                                                                var respuestaObject = response['data'];
+
+                                                                if (respuestaObject !== null) {
+
+                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                        var token = respuestaObject['access_token'];
+                                                                        shell.token = token;
+
+                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                            console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
+
+                                                                            if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
+                                                                                respuesta.error = false;
+                                                                                respuesta.status = null;
+                                                                                respuesta.message = "Actualización correcta";
+                                                                                respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                                                resolve(respuesta);
+
+                                                                            } else {
+                                                                                respuesta.error = true;
+                                                                                respuesta.status = 3009;
+                                                                                respuesta.message = "Ocurrio un problema al actualizar el perfil en la API MZone/MProfile";
+                                                                                respuesta.svcReqId = null;
+                                                                                resolve(respuesta);
+                                                                            }
+                                                                        });
+
+                                                                    } else {
+                                                                        respuesta.error = true;
+                                                                        respuesta.status = 3008;
+                                                                        respuesta.message = "Hubo un problema con la consulta del TOKEN MZone\n" + respuestaObject['error_description'];
+                                                                        respuesta.svcReqId = null;
+                                                                        resolve(respuesta);
+                                                                    }
+
+                                                                } else {
+                                                                    respuesta.error = true;
+                                                                    respuesta.status = 3007;
+                                                                    respuesta.message = "Hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                                                    respuesta.svcReqId = null;
+                                                                    resolve(respuesta);
+                                                                }
+                                                            } else {
+                                                                respuesta.error = true;
+                                                                respuesta.status = 3006;
+                                                                respuesta.message = "Hubo un problema con la consulta del TOKEN MZone, para actualizar el perfil en la API MZone/MProfile";
+                                                                respuesta.svcReqId = null;
+                                                                resolve(respuesta);
+                                                            }
+                                                        });
 
                                                     } else {
                                                         respuesta.error = true;

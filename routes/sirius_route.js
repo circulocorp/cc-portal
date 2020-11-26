@@ -40,6 +40,8 @@ var SCOPE_MZONE = conf.SCOPE_MZONE;//"{{apikey}}";
 var USERNAME_MZONE = conf.USERNAME_MZONE;//"{{apikey}}";
 var PASSWORD_MZONE = conf.PASSWORD_MZONE;//"{{apikey}}";
 
+var USERNAME_MZONE_HIJA = conf.USERNAME_MZONE_HIJA;//"{{apikey}}";
+var PASSWORD_MZONE_HIJA = conf.PASSWORD_MZONE_HIJA;//"{{apikey}}";
 
 router.get('/SXM-IDM-Login', function (req, res, next) {
 
@@ -353,6 +355,36 @@ router.get('/getTokenMzone', function (req, res, next) {
             'scope': SCOPE_MZONE,
             'username': USERNAME_MZONE,
             'password': PASSWORD_MZONE
+        }
+    };
+    request(options, function (error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [getTokenMzone]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [getTokenMzone]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
+
+});
+
+router.get('/getTokenMzoneHija', function (req, res, next) {
+
+    var options = {
+        'method': 'POST',
+        'url': URL_MZONE_TOKEN,
+        'headers': {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        form: {
+            'grant_type': GRANT_TYPE_MZONE,
+            'client_id': CLIENT_ID_MZONE,
+            'client_secret': CLIENT_SECRET_MZONE,
+            'scope': SCOPE_MZONE,
+            'username': USERNAME_MZONE_HIJA,
+            'password': PASSWORD_MZONE_HIJA
         }
     };
     request(options, function (error, response) {

@@ -32,36 +32,25 @@ router.use(function (req, res, next) {
   console.log('interceptando la url para el user: ');
   console.log(localStorage.getItem('usuarioSession'));
 
-  if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
-      //window.location.href = '/login';
-      var user = localStorage.getItem('usuarioSession');
-      console.log('tendriamos que redireccionar al login porque no tenemos usuario');
-
-      var sql = "SELECT " +
-                	"id, " +
-                	"user_email, " +
-                	"url_permission, " +
-                	"status " +
-                "FROM request_map " +
-                "WHERE user_email = $1";
-      pool.query(sql, [req.query.id], (error, results) => {
-          if (error) {
-              res.render('emergencia');
-          }
-          if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
-              res.render('edit_emergency', {emergencia: req.query.id});
-          } else {
-              res.render('checkemergency', {emergencia: req.query.id});
-          }
-      });
-
-  } else {
-
-  }
-
-
-
-
+/*
+  var sql = "SELECT " +
+            	"id, " +
+            	"user_email, " +
+            	"url_permission, " +
+            	"status " +
+            "FROM request_map " +
+            "WHERE user_email = $1";
+  pool.query(sql, [req.query.id], (error, results) => {
+      if (error) {
+          res.render('emergencia');
+      }
+      if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
+          res.render('edit_emergency', {emergencia: req.query.id});
+      } else {
+          res.render('checkemergency', {emergencia: req.query.id});
+      }
+  });
+*/
 
   next();
 });
@@ -152,15 +141,19 @@ router.use('/logs', function (req, res, next) {
 
 router.post("/passLocalStorage", function (req, res) {
     console.log('llamado del lado del passLocalStorage');
-    console.log(req.query);
-    if (typeof localStorage === "undefined" || localStorage === null) {
-       var LocalStorage = require('node-localstorage').LocalStorage;
-       localStorage = new LocalStorage('./scratch');
-    }
+    console.log("USUARIO EN EL INDEX LOCAL STROAGE: "+req.body.user);
+    console.log(req.body.user);
+    console.log(req.body.reqmap);
+    
+//    if (typeof localStorage === "undefined" || localStorage === null) {
+//       var LocalStorage = require('node-localstorage').LocalStorage;
+//       localStorage = new LocalStorage('./scratch');
+//    }
 
-  localStorage.setItem('usuarioSession', req.query.user);
-  console.log(localStorage.getItem('usuarioSession'));
-
+  //localStorage.setItem('usuarioSession', req.query.user);
+  //console.log(localStorage.getItem('usuarioSession'));
+  
+  res.status(200).json({"status": true, "message": "Envio de parametros al LOCAL STORAGE de NODE con exito"});
 });
 
 router.get("/login", function (req, res) {
