@@ -32,25 +32,36 @@ router.use(function (req, res, next) {
   console.log('interceptando la url para el user: ');
   console.log(localStorage.getItem('usuarioSession'));
 
-/*
-  var sql = "SELECT " +
-            	"id, " +
-            	"user_email, " +
-            	"url_permission, " +
-            	"status " +
-            "FROM request_map " +
-            "WHERE user_email = $1";
-  pool.query(sql, [req.query.id], (error, results) => {
-      if (error) {
-          res.render('emergencia');
-      }
-      if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
-          res.render('edit_emergency', {emergencia: req.query.id});
-      } else {
-          res.render('checkemergency', {emergencia: req.query.id});
-      }
-  });
-*/
+  if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+      //window.location.href = '/login';
+      var user = localStorage.getItem('usuarioSession');
+      console.log('tendriamos que redireccionar al login porque no tenemos usuario');
+
+      var sql = "SELECT " +
+                	"id, " +
+                	"user_email, " +
+                	"url_permission, " +
+                	"status " +
+                "FROM request_map " +
+                "WHERE user_email = $1";
+      pool.query(sql, [req.query.id], (error, results) => {
+          if (error) {
+              res.render('emergencia');
+          }
+          if (results.rowCount > 0 && results.rows[0]["status"] == 1) {
+              res.render('edit_emergency', {emergencia: req.query.id});
+          } else {
+              res.render('checkemergency', {emergencia: req.query.id});
+          }
+      });
+
+  } else {
+
+  }
+
+
+
+
 
   next();
 });

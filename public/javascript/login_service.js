@@ -41,6 +41,12 @@ app.service('LoginService', function ($http) {
                                 console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
                             });
                             /**
+                              * CONSULTAMOS LOS REQUEST MAP DEL USUARIO EN SESION
+                            **/
+                            $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
+                                console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
+                            });
+                            /**
                               * PASAMOS LOS DATOS AL LOCAL STORAGE DE NODE JS
                             **/
                               $http({
