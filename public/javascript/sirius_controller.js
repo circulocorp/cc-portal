@@ -1444,7 +1444,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
                     console.log("SESSION ENVIROTMEN: " + JSON.stringify($scope.usuario.environment));
 
                     var encrypted = CryptoJS.AES.encrypt(JSON.stringify($scope.usuario), "circulocorp");
-                    localStorage.setItem('usuarioSession', encrypted);
+                    localStorage.setItem('usuarioSession', encrypted);                                                                
                     window.location.href = '/index';
                 } else {
                     mensaje.addClass('alert-danger');
@@ -1481,7 +1481,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
                 $scope.usuarioSesion = new Object();
 
                 localStorage.removeItem('usuarioSession');
-                window.location.href = '/login';
+                window.location.href = '/cerrarSession';
             }
         });
     };

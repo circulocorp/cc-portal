@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 
 /**
+ * Configuracion de credenciales.
+ */
+var environment = require('../routes/sirius_config.js');
+var conf;
+environment.environment === "STAGIN" ? conf = require('../routes/sirius_staging.js') : conf = require('../routes/sirius_prod.js');
+
+/**
  * Module dependencies.
  */
 
@@ -12,7 +19,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || conf.port_sirius);
 app.set('port', port);
 
 /**

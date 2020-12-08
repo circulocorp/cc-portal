@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//Variables para ambiente de desarrollo
+//Variables para ambiente de stagin
 //Variables para EndPoint: SXM-IDM-Login
 exports.APIM_SERVER_NAME = "https://sta.api.telematics.net";
 exports.GRANT_TYPE = "client_credentials";
@@ -45,12 +45,14 @@ exports.PASSWORD_MZONE_HIJA = "A3TEKCC3461";
 //Cambiar los siguieentes valores dependiendo el servidor
 //Para el servidor actual de los servicios: exports.password = "Pass$word01";
 //Para el servidor SIRIUS: exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; exports.password = "Pass$word01";
-exports.host = "127.0.0.1";//"sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";
-exports.database = "sirius";
+exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com";//"127.0.0.1";//
+exports.database = "siriussit";
 exports.user = "postgres";
-exports.password = "root";//"Pass$word01";//
+exports.password = "Pass$word01";//"root";//
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION
 exports.isTest = false;
 exports.isTestCont = 0;
+
+exports.port_sirius = 3001;

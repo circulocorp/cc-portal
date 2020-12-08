@@ -1,4 +1,5 @@
 var express = require('express');
+var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
 var ejs = require('ejs');
@@ -10,6 +11,8 @@ var sql = require('./routes/pgroute');
 var sirius_route = require('./routes/sirius_route');
 var sirius_repository = require('./routes/sirius_repository');
 var app = express();
+
+app.use(session({secret: '123456', resave: true, saveUninitialized: true}));
 
 app.set("view options", {layout: true});
 app.engine('html', require('ejs').renderFile);

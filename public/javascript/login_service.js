@@ -36,7 +36,7 @@ app.service('LoginService', function ($http) {
                             systemEvent.userName = respuesta.usuario[0].first_names + " " + respuesta.usuario[0].last_names;
                             systemEvent.action = "INICIO DE SESIÓN";
                             systemEvent.observation = "El usuario " + respuesta.usuario[0].user + " inicio sesión con exito";
-
+                                                        
                             $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
                                 if (systemEventResponse['status'] === 200) {
                                     respuestaObject = systemEventResponse['data'];
