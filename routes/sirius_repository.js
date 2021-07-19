@@ -18,12 +18,21 @@ const pool = new Pool({
 });
 
 router.post('/getUsuario', function(req, res, next) {
+    console.log("AMBIENTE: " + environment.environment);
+    console.log("HOST: " + conf.host);
+    console.log("USER: " + conf.user);
+    console.log("PASSWORD: " + conf.password);
+    console.log("PORT: " + conf.port);
+    console.log("DATABASE: " + conf.database);
     console.log("BODY EN EL REPOSITORY [getUsuario]: " + JSON.stringify(req.body));
 
     var data = req.body;
     var sql = "SELECT * FROM users us WHERE us.user=$1 AND us.password=$2 AND us.status=true";
 
     pool.query(sql, [data.usuario, data.password], (error, results) => {
+        console.log(results);
+        console.log(error);
+
         if (error) {
             console.log("ERROR AL CONSULTAR EL USUARIO: " + error);
             throw new Error(error);
