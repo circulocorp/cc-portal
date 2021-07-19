@@ -1,61 +1,44 @@
 var app = angular.module('ccportal');
 
-app.service('SiriusService', function ($http) {
+app.service('SiriusService', function($http) {
 
-    this.consultaTokenSXMIDMLogin = function () {
-
+    this.consultaTenans = function() {
         return new Promise((resolve, reject) => {
+
             var respuesta = new Object();
-            $http.get('./sirius_route/SXM-IDM-Login').then(function (response) {
-                console.log("RESPUESTA EN EL SERVICE [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+
+            $http.get('./sirius_repository/getTenans').then(function(response) {
+                console.log("RESPUESTA EN EL SERVICE [consultaTenans]: " + JSON.stringify(response));
 
                 var respuestaObject;
-                var token;
 
                 if (response['status'] === 200) {
                     respuestaObject = response['data'];
 
-                    if (respuestaObject !== null) {
+                    console.log("TENANS: " + JSON.stringify(respuestaObject));
+                    respuesta.error = false;
+                    respuesta.status = 'OK';
+                    respuesta.message = 'Consulta de tenans o tipos de clientes con exito.';
+                    respuesta.tenans = respuestaObject['tenans'];
 
-                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
-                            token = respuestaObject['access_token'];
-
-                            respuesta.error = false;
-                            respuesta.status = 200;
-                            respuesta.message = "Consulta exitosa";
-                            respuesta.token = token;
-                            resolve(respuesta);
-                        } else {
-                            respuesta.error = true;
-                            respuesta.status = 1001;
-                            respuesta.message = respuestaObject['error_description'];
-                            respuesta.token = token;
-                            resolve(respuesta);
-                        }
-
-                    } else {
-                        respuesta.error = true;
-                        respuesta.status = response['status'];
-                        respuesta.message = response['message'];
-                        respuesta.token = null;
-                        resolve(respuesta);
-                    }
+                    resolve(respuesta);
                 } else {
                     respuesta.error = true;
-                    respuesta.status = response['status'];
-                    respuesta.message = response['message'];
-                    respuesta.token = null;
+                    respuesta.status = 'Error';
+                    respuesta.message = 'No hay tenans o tipos de clientes configurados.';
+                    respuesta.tenans = null;
                     resolve(respuesta);
                 }
             });
         });
     };
 
-    this.consultaTokenSXMCloud = function () {
+    this.consultaTokenSXMCloud = function(tenan) {
+        console.log("TENAND_ID EN EL SERVICE: " + tenan.tenan_id);
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.get('./sirius_route/SXM-Cloud').then(function (response) {
+            $http.post('./sirius_route/SXM-Cloud', tenan).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [consultaTokenSXMCloud]: " + JSON.stringify(response));
 
                 var respuestaObject;
@@ -66,7 +49,7 @@ app.service('SiriusService', function ($http) {
 
                     if (respuestaObject !== null) {
 
-                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                             token = respuestaObject['access_token'];
 
                             respuesta.error = false;
@@ -100,26 +83,26 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.consultaCliente = function (cliente) {
+    this.consultaCliente = function(cliente) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.post('./sirius_route/consultarCliente', cliente).then(function (response) {
+            $http.post('./sirius_route/consultarCliente', cliente).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [consultaCliente]: " + JSON.stringify(response));
 
                 var respuestaObject;
                 var listaClientes = [];
                 if (response['status'] === 200) {
-                    respuestaObject = response['data'];
+                    respuestaObject = response['data'].result;
 
                     if (respuestaObject !== null) {
 
-                        if (Array.isArray(response['data'])) {
+                        if (Array.isArray(response['data'].result)) {
 
-                            listaClientes = response['data'];
-                            if (typeof (listaClientes) !== 'undefined' && listaClientes !== null && listaClientes.length !== null && listaClientes.length > 0) {
+                            listaClientes = response['data'].result;
+                            if (typeof(listaClientes) !== 'undefined' && listaClientes !== null && listaClientes.length !== null && listaClientes.length > 0) {
 
-                                listaClientes.forEach(function (valor, indice, array) {
+                                listaClientes.forEach(function(valor, indice, array) {
                                     valor.isSelected = false;
                                 });
 
@@ -160,11 +143,11 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.consultaEstatusLocalizacion = function (vinRequest) {
+    this.consultaEstatusLocalizacion = function(vinRequest) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.post('./sirius_route/estatusLocalizacion', vinRequest).then(function (response) {
+            $http.post('./sirius_route/estatusLocalizacion', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [consultaEstatusLocalizacion]: " + JSON.stringify(response));
 
                 var respuestaObject;
@@ -173,7 +156,7 @@ app.service('SiriusService', function ($http) {
                 if (response['status'] === 200) {
                     respuestaObject = response['data'];
 
-                    if (respuestaObject !== null && respuestaObject !== "" && typeof (respuestaObject) !== "") {
+                    if (respuestaObject !== null && respuestaObject !== "" && typeof(respuestaObject) !== "") {
 
                         if (Object.entries(respuestaObject).length === 0) {
                             respuesta.error = false;
@@ -183,7 +166,7 @@ app.service('SiriusService', function ($http) {
                             resolve(respuesta);
                         } else {
 
-                            if (respuestaObject['tracker'] !== null && respuestaObject['tracker'] !== '' && typeof (respuestaObject['tracker']) !== 'undefined') {
+                            if (respuestaObject['tracker'] !== null && respuestaObject['tracker'] !== '' && typeof(respuestaObject['tracker']) !== 'undefined') {
                                 tracker = respuestaObject['tracker'];
 
                                 if (tracker['status'] === "ACTIVE") {
@@ -249,25 +232,25 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.activarLocalizacion = function (vinRequest) {
+    this.activarLocalizacion = function(vinRequest) {
 
         console.log("VIN-REQUEST EN EL SERVICE: " + JSON.stringify(vinRequest));
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.post('./sirius_route/activarLocalizacion', vinRequest).then(function (response) {
+            $http.post('./sirius_route/activarLocalizacion', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion]: " + JSON.stringify(response));
 
 
                 if (response['status'] === 200) {
                     var respuestaObject = response['data'];
 
-                    if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
+                    if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
                         vinRequest.svcReqId = respuestaObject['svcReqId'];
                         vinRequest.eventType = "ACTIVE_TRACKER";
 
-                        $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
+                        $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
                             console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(response));
 
 
@@ -275,7 +258,7 @@ app.service('SiriusService', function ($http) {
                                 var respuestaSaveTarcker = response['data'];
                                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(respuestaSaveTarcker));
 
-                                $http.post('./sirius_repository/getShellByStatus', vinRequest).then(function (response) {
+                                $http.post('./sirius_repository/getShellByStatus', vinRequest).then(function(response) {
                                     console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/getShellByStatus]: " + JSON.stringify(response));
 
 
@@ -294,7 +277,7 @@ app.service('SiriusService', function ($http) {
                                             shell.status = true;
                                             shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
 
-                                            $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                                            $http.post('./sirius_repository/updateShell', shell).then(function(response) {
                                                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShell]: " + JSON.stringify(response));
 
 
@@ -302,7 +285,7 @@ app.service('SiriusService', function ($http) {
                                                     var respuestaUpdateShell = response['data'];
                                                     console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShell]: " + JSON.stringify(respuestaUpdateShell));
 
-                                                    $http.get('./sirius_route/getTokenMzone').then(function (responseTokenMzone) {
+                                                    $http.get('./sirius_route/getTokenMzone').then(function(responseTokenMzone) {
                                                         console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(responseTokenMzone));
 
                                                         var respuestaObject;
@@ -313,11 +296,11 @@ app.service('SiriusService', function ($http) {
 
                                                             if (respuestaObject !== null) {
 
-                                                                if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                                                                     token = respuestaObject['access_token'];
                                                                     shell.token = token;
 
-                                                                    $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                    $http.post('./sirius_route/updateShellsMzone', shell).then(function(responseUpdateShellsMzone) {
                                                                         console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
 
                                                                         if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
@@ -330,7 +313,7 @@ app.service('SiriusService', function ($http) {
 
 
                                                                             //Segunda llamada para actualizar el perfil en MZone/MProfile
-                                                                            $http.get('./sirius_route/getTokenMzoneHija').then(function (responseTokenMzone) {
+                                                                            $http.get('./sirius_route/getTokenMzoneHija').then(function(responseTokenMzone) {
                                                                                 console.log("RESPUESTA EN EL SERVICE [getTokenMzoneHija]: " + JSON.stringify(responseTokenMzone));
 
                                                                                 var respuestaObject;
@@ -341,11 +324,11 @@ app.service('SiriusService', function ($http) {
 
                                                                                     if (respuestaObject !== null) {
 
-                                                                                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                                        if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                                                                                             token = respuestaObject['access_token'];
                                                                                             shell.token = token;
 
-                                                                                            $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                                            $http.post('./sirius_route/updateShellsMzone', shell).then(function(responseUpdateShellsMzone) {
                                                                                                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
 
                                                                                                 if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
@@ -480,12 +463,12 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.cancelarLocalizacion = function (vinRequest) {
+    this.cancelarLocalizacion = function(vinRequest) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_route/cancelarLocalizacion', vinRequest).then(function (response) {
+            $http.post('./sirius_route/cancelarLocalizacion', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion]: " + JSON.stringify(response));
 
 
@@ -499,14 +482,14 @@ app.service('SiriusService', function ($http) {
                         respuesta.tracker = null;
                         resolve(respuesta);
                     } else {
-                        if (respuestaCancelarLocalizacion['svcReqId'] !== null && respuestaCancelarLocalizacion['svcReqId'] !== '' && typeof (respuestaCancelarLocalizacion['svcReqId']) !== 'undefined') {
+                        if (respuestaCancelarLocalizacion['svcReqId'] !== null && respuestaCancelarLocalizacion['svcReqId'] !== '' && typeof(respuestaCancelarLocalizacion['svcReqId']) !== 'undefined') {
 
-                            $http.post('./sirius_repository/deleteTracker', vinRequest).then(function (response) {
+                            $http.post('./sirius_repository/deleteTracker', vinRequest).then(function(response) {
                                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/deleteTracker]: " + JSON.stringify(response));
 
                                 if (response['status'] === 200) {
 
-                                    $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function (response) {
+                                    $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function(response) {
                                         console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/getShellByVIN]: " + JSON.stringify(response));
 
                                         if (response['status'] === 200) {
@@ -524,7 +507,7 @@ app.service('SiriusService', function ($http) {
                                                 shell.status = false;
                                                 shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
 
-                                                $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                                                $http.post('./sirius_repository/updateShell', shell).then(function(response) {
                                                     console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShell]: " + JSON.stringify(response));
 
 
@@ -532,7 +515,7 @@ app.service('SiriusService', function ($http) {
                                                         var respuestaUpdateShell = response['data'];
                                                         console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShell]: " + JSON.stringify(respuestaUpdateShell));
 
-                                                        $http.get('./sirius_route/getTokenMzone').then(function (response) {
+                                                        $http.get('./sirius_route/getTokenMzone').then(function(response) {
                                                             console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(response));
 
 
@@ -541,11 +524,11 @@ app.service('SiriusService', function ($http) {
 
                                                                 if (respuestaObject !== null) {
 
-                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                                                                         var token = respuestaObject['access_token'];
                                                                         shell.token = token;
 
-                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function(responseUpdateShellsMzone) {
                                                                             console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
 
                                                                             if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
@@ -646,13 +629,13 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.bloquearLocalizacion = function (vinRequest) {
+    this.bloquearLocalizacion = function(vinRequest) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
             var idSession = "";
-            $http.post('./sirius_repository/getTracker', vinRequest).then(function (response) {
+            $http.post('./sirius_repository/getTracker', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
                 console.log("RESPUESTA OBJECT [bloquearLocalizacion/getTracker]: " + JSON.stringify(responseObject));
@@ -666,7 +649,7 @@ app.service('SiriusService', function ($http) {
                 vinRequest.sessionId = idSession;
                 console.log("+++RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(vinRequest.sessionId));
 
-                $http.post('./sirius_route/bloquearLocalizacion', vinRequest).then(function (response) {
+                $http.post('./sirius_route/bloquearLocalizacion', vinRequest).then(function(response) {
                     console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion]: " + JSON.stringify(response));
 
                     var respuestaObject;
@@ -680,11 +663,11 @@ app.service('SiriusService', function ($http) {
                             respuesta.tracker = null;
                             resolve(respuesta);
                         } else {
-                            if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
+                            if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
                                 vinRequest.svcReqId = respuestaObject['svcReqId'];
                                 vinRequest.eventType = "BLOCK_TRACKER";
-                                $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
+                                $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
                                     console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/saveTracker]: " + JSON.stringify(response));
                                 });
 
@@ -715,12 +698,12 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.aplazarLocalizacion = function (vinRequest) {
+    this.aplazarLocalizacion = function(vinRequest) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_repository/getTracker', vinRequest).then(function (response) {
+            $http.post('./sirius_repository/getTracker', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
                 console.log("RESPUESTA OBJECT [aplazarLocalizacion/getTracker]: " + JSON.stringify(responseObject));
@@ -730,7 +713,7 @@ app.service('SiriusService', function ($http) {
                 console.log("RESPUESTA SVC REQ ID [aplazarLocalizacion/getTracker]: " + JSON.stringify(vinRequest.svcReqId));
             });
 
-            $http.post('./sirius_route/aplazarLocalizacion', vinRequest).then(function (response) {
+            $http.post('./sirius_route/aplazarLocalizacion', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion]: " + JSON.stringify(response));
 
                 var respuestaObject;
@@ -744,11 +727,11 @@ app.service('SiriusService', function ($http) {
                         respuesta.tracker = null;
                         resolve(respuesta);
                     } else {
-                        if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof (respuestaObject['svcReqId']) !== 'undefined') {
+                        if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
                             vinRequest.svcReqId = respuestaObject['svcReqId'];
                             vinRequest.eventType = "POSTPONE_TRACKER";
-                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function (response) {
+                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
                                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion/saveTracker]: " + JSON.stringify(response));
                             });
 
@@ -777,12 +760,12 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.actualizarShell = function (vinRequest) {
+    this.actualizarShell = function(vinRequest) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function (response) {
+            $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [actualizarShell/getShellByVIN]: " + JSON.stringify(response));
 
                 if (response['status'] === 200) {
@@ -800,7 +783,7 @@ app.service('SiriusService', function ($http) {
                         shell.status = false;
                         shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
 
-                        $http.post('./sirius_repository/updateShell', shell).then(function (response) {
+                        $http.post('./sirius_repository/updateShell', shell).then(function(response) {
                             console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShell]: " + JSON.stringify(response));
 
 
@@ -808,7 +791,7 @@ app.service('SiriusService', function ($http) {
                                 var respuestaUpdateShell = response['data'];
                                 console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShell]: " + JSON.stringify(respuestaUpdateShell));
 
-                                $http.get('./sirius_route/getTokenMzone').then(function (response) {
+                                $http.get('./sirius_route/getTokenMzone').then(function(response) {
                                     console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(response));
 
 
@@ -817,11 +800,11 @@ app.service('SiriusService', function ($http) {
 
                                         if (respuestaObject !== null) {
 
-                                            if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                            if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                                                 var token = respuestaObject['access_token'];
                                                 shell.token = token;
 
-                                                $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                $http.post('./sirius_route/updateShellsMzone', shell).then(function(responseUpdateShellsMzone) {
                                                     console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
 
                                                     if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
@@ -833,7 +816,7 @@ app.service('SiriusService', function ($http) {
 
 
                                                         //Segunda llamada para actualizar el perfil en MZone/MProfile
-                                                        $http.get('./sirius_route/getTokenMzoneHija').then(function (response) {
+                                                        $http.get('./sirius_route/getTokenMzoneHija').then(function(response) {
                                                             console.log("RESPUESTA EN EL SERVICE [getTokenMzoneHija]: " + JSON.stringify(response));
 
 
@@ -842,11 +825,11 @@ app.service('SiriusService', function ($http) {
 
                                                                 if (respuestaObject !== null) {
 
-                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof (respuestaObject['access_token']) !== 'undefined') {
+                                                                    if (respuestaObject['access_token'] !== null && respuestaObject['access_token'] !== '' && typeof(respuestaObject['access_token']) !== 'undefined') {
                                                                         var token = respuestaObject['access_token'];
                                                                         shell.token = token;
 
-                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function (responseUpdateShellsMzone) {
+                                                                        $http.post('./sirius_route/updateShellsMzone', shell).then(function(responseUpdateShellsMzone) {
                                                                             console.log("RESPUESTA EN EL SERVICE [actualizarShell/updateShellsMzone]: " + JSON.stringify(responseUpdateShellsMzone));
 
                                                                             if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
@@ -954,12 +937,12 @@ app.service('SiriusService', function ($http) {
         });
     };
 
-    this.saveSystemEvents = function (systemEvent) {
+    this.saveSystemEvents = function(systemEvent) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function (systemEventResponse) {
+            $http.post('./sirius_repository/saveSystemEvents', systemEvent).then(function(systemEventResponse) {
                 console.log("SYSTEM EVENT EN EL SERVICE: " + JSON.stringify(systemEventResponse));
 
                 if (systemEventResponse['status'] === 200) {
@@ -979,4 +962,3 @@ app.service('SiriusService', function ($http) {
 
     };
 });
-

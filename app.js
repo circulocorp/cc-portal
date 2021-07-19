@@ -12,9 +12,9 @@ var sirius_route = require('./routes/sirius_route');
 var sirius_repository = require('./routes/sirius_repository');
 var app = express();
 
-app.use(session({secret: '123456', resave: true, saveUninitialized: true}));
+app.use(session({ secret: '123456', resave: true, saveUninitialized: true }));
 
-app.set("view options", {layout: true});
+app.set("view options", { layout: true });
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({'extended': 'false'}));
+app.use(bodyParser.urlencoded({ 'extended': 'false' }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'node_modules')));
@@ -33,7 +33,7 @@ app.use('/sql', sql);
 app.use('/sirius_route', sirius_route);
 app.use('/sirius_repository', sirius_repository);
 //app.use(sessionChecker);
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     var err = new Error('Recurso no encontrado');
     err.status = 404;
     res.redirect('/notfound');

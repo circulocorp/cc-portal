@@ -1,49 +1,43 @@
 var environment = require('../routes/sirius_config.js');
 var conf;
-environment.environment === "STAGIN" ? conf = require('../routes/sirius_staging.js') : conf = require('../routes/sirius_prod.js');
+environment.environment === "STAGIN" ? conf = require('../routes/sirius_staging.js') : environment.environment === "PROD" ? conf = require('../routes/sirius_prod.js') : conf = require('../routes/sirius_dev.js');
 
 var express = require('express');
 var request = require('request');
 var secrets = require('docker-secrets-nodejs');
 var router = express.Router();
 
-//Variables para EndPoint: SXM-IDM-Login
-var APIM_SERVER_NAME = conf.APIM_SERVER_NAME;//"https://prd.api.telematics.net";
-var GRANT_TYPE = conf.GRANT_TYPE;//"client_credentials";
-var CLIENT_ID = conf.CLIENT_ID;//"NISSAN_CIRCULO_SVL_MX";
-var CLIENT_SECRET = conf.CLIENT_SECRET;//"KkxCQUMzSXZ1azNTbE1FU0wxaVMkbC0rd3JVejMy";
-
 //Variables para EndPoint: SXM-Cloud
-var URL_SMX_CLOUD = conf.URL_SMX_CLOUD;//"https://access.cv000-telematics.net/auth/oauth2/realms/root/realms/nissanmx/access_token";
-var GRANT_TYPE_SMX_CLOUD = conf.GRANT_TYPE_SMX_CLOUD;//'password';
-var CLIENT_ID_SMX_CLOUD = conf.CLIENT_ID_SMX_CLOUD;//'nmx-svl-696f-473d-818a-dc4d909f85475';
-var CLIENT_SECRET_SMX_CLOUD = conf.CLIENT_SECRET_SMX_CLOUD;//'P9EAjpyTHvw4vKNJxHymvaQUMqLHWXUB7XrS';
-var SCOPE_SMX_CLOUD = conf.SCOPE_SMX_CLOUD;//'rts';
-var USERNAME_SMX_CLOUD = conf.USERNAME_SMX_CLOUD;//'sa-circulo-svl-nissanmx';
-var PASSWORD_SMX_CLOUD = conf.PASSWORD_SMX_CLOUD;//'h%#thB&8hT9PY9bH$zUvE6vCm%XrVFJRq';
-var TENANT_ID_SMX_CLOUD = conf.TENANT_ID_SMX_CLOUD;//'Nissanmx';
+var URL_SMX_CLOUD = conf.URL_SMX_CLOUD;
+var GRANT_TYPE_SMX_CLOUD = conf.GRANT_TYPE_SMX_CLOUD;
+var SCOPE_SMX_CLOUD = conf.SCOPE_SMX_CLOUD;
 
-//Variables para EndPoint: consultarCliente
-var CV_APP_TYPE = conf.CV_APP_TYPE;//"OTHER";
-var CV_API_KEY = conf.CV_API_KEY;//"C37712F28F9F418E9580033D4601987E";
+var CLIENT_ID_SMX_CLOUD = conf.CLIENT_ID_SMX_CLOUD;
+var CLIENT_SECRET_SMX_CLOUD = conf.CLIENT_SECRET_SMX_CLOUD;
+var USERNAME_SMX_CLOUD = conf.USERNAME_SMX_CLOUD;
+var PASSWORD_SMX_CLOUD = conf.PASSWORD_SMX_CLOUD;
+
+//Variables para EndPoint: consultarCliente y consultarAuto
+var URL_SMX_CLOUD_CLIENTE = conf.URL_SMX_CLOUD_CLIENTE;
+var URL_SMX_CLOUD_AUTO = conf.URL_SMX_CLOUD_AUTO;
 
 //Variables para las acciones sobre el vehiculo
-var VIN_EXECUTE_TRACKER = conf.VIN_EXECUTE_TRACKER;//"";
-var URL_EXECUTE_TRACKER = conf.URL_EXECUTE_TRACKER;//"https://rts.cv000-telematics.net/telematicsservices/v1/vehicles/";
-var X_API_KEY_EXECUTE_TRACKER = conf.X_API_KEY_EXECUTE_TRACKER;//"{{apikey}}";
+var VIN_EXECUTE_TRACKER = conf.VIN_EXECUTE_TRACKER;
+var URL_EXECUTE_TRACKER = conf.URL_EXECUTE_TRACKER;
+var X_API_KEY_EXECUTE_TRACKER = conf.X_API_KEY_EXECUTE_TRACKER;
 
-var URL_MZONE_TOKEN = conf.URL_MZONE_TOKEN;//"{{apikey}}";
-var GRANT_TYPE_MZONE = conf.GRANT_TYPE_MZONE;//"{{apikey}}";
-var CLIENT_ID_MZONE = conf.CLIENT_ID_MZONE;//"{{apikey}}";
-var CLIENT_SECRET_MZONE = conf.CLIENT_SECRET_MZONE;//"{{apikey}}";
-var SCOPE_MZONE = conf.SCOPE_MZONE;//"{{apikey}}";
-var USERNAME_MZONE = conf.USERNAME_MZONE;//"{{apikey}}";
-var PASSWORD_MZONE = conf.PASSWORD_MZONE;//"{{apikey}}";
+var URL_MZONE_TOKEN = conf.URL_MZONE_TOKEN;
+var GRANT_TYPE_MZONE = conf.GRANT_TYPE_MZONE;
+var CLIENT_ID_MZONE = conf.CLIENT_ID_MZONE;
+var CLIENT_SECRET_MZONE = conf.CLIENT_SECRET_MZONE;
+var SCOPE_MZONE = conf.SCOPE_MZONE;
+var USERNAME_MZONE = conf.USERNAME_MZONE;
+var PASSWORD_MZONE = conf.PASSWORD_MZONE;
 
-var USERNAME_MZONE_HIJA = conf.USERNAME_MZONE_HIJA;//"{{apikey}}";
-var PASSWORD_MZONE_HIJA = conf.PASSWORD_MZONE_HIJA;//"{{apikey}}";
+var USERNAME_MZONE_HIJA = conf.USERNAME_MZONE_HIJA;
+var PASSWORD_MZONE_HIJA = conf.PASSWORD_MZONE_HIJA;
 
-router.get('/SXM-IDM-Login', function (req, res, next) {
+router.get('/SXM-IDM-Login', function(req, res, next) {
 
     var options = {
         'method': 'POST',
@@ -51,10 +45,10 @@ router.get('/SXM-IDM-Login', function (req, res, next) {
         'headers': {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({"grant_type": GRANT_TYPE, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET})
+        body: JSON.stringify({ "grant_type": GRANT_TYPE, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET })
 
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [SXM-IDM-Login]: " + JSON.stringify(error));
             throw new Error(error);
@@ -66,11 +60,19 @@ router.get('/SXM-IDM-Login', function (req, res, next) {
 
 });
 
-router.get('/SXM-Cloud', function (req, res, next) {
+router.post('/SXM-Cloud', function(req, res, next) {
+
+    var tenan = req.body;
+    console.log("TENAN EN EL REPOSITORY: " + JSON.stringify(tenan));
+
+    CLIENT_ID_SMX_CLOUD = tenan.tenan_id === 'nissanmx' ? conf.CLIENT_ID_SMX_CLOUD : conf.CLIENT_ID_SMX_CLOUD_INFINITI;
+    CLIENT_SECRET_SMX_CLOUD = tenan.tenan_id === 'nissanmx' ? conf.CLIENT_SECRET_SMX_CLOUD : conf.CLIENT_SECRET_SMX_CLOUD_INFINITI;
+    USERNAME_SMX_CLOUD = tenan.tenan_id === 'nissanmx' ? conf.USERNAME_SMX_CLOUD : conf.USERNAME_SMX_CLOUD_INFINITI;
+    PASSWORD_SMX_CLOUD = tenan.tenan_id === 'nissanmx' ? conf.PASSWORD_SMX_CLOUD : conf.PASSWORD_SMX_CLOUD_INFINITI;
 
     var options = {
         'method': 'POST',
-        'url': URL_SMX_CLOUD,
+        'url': 'https://' + URL_SMX_CLOUD + '/auth/oauth2/realms/root/realms/' + tenan.tenan_id + '/access_token',
         'headers': {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
@@ -80,11 +82,11 @@ router.get('/SXM-Cloud', function (req, res, next) {
             'client_secret': CLIENT_SECRET_SMX_CLOUD,
             'scope': SCOPE_SMX_CLOUD,
             'username': USERNAME_SMX_CLOUD,
-            'password': PASSWORD_SMX_CLOUD,
-            'tenantId': TENANT_ID_SMX_CLOUD
+            'password': PASSWORD_SMX_CLOUD
         }
     };
-    request(options, function (error, response) {
+
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [SXM-Cloud]: " + JSON.stringify(error));
             throw new Error(error);
@@ -95,33 +97,41 @@ router.get('/SXM-Cloud', function (req, res, next) {
     });
 });
 
-router.post('/consultarCliente', function (req, res, next) {
+router.post('/consultarCliente', function(req, res, next) {
 
     var cliente = req.body;
     var urlSearch = '';
+    var urlSearchNombre = '';
+    var urlSearchApellido = '';
+    var urlSearchEmail = '';
 
-    if (cliente["nombre"] !== null && cliente["nombre"] !== '' && typeof (cliente["nombre"]) !== 'undefined') {
-        urlSearch += '+firstName:' + cliente["nombre"];
+    if (cliente["nombre"] !== null && cliente["nombre"] !== '' && typeof(cliente["nombre"]) !== 'undefined') {
+        urlSearchNombre += '_queryFilter=givenName%20eq%20%27' + cliente["nombre"] + '%27';
+        urlSearch = urlSearchNombre;
     }
-    if (cliente["apellido"] !== null && cliente["apellido"] !== '' && typeof (cliente["apellido"]) !== 'undefined') {
-        urlSearch += '+lastName:' + cliente["apellido"];
+
+    if (cliente["apellido"] !== null && cliente["apellido"] !== '' && typeof(cliente["apellido"]) !== 'undefined') {
+        urlSearchApellido += '_queryFilter=surname%20eq%20%27' + cliente["apellido"] + '%27';
+        urlSearch = urlSearchNombre != '' ? urlSearch + '&' + urlSearchApellido : urlSearchApellido;
     }
-    if (cliente["email"] !== null && cliente["email"] !== '' && typeof (cliente["email"]) !== 'undefined') {
-        urlSearch += '+email:' + cliente["email"];
+
+    if (cliente["email"] !== null && cliente["email"] !== '' && typeof(cliente["email"]) !== 'undefined') {
+        urlSearchEmail += '_queryFilter=email%20eq%20%27' + cliente["email"] + '%27';
+        urlSearch = urlSearchApellido != '' ? urlSearch + '&' + urlSearchEmail : urlSearchEmail;
     }
+
+    console.log("URL PARA CONSULTA DE CLIENTE: " + urlSearch);
 
     var options = {
         'method': 'GET',
-        'url': APIM_SERVER_NAME + '/m/subscription/accounts?q=brand:Nissan' + urlSearch,
+        'url': 'https://' + URL_SMX_CLOUD_CLIENTE + '/openidm/v1/managed/user/info?' + urlSearch,
         'headers': {
             'Authorization': 'Bearer ' + cliente["token"],
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'CV-AppType': CV_APP_TYPE,
-            'CV-ApiKey': CV_API_KEY
+            'Accept': 'application/json'
         }
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [consultarCliente]: " + JSON.stringify(error));
             throw new Error(error);
@@ -132,31 +142,31 @@ router.post('/consultarCliente', function (req, res, next) {
     });
 });
 
-router.post('/estatusLocalizacion', function (req, res, next) {
+router.post('/estatusLocalizacion', function(req, res, next) {
 
     if (conf.isTest) {
         if (conf.isTestCont === 0) {
             res.send('{}');
             conf.isTestCont = 1;
         } else if (conf.isTestCont === 1) {
-            res.send('{'
-                    + '"tracker": {'
-                    + '	"statusChangedTime": "2020-11-11T03:24:48.000Z",'
-                    + '	"requestedTime": "2020-11-11T03:24:48.000Z",'
-                    + '	"status": "ACTIVE",'
-                    + '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"'
-                    + '}'
-                    + '}');
+            res.send('{' +
+                '"tracker": {' +
+                '	"statusChangedTime": "2020-11-11T03:24:48.000Z",' +
+                '	"requestedTime": "2020-11-11T03:24:48.000Z",' +
+                '	"status": "ACTIVE",' +
+                '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"' +
+                '}' +
+                '}');
             conf.isTestCont = 2;
-        }else if (conf.isTestCont === 2) {
-            res.send('{'
-                    + '"tracker": {'
-                    + '	"statusChangedTime": "2020-11-11T03:24:48.000Z",'
-                    + '	"requestedTime": "2020-11-11T03:24:48.000Z",'
-                    + '	"status": "ACTIVE",'
-                    + '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"'
-                    + '}'
-                    + '}');
+        } else if (conf.isTestCont === 2) {
+            res.send('{' +
+                '"tracker": {' +
+                '	"statusChangedTime": "2020-11-11T03:24:48.000Z",' +
+                '	"requestedTime": "2020-11-11T03:24:48.000Z",' +
+                '	"status": "ACTIVE",' +
+                '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"' +
+                '}' +
+                '}');
             conf.isTestCont = 3;
         } else {
             res.send('{}');
@@ -180,7 +190,7 @@ router.post('/estatusLocalizacion', function (req, res, next) {
                 'AccessToken': token_sxm_idm_login
             }
         };
-        request(options, function (error, response) {
+        request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(error));
                 throw new Error(error);
@@ -192,7 +202,7 @@ router.post('/estatusLocalizacion', function (req, res, next) {
     }
 });
 
-router.post('/activarLocalizacion', function (req, res, next) {
+router.post('/activarLocalizacion', function(req, res, next) {
 
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
@@ -215,10 +225,10 @@ router.post('/activarLocalizacion', function (req, res, next) {
                 'AccessToken': token_sxm_idm_login,
                 'CV-SessionId': session_id
             },
-            body: JSON.stringify({'track': {'type': 'Theft', 'duration': 'PT00H06M', 'state': 'Active'}})
+            body: JSON.stringify({ 'track': { 'type': 'Theft', 'duration': 'PT00H06M', 'state': 'Active' } })
 
         };
-        request(options, function (error, response) {
+        request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(error));
                 throw new Error(error);
@@ -231,7 +241,7 @@ router.post('/activarLocalizacion', function (req, res, next) {
 
 });
 
-router.post('/cancelarLocalizacion', function (req, res, next) {
+router.post('/cancelarLocalizacion', function(req, res, next) {
 
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
@@ -252,7 +262,7 @@ router.post('/cancelarLocalizacion', function (req, res, next) {
                 'Authorization': 'Bearer ' + token_sxm_cloud
             }
         };
-        request(options, function (error, response) {
+        request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [cancelarLocalizacion]: " + JSON.stringify(error));
                 throw new Error(error);
@@ -264,7 +274,7 @@ router.post('/cancelarLocalizacion', function (req, res, next) {
     }
 });
 
-router.post('/bloquearLocalizacion', function (req, res, next) {
+router.post('/bloquearLocalizacion', function(req, res, next) {
 
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
@@ -287,10 +297,10 @@ router.post('/bloquearLocalizacion', function (req, res, next) {
                 'x-api-key': X_API_KEY_EXECUTE_TRACKER,
                 'AccessToken': token_sxm_idm_login
             },
-            body: JSON.stringify({"track": {"type": "Theft", "duration": "PT00H06M", "state": "Block"}})
+            body: JSON.stringify({ "track": { "type": "Theft", "duration": "PT00H06M", "state": "Block" } })
 
         };
-        request(options, function (error, response) {
+        request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [bloquearLocalizacion]: " + JSON.stringify(error));
                 throw new Error(error);
@@ -302,7 +312,7 @@ router.post('/bloquearLocalizacion', function (req, res, next) {
     }
 });
 
-router.post('/aplazarLocalizacion', function (req, res, next) {
+router.post('/aplazarLocalizacion', function(req, res, next) {
 
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
@@ -324,10 +334,10 @@ router.post('/aplazarLocalizacion', function (req, res, next) {
                 'x-api-key': '{{apikey}}',
                 'AccessToken': token_sxm_idm_login
             },
-            body: JSON.stringify({"svcReqId": svc_req_id, "track": {"type": "Theft", "duration": "PT00H06M"}})
+            body: JSON.stringify({ "svcReqId": svc_req_id, "track": { "type": "Theft", "duration": "PT00H06M" } })
 
         };
-        request(options, function (error, response) {
+        request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [aplazarLocalizacion]: " + JSON.stringify(error));
                 throw new Error(error);
@@ -339,7 +349,7 @@ router.post('/aplazarLocalizacion', function (req, res, next) {
     }
 });
 
-router.get('/getTokenMzone', function (req, res, next) {
+router.get('/getTokenMzone', function(req, res, next) {
 
     var options = {
         'method': 'POST',
@@ -357,7 +367,7 @@ router.get('/getTokenMzone', function (req, res, next) {
             'password': PASSWORD_MZONE
         }
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [getTokenMzone]: " + JSON.stringify(error));
             throw new Error(error);
@@ -369,7 +379,7 @@ router.get('/getTokenMzone', function (req, res, next) {
 
 });
 
-router.get('/getTokenMzoneHija', function (req, res, next) {
+router.get('/getTokenMzoneHija', function(req, res, next) {
 
     var options = {
         'method': 'POST',
@@ -387,7 +397,7 @@ router.get('/getTokenMzoneHija', function (req, res, next) {
             'password': PASSWORD_MZONE_HIJA
         }
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [getTokenMzone]: " + JSON.stringify(error));
             throw new Error(error);
@@ -399,7 +409,7 @@ router.get('/getTokenMzoneHija', function (req, res, next) {
 
 });
 
-router.post('/getShellsMzone', function (req, res, next) {
+router.post('/getShellsMzone', function(req, res, next) {
 
     var token = req.body;
 
@@ -410,7 +420,7 @@ router.post('/getShellsMzone', function (req, res, next) {
             'Authorization': 'Bearer ' + token.token
         }
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [getShellsMzone]: " + JSON.stringify(error));
             throw new Error(error);
@@ -422,7 +432,7 @@ router.post('/getShellsMzone', function (req, res, next) {
 
 });
 
-router.post('/updateShellsMzone', function (req, res, next) {
+router.post('/updateShellsMzone', function(req, res, next) {
 
     //console.log("REQUEST EN [updateShellMzone]: "+JSON.stringfy(req.body));
 
@@ -436,7 +446,8 @@ router.post('/updateShellsMzone', function (req, res, next) {
             'Authorization': 'Bearer ' + shell.token,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({"unit_Description": shell.id,
+        body: JSON.stringify({
+            "unit_Description": shell.id,
             "unit_Id": shell.unit_Id,
             "vehicleType_Id": shell.vehicleType_Id,
             "utcStartDate": shell.utcStartDate,
@@ -446,9 +457,9 @@ router.post('/updateShellsMzone', function (req, res, next) {
             "registration": shell.registration,
             "vin": shell.vin,
             "isFavorite": shell.isFavorite
-	})
+        })
     };
-    request(options, function (error, response) {
+    request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [updateShellsMzone]: " + JSON.stringify(error));
             throw new Error(error);

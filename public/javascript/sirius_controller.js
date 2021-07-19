@@ -1,8 +1,7 @@
-
 var app = angular.module('ccportal', ['ngTable']);
 
 //Sirius Controller
-app.controller('SiriusController', function ($scope, NgTableParams, $http, SiriusService) {
+app.controller('SiriusController', function($scope, NgTableParams, $http, SiriusService) {
 
     $scope.usuarioSesion = new Object();
     $scope.cliente = {};
@@ -10,10 +9,82 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
     $scope.clienteSeleccionado = {};
     $scope.vehiculos = [];
     $scope.vehiculoSeleccionado = {};
-    $scope.numeroVin;
+    $scope.numeroVin = "";
 
-    $scope.consultarCliente = function () {
+    $scope.tenans = [];
+    $scope.tenan = {};
 
+    $scope.consultarTenans = function() {
+        //$('#Loading_Modal').modal('show');
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        SiriusService.consultaTenans().then(response => {
+            console.log("RESPUESTA EN EL CONTROLLER [consultaTenans]: " + JSON.stringify(response));
+
+            if (!response.error) {
+                tenans = response.tenans;
+
+                var ele = document.getElementById('select-tenan');
+                ele.innerHTML = ele.innerHTML + '<option value="0">SELECCIONE ...</option>';
+                for (var i = 0; i < tenans.length; i++) {
+                    ele.innerHTML = ele.innerHTML + '<option value="' + tenans[i]['tenan_id'] + '">' + tenans[i]['tenan_id'].toUpperCase() + '</option>';
+                }
+
+                $('#Loading_Modal').modal('hide');
+            } else {
+                mensajeGeneral.addClass('alert alert-danger');
+                mensajeGeneral.text('Ocurrio un problema al consultar los tenans o tipo de cliente.\n' + response.status + ': ' + response.message);
+
+                mensajeGeneral.show();
+                divMensajeGeneral.show();
+                window.scrollTo(0, 0);
+
+                $('#Loading_Modal').modal('hide');
+            }
+
+        });
+    };
+
+    seleccionarTenan = function(ele) {
+        $('#select-tenan').removeClass('is-invalid');
+
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        $('#mensaje').removeClass('valid-feedback');
+        $('#mensaje').text('');
+        $('#mensaje').hide();
+
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
+        console.log(ele.options[ele.selectedIndex].text);
+        let opcion = ele.options[ele.selectedIndex].text;
+
+        if (opcion == 'SELECCIONE ...') {
+            mensajeGeneral.addClass('alert alert-danger');
+            mensajeGeneral.text('Seleccione un valor valido.');
+            mensajeGeneral.show();
+            divMensajeGeneral.show();
+            window.scrollTo(0, 0);
+        } else {
+            $scope.tenan.tenan_id = opcion.toLowerCase();
+            console.log('OPCION SELECCIONADA: ' + $scope.tenan.tenan_id);
+        }
+    };
+
+
+    $scope.consultarCliente = function() {
+
+        $('#select-tenan').removeClass('is-invalid');
         $('#nombre').removeClass('is-invalid');
         $('#apellido').removeClass('is-invalid');
         $('#email').removeClass('is-invalid');
@@ -35,9 +106,11 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         $('#tblVehiculos').hide();
         $('#divAcciones').hide();
 
+        var tenan_id = $scope.tenan.tenan_id;
         var nombre = $scope.cliente.nombre;
         var apellido = $scope.cliente.apellido;
         var email = $scope.cliente.email;
+
         var mensaje = $('#mensaje');
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
@@ -45,7 +118,17 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var busqueda = "";
 
-        if ((nombre === null || nombre === '' || typeof (nombre) === 'undefined') && (apellido === null || apellido === '' || typeof (apellido) === 'undefined') && (email === null || email === '' || typeof (email) === 'undefined')) {
+        console.log("TENAN SELECCIONADO: " + tenan_id);
+        if (tenan_id == null || tenan_id == '' || tenan_id == 'undefined' || tenan_id == 'SELECCIONE ...') {
+            $('#select-tenan').addClass('is-invalid');
+
+            mensaje.addClass('invalid-feedback');
+            mensaje.text('¡Seleccione el Tipo de Cliente (tenan_id) para la búsqueda!');
+            mensaje.show();
+            return;
+        }
+
+        if ((nombre === null || nombre === '' || typeof(nombre) === 'undefined') && (apellido === null || apellido === '' || typeof(apellido) === 'undefined') && (email === null || email === '' || typeof(email) === 'undefined')) {
             $scope.cliente = {};
 
             $('#nombre').addClass('is-invalid');
@@ -59,7 +142,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
             esCorrecto = false;
         } else {
 
-            if (email !== null && email !== '' && typeof (email) !== 'undefined') {
+            if (email !== null && email !== '' && typeof(email) !== 'undefined') {
 
                 if (!validarEmail(email)) {
                     $('#email').addClass('is-invalid');
@@ -75,35 +158,40 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
             }
         }
 
-        if ((nombre !== null && nombre !== '' && typeof (nombre) !== 'undefined')) {
+        if ((nombre !== null && nombre !== '' && typeof(nombre) !== 'undefined')) {
             busqueda += "NOMBRE: " + nombre;
         }
-        if ((apellido !== null && apellido !== '' && typeof (apellido) !== 'undefined')) {
+        if ((apellido !== null && apellido !== '' && typeof(apellido) !== 'undefined')) {
             busqueda += ", APELLIDO: " + apellido;
         }
-        if ((email !== null && email !== '' && typeof (email) !== 'undefined')) {
+        if ((email !== null && email !== '' && typeof(email) !== 'undefined')) {
             busqueda += ", EMAIL: " + email;
         }
+
+        console.log("CONSULTA: " + busqueda);
 
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
+            //Consultamos el token SXMIDMLogin            
+            console.log("TENAN EN EL CONTROLLER: " + JSON.stringify($scope.tenan));
+            SiriusService.consultaTokenSXMCloud($scope.tenan).then(response => {
                 console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
 
                 if (!response.error) {
 
                     //Consultamos el cliente
                     $scope.cliente.token = response.token;
+                    $scope.cliente.tenan = $scope.tenan.tenan_id;
 
+                    console.log("CLIENTE: " + JSON.stringify($scope.cliente));
                     SiriusService.consultaCliente($scope.cliente).then(response => {
                         console.log("RESPUESTA EN EL CONTROLLER [consultaCliente]: " + JSON.stringify(response));
 
                         if (!response.error) {
                             $scope.listaClientes = response.lista;
 
-                            $scope.tableParams = new NgTableParams({}, {dataset: $scope.listaClientes});
+                            $scope.tableParams = new NgTableParams({}, { dataset: $scope.listaClientes });
                             $scope.tableParams.reload();
 
                             $('#tblClientes').show();
@@ -154,7 +242,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.seleccionarCliente = function (data) {
+    $scope.seleccionarCliente = function(data) {
         $scope.clienteSeleccionado = {};
         $scope.vehiculos = [];
         $scope.vehiculoSeleccionado = {};
@@ -177,20 +265,34 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
 
-        $scope.listaClientes.forEach(function (valor, indice, array) {
+        $scope.listaClientes.forEach(function(valor, indice, array) {
             if (!valor.isSelected && data === valor) {
 
                 valor.isSelected = true;
+
+                console.log("DATA: " + JSON.stringify(data));
+
                 $scope.clienteSeleccionado = data;
+
+                console.log("CLIENTE: " + JSON.stringify($scope.clienteSeleccionado));
+
                 $scope.vehiculos = $scope.clienteSeleccionado.vehicles;
 
-                if (typeof ($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
+                console.log("VEHICULOS: " + JSON.stringify($scope.vehiculos));
 
-                    $scope.vehiculos.forEach(function (valor, indice, array) {
+                //QUITAR ESTA LINEA AL TENER DATOS REALES
+                if ($scope.vehiculos == null || $scope.vehiculos == 'undefined' || $scope.vehiculos.length == 0) {
+                    var vehiculo = { "vin": "NS000095074405420", "makeName": "NISSAN", "modelName": "SENTRA", "modelYear": "2021", "exteriorColor": "RED", "status": "ACTIVE" };
+                    $scope.vehiculos.push(vehiculo);
+                }
+
+                if (typeof($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
+
+                    $scope.vehiculos.forEach(function(valor, indice, array) {
                         valor.isSelected = false;
                     });
 
-                    $scope.tableParamsVeviculos = new NgTableParams({filter: {}}, {dataset: $scope.vehiculos});
+                    $scope.tableParamsVeviculos = new NgTableParams({ filter: {} }, { dataset: $scope.vehiculos });
                     $scope.tableParams.reload();
 
                     $('#tblVehiculos').show();
@@ -209,10 +311,10 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         });
 
-        $scope.tableParams = new NgTableParams({filter: {}}, {dataset: $scope.listaClientes});
+        $scope.tableParams = new NgTableParams({ filter: {} }, { dataset: $scope.listaClientes });
     };
 
-    $scope.seleccionarVehiculo = function (data) {
+    $scope.seleccionarVehiculo = function(data) {
         $scope.vehiculoSeleccionado = {};
 
         $('#vin').removeClass('is-invalid');
@@ -223,7 +325,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         $('#mensajeVin').text('');
         $('#mensajeVin').hide();
 
-        $scope.vehiculos.forEach(function (valor, indice, array) {
+        $scope.vehiculos.forEach(function(valor, indice, array) {
 
             if (!valor.isSelected && data.vin === valor.vin) {
                 $scope.vehiculoSeleccionado = data;
@@ -237,7 +339,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.consultarLocalizacion = function () {
+    $scope.consultarLocalizacion = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -262,7 +364,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        if (vin === null || vin === '' || typeof(vin) === 'undefined') {
 
             $('#vin').addClass('is-invalid');
 
@@ -325,8 +427,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     window.scrollTo(0, 0);
 
                                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                    });
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                     $('#Loading_Modal').modal('hide');
 
@@ -345,8 +446,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     window.scrollTo(0, 0);
 
                                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                    });
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                     $('#Loading_Modal').modal('hide');
                                 }
@@ -364,8 +464,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             window.scrollTo(0, 0);
 
                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                            });
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -379,8 +478,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     window.scrollTo(0, 0);
 
                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vin + "\n" + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                    });
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -390,7 +488,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.activarLocalizacion = function () {
+    $scope.activarLocalizacion = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -415,7 +513,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        if (vin === null || vin === '' || typeof(vin) === 'undefined') {
 
             $('#vin').addClass('is-invalid');
 
@@ -497,8 +595,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                             window.scrollTo(0, 0);
 
                                                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                            });
+                                                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                             $('#Loading_Modal').modal('hide');
                                                         } else {
@@ -510,8 +607,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                                 window.scrollTo(0, 0);
 
                                                                 systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                                });
+                                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                                 $('#Loading_Modal').modal('hide');
                                                             }
@@ -536,8 +632,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         mensajeGeneral.show();
                                                         divMensajeGeneral.show();
@@ -555,8 +650,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 window.scrollTo(0, 0);
 
                                                 systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                });
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -570,8 +664,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -591,8 +684,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                     window.scrollTo(0, 0);
 
                                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                    });
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                     $('#Loading_Modal').modal('hide');
                                 }
@@ -609,8 +701,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             window.scrollTo(0, 0);
 
                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                            });
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -624,8 +715,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     window.scrollTo(0, 0);
 
                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                    });
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -635,7 +725,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.activarBloqueo = function () {
+    $scope.activarBloqueo = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -660,7 +750,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        if (vin === null || vin === '' || typeof(vin) === 'undefined') {
 
             $('#vin').addClass('is-invalid');
 
@@ -723,8 +813,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -748,8 +837,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
 
@@ -761,8 +849,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
                                                     }
@@ -777,8 +864,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 window.scrollTo(0, 0);
 
                                                 systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                });
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -798,8 +884,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -816,8 +901,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             window.scrollTo(0, 0);
 
                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                            });
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -831,8 +915,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     window.scrollTo(0, 0);
 
                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                    });
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -842,7 +925,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.cancelarLocalizacion = function () {
+    $scope.cancelarLocalizacion = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -867,7 +950,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        if (vin === null || vin === '' || typeof(vin) === 'undefined') {
 
             $('#vin').addClass('is-invalid');
 
@@ -934,8 +1017,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -962,8 +1044,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
 
@@ -982,8 +1063,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
                                                     }
@@ -998,8 +1078,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 window.scrollTo(0, 0);
 
                                                 systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                });
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -1020,8 +1099,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -1038,8 +1116,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             window.scrollTo(0, 0);
 
                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                            });
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -1053,8 +1130,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     window.scrollTo(0, 0);
 
                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                    });
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -1064,7 +1140,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.aplazarLocalizacion = function () {
+    $scope.aplazarLocalizacion = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -1089,7 +1165,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        if (vin === null || vin === '' || typeof(vin) === 'undefined') {
 
             $('#vin').addClass('is-invalid');
 
@@ -1152,8 +1228,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -1177,8 +1252,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
                                                     } else {
@@ -1189,8 +1263,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                         window.scrollTo(0, 0);
 
                                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                        });
+                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                         $('#Loading_Modal').modal('hide');
                                                     }
@@ -1205,8 +1278,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                                 window.scrollTo(0, 0);
 
                                                 systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                                });
+                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                                 $('#Loading_Modal').modal('hide');
                                             }
@@ -1227,8 +1299,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                                         window.scrollTo(0, 0);
 
                                         systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {
-                                        });
+                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                                         $('#Loading_Modal').modal('hide');
                                     }
@@ -1245,8 +1316,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                             window.scrollTo(0, 0);
 
                             systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {
-                            });
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
@@ -1260,8 +1330,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
                     window.scrollTo(0, 0);
 
                     systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {
-                    });
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
@@ -1270,7 +1339,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
         }
     };
 
-    $scope.actualizarShell = function () {
+    $scope.actualizarShell = function() {
         $scope.token_sxm_idm_login = {};
         $scope.token_sxm_cloud = {};
 
@@ -1295,27 +1364,27 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
         var esCorrecto = true;
 
-//        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
-//
-//            $('#vin').addClass('is-invalid');
-//
-//            mensajeVin.addClass('invalid-feedback');
-//            mensajeVin.text('Debe ingresar el número VIN');
-//            mensajeVin.show();
-//
-//            esCorrecto = false;
-//        } else {
-//            if (vin.length !== 17) {
-//                $('#vin').addClass('is-invalid');
-//
-//                mensajeVin.addClass('invalid-feedback');
-//                mensajeVin.text('El numero VIN debe de ser de 17 caracteres');
-//                mensajeVin.show();
-//
-//                esCorrecto = false;
-//            }
-//
-//        }
+        //        if (vin === null || vin === '' || typeof (vin) === 'undefined') {
+        //
+        //            $('#vin').addClass('is-invalid');
+        //
+        //            mensajeVin.addClass('invalid-feedback');
+        //            mensajeVin.text('Debe ingresar el número VIN');
+        //            mensajeVin.show();
+        //
+        //            esCorrecto = false;
+        //        } else {
+        //            if (vin.length !== 17) {
+        //                $('#vin').addClass('is-invalid');
+        //
+        //                mensajeVin.addClass('invalid-feedback');
+        //                mensajeVin.text('El numero VIN debe de ser de 17 caracteres');
+        //                mensajeVin.show();
+        //
+        //                esCorrecto = false;
+        //            }
+        //
+        //        }
 
         if (esCorrecto) {
             $('#Loading_Modal').modal('show');
@@ -1353,8 +1422,8 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
     };
 
-    $scope.getUserSession = function () {
-        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+    $scope.getUserSession = function() {
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof(localStorage.getItem('usuarioSession')) === "undefined") {
             window.location.href = '/login';
         } else {
             var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
@@ -1362,7 +1431,7 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 
             $scope.usuarioSesion = JSON.parse(plaintext);
 
-            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof($scope.usuarioSesion) === "undefined") {
                 window.location.href = '/login';
             } else {
                 //console.log(window.location.href);
@@ -1373,12 +1442,12 @@ app.controller('SiriusController', function ($scope, NgTableParams, $http, Siriu
 });
 
 //Login Controller
-app.controller('LoginController', function ($scope, NgTableParams, $http, LoginService) {
+app.controller('LoginController', function($scope, NgTableParams, $http, LoginService) {
 
     $scope.usuario = {};
     $scope.usuarioSesion = new Object();
 
-    $scope.consultarUsuario = function () {
+    $scope.consultarUsuario = function() {
 
         $('#mensaje').removeClass('alert-primary');
         $('#mensaje').removeClass('alert-secondary');
@@ -1399,7 +1468,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
         var loading = $('#loading');
         var esCorrecto = true;
 
-        if ((usuario === null || usuario === '' || typeof (usuario) === 'undefined')) {
+        if ((usuario === null || usuario === '' || typeof(usuario) === 'undefined')) {
 
             mensaje.addClass('alert-warning');
             mensaje.text('¡El usuario es requerido!');
@@ -1409,7 +1478,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
             return;
         }
 
-        if ((password === null || password === '' || typeof (password) === 'undefined')) {
+        if ((password === null || password === '' || typeof(password) === 'undefined')) {
             mensaje.addClass('alert-warning');
             mensaje.text('¡El password es requerido!');
             mensaje.show();
@@ -1444,7 +1513,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
                     console.log("SESSION ENVIROTMEN: " + JSON.stringify($scope.usuario.environment));
 
                     var encrypted = CryptoJS.AES.encrypt(JSON.stringify($scope.usuario), "circulocorp");
-                    localStorage.setItem('usuarioSession', encrypted);                                                                
+                    localStorage.setItem('usuarioSession', encrypted);
                     window.location.href = '/index';
                 } else {
                     mensaje.addClass('alert-danger');
@@ -1461,7 +1530,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
         }
     };
 
-    $scope.cerrarSesion = function () {
+    $scope.cerrarSesion = function() {
 
         this.getUserSession();
 
@@ -1486,9 +1555,9 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
         });
     };
 
-    $scope.getUserSession = function () {
+    $scope.getUserSession = function() {
 
-        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof(localStorage.getItem('usuarioSession')) === "undefined") {
             window.location.href = '/login';
         } else {
             var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
@@ -1496,7 +1565,7 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
 
             $scope.usuarioSesion = JSON.parse(plaintext);
 
-            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof($scope.usuarioSesion) === "undefined") {
                 window.location.href = '/login';
             } else {
                 //console.log(window.location.href);
@@ -1505,18 +1574,18 @@ app.controller('LoginController', function ($scope, NgTableParams, $http, LoginS
 
     };
 
-    $scope.showModal = function () {
+    $scope.showModal = function() {
         $('#Loading_Modal').modal('show');
 
     };
 
-    $scope.hideModal = function () {
+    $scope.hideModal = function() {
         $('#Loading_Modal').modal('hide');
     };
 });
 
 //Shell Controller
-app.controller('ShellController', function ($scope, NgTableParams, $http, ShellService) {
+app.controller('ShellController', function($scope, NgTableParams, $http, ShellService) {
 
     $scope.shells = [];
     $scope.token = {};
@@ -1525,7 +1594,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
     $scope.usuarioSesion = new Object();
 
-    $scope.consultarShells = function () {
+    $scope.consultarShells = function() {
 
         $('#mensajeGeneral').removeClass('alert alert-danger');
         $('#mensajeGeneral').text('');
@@ -1551,12 +1620,12 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
                 $scope.shells = response.shells;
 
                 if ($scope.shells !== null && $scope.shells.length > 0) {
-                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                    $scope.tableParams = new NgTableParams({}, { dataset: $scope.shells });
                     $scope.tableParams.reload();
 
                     $('#Loading_Modal').modal('hide');
 
-                    setTimeout(function () {
+                    setTimeout(function() {
                         $('#Loading_Modal').modal('hide');
                     }, 1000);
 
@@ -1569,11 +1638,11 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
                     window.scrollTo(0, 0);
 
                     $scope.shells = [];
-                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                    $scope.tableParams = new NgTableParams({}, { dataset: $scope.shells });
                     $scope.tableParams.reload();
 
                     $('#Loading_Modal').modal('hide');
-                    setTimeout(function () {
+                    setTimeout(function() {
                         $('#Loading_Modal').modal('hide');
                     }, 1000);
                 }
@@ -1601,11 +1670,11 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
                 $scope.shells = [];
 
-                $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                $scope.tableParams = new NgTableParams({}, { dataset: $scope.shells });
                 $scope.tableParams.reload();
 
                 $('#Loading_Modal').modal('hide');
-                setTimeout(function () {
+                setTimeout(function() {
                     $('#Loading_Modal').modal('hide');
                 }, 1000);
             }
@@ -1614,7 +1683,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
     };
 
-    $scope.actualizarShells = function () {
+    $scope.actualizarShells = function() {
 
         $('#mensajeGeneral').removeClass('alert alert-danger');
         $('#mensajeGeneral').text('');
@@ -1860,7 +1929,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
                 $scope.shells = [];
 
-                $scope.tableParams = new NgTableParams({}, {dataset: $scope.shells});
+                $scope.tableParams = new NgTableParams({}, { dataset: $scope.shells });
                 $scope.tableParams.reload();
 
             }
@@ -1869,9 +1938,9 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
     };
 
-    $scope.getUserSession = function () {
+    $scope.getUserSession = function() {
 
-        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof(localStorage.getItem('usuarioSession')) === "undefined") {
             window.location.href = '/login';
         } else {
             var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
@@ -1879,7 +1948,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 
             $scope.usuarioSesion = JSON.parse(plaintext);
 
-            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof($scope.usuarioSesion) === "undefined") {
                 window.location.href = '/login';
             } else {
                 //console.log(window.location.href);
@@ -1891,7 +1960,7 @@ app.controller('ShellController', function ($scope, NgTableParams, $http, ShellS
 });
 
 //Logs Controller
-app.controller('LogController', function ($scope, NgTableParams, $http, LogService) {
+app.controller('LogController', function($scope, NgTableParams, $http, LogService) {
 
     $scope.usuario = {};
     $scope.usuarioSesion = new Object();
@@ -1899,14 +1968,14 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
     $scope.fechaIni = '';
     $scope.fechaFin = '';
 
-    $scope.seleccionarFechaIni = function () {
+    $scope.seleccionarFechaIni = function() {
         $scope.logsBusqueda.fechaIni = $scope.logsBusqueda.fechaIni + " 00:00:00";
     };
-    $scope.seleccionarFechaFin = function () {
+    $scope.seleccionarFechaFin = function() {
         $scope.logsBusqueda.fechaFin = $scope.logsBusqueda.fechaFin + " 23:59:59";
     };
 
-    $scope.consultarLogs = function () {
+    $scope.consultarLogs = function() {
 
         $('#mensajeGeneral').removeClass('alert alert-danger');
         $('#mensajeGeneral').text('');
@@ -1916,14 +1985,14 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
 
-        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof ($scope.fechaIni) !== "undefined") && ($scope.fechaFin === null || $scope.fechaFin === "" || typeof ($scope.fechaFin) === "undefined")) {
+        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof($scope.fechaIni) !== "undefined") && ($scope.fechaFin === null || $scope.fechaFin === "" || typeof($scope.fechaFin) === "undefined")) {
             mensajeGeneral.addClass('alert alert-danger');
             mensajeGeneral.text("Seleccione una Fecha Final");
             mensajeGeneral.show();
             divMensajeGeneral.show();
             return;
         }
-        if (($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof ($scope.fechaFin) !== "undefined") && ($scope.fechaIni === null || $scope.fechaIni === "" || typeof ($scope.fechaIni) === "undefined")) {
+        if (($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof($scope.fechaFin) !== "undefined") && ($scope.fechaIni === null || $scope.fechaIni === "" || typeof($scope.fechaIni) === "undefined")) {
             mensajeGeneral.addClass('alert alert-danger');
             mensajeGeneral.text("Seleccione una Fecha Inicial");
             mensajeGeneral.show();
@@ -1931,7 +2000,7 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
             return;
         }
 
-        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof ($scope.fechaIni) !== "undefined") && ($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof ($scope.fechaFin) !== "undefined")) {
+        if (($scope.fechaIni !== null && $scope.fechaIni !== "" && typeof($scope.fechaIni) !== "undefined") && ($scope.fechaFin !== null && $scope.fechaFin !== "" && typeof($scope.fechaFin) !== "undefined")) {
 
             $scope.logsBusqueda.fechaIni = $scope.fechaIni + " 00:00:00";
             $scope.logsBusqueda.fechaFin = $scope.fechaFin + " 23:59:59";
@@ -1957,12 +2026,12 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
                 $scope.logs = response.logs;
 
                 if ($scope.logs !== null && $scope.logs.length > 0) {
-                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                    $scope.tableParams = new NgTableParams({}, { dataset: $scope.logs });
                     $scope.tableParams.reload();
 
                     $('#Loading_Modal').modal('hide');
 
-                    setTimeout(function () {
+                    setTimeout(function() {
                         $('#Loading_Modal').modal('hide');
                     }, 1000);
 
@@ -1975,11 +2044,11 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
                     window.scrollTo(0, 0);
 
                     $scope.logs = [];
-                    $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                    $scope.tableParams = new NgTableParams({}, { dataset: $scope.logs });
                     $scope.tableParams.reload();
 
                     $('#Loading_Modal').modal('hide');
-                    setTimeout(function () {
+                    setTimeout(function() {
                         $('#Loading_Modal').modal('hide');
                     }, 1000);
                 }
@@ -2007,11 +2076,11 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
 
                 $scope.logs = [];
 
-                $scope.tableParams = new NgTableParams({}, {dataset: $scope.logs});
+                $scope.tableParams = new NgTableParams({}, { dataset: $scope.logs });
                 $scope.tableParams.reload();
 
                 $('#Loading_Modal').modal('hide');
-                setTimeout(function () {
+                setTimeout(function() {
                     $('#Loading_Modal').modal('hide');
                 }, 1000);
             }
@@ -2020,9 +2089,9 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
 
     };
 
-    $scope.getUserSession = function () {
+    $scope.getUserSession = function() {
 
-        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof (localStorage.getItem('usuarioSession')) === "undefined") {
+        if (localStorage.getItem('usuarioSession') === null || localStorage.getItem('usuarioSession') === "" || typeof(localStorage.getItem('usuarioSession')) === "undefined") {
             window.location.href = '/login';
         } else {
             var bytes = CryptoJS.AES.decrypt(localStorage.getItem('usuarioSession'), "circulocorp");
@@ -2030,7 +2099,7 @@ app.controller('LogController', function ($scope, NgTableParams, $http, LogServi
 
             $scope.usuarioSesion = JSON.parse(plaintext);
 
-            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof ($scope.usuarioSesion) === "undefined") {
+            if ($scope.usuarioSesion === null || $scope.usuarioSesion === "" || typeof($scope.usuarioSesion) === "undefined") {
                 window.location.href = '/login';
             } else {
                 //console.log(window.location.href);

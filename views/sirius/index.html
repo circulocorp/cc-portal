@@ -1,186 +1,191 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="ccportal">
 
-    <head>
+<head>
 
-        <% include ../header.html %>
+    <% include ../header.html %>
 
-    </head>
+</head>
 
-    <body id="page-top" ng-controller="SiriusController" ng-init="getUserSession()">
+<body id="page-top" ng-controller="SiriusController" ng-init="getUserSession(); consultarTenans()">
 
-        <% include ../navbar.html %>
+    <% include ../navbar.html %>
 
         <div id="wrapper">
 
 
             <% include ../sidebar.html %>
 
-            <div id="content-wrapper">
+                <div id="content-wrapper">
 
-                <div class="container-fluid">
+                    <div class="container-fluid">
 
-                    <!-- Breadcrumbs-->
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="#">Nissan Connected Services / Infinity InTouch Services</a>
-                        </li>
-                    </ol>
+                        <!-- Breadcrumbs-->
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="#">Nissan Connected Services / Infinity InTouch Services</a>
+                            </li>
+                        </ol>
 
 
-                    <div class="col-mb-12">
+                        <div class="col-mb-12">
 
-                        <form>
+                            <form>
 
-                            <div class="row">
-                                <div class="col-3">
-                                    <div class="row col-12">
-                                        <h4> Buscar Cliente:</h4>
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="row col-12">
+                                            <h4> Buscar Cliente:</h4>
+                                            <div class="col-12 form-group">
+                                                <label for="select-tenan">Tipo Cliente (tenan_id)</label>
+                                                <select id="select-tenan" onchange="seleccionarTenan(this)" class="form-control"></select>
+                                            </div>
+                                            <div class="col-12 form-group">
+                                                <label for="nombre">Nombre</label>
+                                                <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                            </div>
+                                            <div class="col-12 form-group">
+                                                <label for="apellido">Apellido</label>
+                                                <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
+                                            </div>
+                                            <div class="col-12 form-group">
+                                                <label for="email">Email</label>
+                                                <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
+                                            </div>
 
-                                        <div class="col-12 form-group">
-                                            <label for="nombre">Nombre</label>
-                                            <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                            <!--valid-feedback is-valid / invalid-feedback is-invalid-->
+                                            <div id="mensaje" class="col-12 invalid-feedback" style="display: none">
+
+                                            </div>
+                                            <br/><br/>
+
+                                            <div class="col-12">
+                                                <button type="button" class="btn btn-primary" ng-click="consultarCliente()" style="float: right">Buscar</button>
+                                            </div>
+
                                         </div>
-                                        <div class="col-12 form-group">
-                                            <label for="apellido">Apellido</label>
-                                            <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
-                                        </div>
-                                        <div class="col-12 form-group">
-                                            <label for="email">Email</label>
-                                            <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
-                                        </div>
 
-                                        <!--valid-feedback is-valid / invalid-feedback is-invalid-->
-                                        <div id="mensaje" class="col-12 invalid-feedback" style="display: none">
+                                        <div class="row col-12" style="padding-top: 30px; display: none" id="divAcciones">
+                                            <h4> Acciones vehículo:</h4>
 
-                                        </div>
-                                        <br/><br/>
+                                            <div class="col-12 form-group">
+                                                <input type="text" class="form-control" id="vin" ng-model="vehiculoSeleccionado.vin" placeholder="Numero VIN del vehículo" required="true">
+                                            </div>
+                                            <!--valid-feedback is-valid / invalid-feedback is-invalid-->
+                                            <div id="mensajeVin" class="col-12 invalid-feedback" style="display: none; padding-bottom: 10px">
 
-                                        <div class="col-12">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarCliente()" style="float: right">Buscar</button>
+                                            </div>
+                                            <br/><br/>
+
+                                            <div class="col-12" style="padding-bottom: 10px">
+                                                <button type="button" class="btn btn-primary" ng-click="consultarLocalizacion()" style="float: right">Consultar Localización</button>
+                                            </div>
+                                            <div class="col-12" style="padding-bottom: 10px">
+                                                <button type="button" class="btn btn-success" ng-click="activarLocalizacion()" style="float: right">Activar Localización</button>
+                                            </div>
+                                            <div class="col-12" style="padding-bottom: 10px">
+                                                <button type="button" class="btn btn-danger" ng-click="activarBloqueo()" style="float: right">Activar Bloqueo</button>
+                                            </div>
+                                            <div class="col-12" style="padding-bottom: 10px">
+                                                <button type="button" class="btn btn-warning" ng-click="aplazarLocalizacion()" style="float: right">Aplazar Localización</button>
+                                            </div>
+                                            <div class="col-12" style="padding-bottom: 10px">
+                                                <button type="button" class="btn btn-secondary" ng-click="cancelarLocalizacion()" style="float: right">Cancelar Localización</button>
+                                            </div>
+                                            <div class="col-12" style="display: none">
+                                                <button type="button" class="btn btn-secondary" ng-click="actualizarShell()" style="float: right">Actualizar Perfil</button>
+                                            </div>
                                         </div>
 
                                     </div>
 
-                                    <div class="row col-12" style="padding-top: 30px; display: none" id="divAcciones">
-                                        <h4> Acciones vehículo:</h4>
 
-                                        <div class="col-12 form-group">
-                                            <input type="text" class="form-control" id="vin" ng-model="vehiculoSeleccionado.vin" placeholder="Numero VIN del vehículo" required="true">
-                                        </div>
-                                        <!--valid-feedback is-valid / invalid-feedback is-invalid-->
-                                        <div id="mensajeVin" class="col-12 invalid-feedback" style="display: none; padding-bottom: 10px">
+                                    <div class="col-9">
 
-                                        </div>
-                                        <br/><br/>
 
-                                        <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-primary" ng-click="consultarLocalizacion()" style="float: right">Consultar Localización</button>
+                                        <div class="row col-12" id="divMensajeGeneral" style="display: none; white-space: pre-line;">
+                                            <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
                                         </div>
-                                        <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-success" ng-click="activarLocalizacion()" style="float: right">Activar Localización</button>
+
+                                        <div class="row " style="display: none; " id="tblClientes">
+                                            <div class="col-12" style="overflow:scroll;">
+                                                <h4> Clientes encontrados</h4>
+                                                <table ng-table="tableParams" class="table table-striped table-dark" style=" max-width:100%;width:1%; white-space: nowrap;">
+                                                    <tbody>
+                                                        <tr ng-repeat="cliente in $data" ng-click="seleccionarCliente(cliente)">
+                                                            <td>
+                                                                <input type="checkbox" ng-click="seleccionarCliente(cliente)" ng-model="cliente.isSelected" ng-checked="cliente.isSelected" />
+                                                            </td>
+                                                            <td data-title="'Usuario'">{{ cliente.userName}}</td>
+                                                            <td data-title="'Nombre'">{{ cliente.givenName}}</td>
+                                                            <td data-title="'Apellido(s)'">{{ cliente.surname}}</td>
+                                                            <td data-title="'Email'">{{ cliente.email}}</td>
+                                                            <td data-title="'Descripción'">{{ cliente.description}}</td>
+                                                            <td data-title="'Tipo Cuenta'">{{ cliente.accountType}}</td>
+                                                            <td data-title="'Status'">{{ cliente.accountStatus}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-danger" ng-click="activarBloqueo()" style="float: right">Activar Bloqueo</button>
+
+                                        <div class="row" style="display: none; padding-top: 30px; " id="tblVehiculos">
+                                            <div class="col-12" style="overflow:scroll; ">
+                                                <h4> Vehículos del cliente: <span style="text-decoration: underline #0069D9">{{clienteSeleccionado.primarySubscriber.firstName}} {{clienteSeleccionado.primarySubscriber.lastName}} {{clienteSeleccionado.primarySubscriber.secondLastName}}</span>                                                    </h4>
+                                                <table ng-table="tableParamsVeviculos" class="table table-striped " style=" max-width:100%;width:1%; white-space: nowrap;">
+                                                    <tbody>
+                                                        <tr ng-repeat="vehiculo in $data" ng-click="seleccionarVehiculo(vehiculo)">
+                                                            <td>
+                                                                <input type="checkbox" ng-click="seleccionarVehiculo(vehiculo)" ng-model="vehiculo.isSelected" ng-checked="vehiculo.isSelected" />
+                                                            </td>
+                                                            <td data-title="'VIN'">{{ vehiculo.vin}}</td>
+                                                            <td data-title="'Marca'">{{ vehiculo.makeName}}</td>
+                                                            <td data-title="'Modelo'">{{ vehiculo.modelName}}</td>
+                                                            <td data-title="'Año'">{{ vehiculo.modelYear}}</td>
+                                                            <td data-title="'Color'">{{ vehiculo.exteriorColor}}</td>
+                                                            <td data-title="'Estatus'">{{ vehiculo.status}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-warning" ng-click="aplazarLocalizacion()" style="float: right">Aplazar Localización</button>
-                                        </div>
-                                        <div class="col-12" style="padding-bottom: 10px">
-                                            <button type="button" class="btn btn-secondary" ng-click="cancelarLocalizacion()" style="float: right">Cancelar Localización</button>
-                                        </div>
-                                        <div class="col-12" style="display: none">
-                                            <button type="button" class="btn btn-secondary" ng-click="actualizarShell()" style="float: right">Actualizar Perfil</button>
-                                        </div>
+
                                     </div>
 
                                 </div>
 
 
-                                <div class="col-9" >
-
-
-                                    <div class="row col-12" id="divMensajeGeneral" style="display: none; white-space: pre-line;">
-                                        <div class="alert alert-danger" role="alert" id="mensajeGeneral" style="display: none"> </div>
-                                    </div>
-
-                                    <div class="row " style="display: none; " id="tblClientes">
-                                        <div class="col-12" style="overflow:scroll;">
-                                            <h4> Clientes encontrados</h4>
-                                            <table ng-table="tableParams"  class="table table-striped table-dark" style=" max-width:100%;width:1%; white-space: nowrap;">
-                                                <tbody>
-                                                    <tr ng-repeat="cliente in $data" ng-click="seleccionarCliente(cliente)" > 
-                                                        <td> 
-                                                            <input type="checkbox" ng-click="seleccionarCliente(cliente)" ng-model="cliente.isSelected" ng-checked="cliente.isSelected"/>
-                                                        </td> 
-                                                        <td data-title="'Nombre'" >{{ cliente.primarySubscriber.firstName}}</td>                                                                                            
-                                                        <td data-title="'Primer Apellido'" >{{ cliente.primarySubscriber.lastName}}</td>                                                                                            
-                                                        <td data-title="'Segundo Apellido'" >{{ cliente.primarySubscriber.secondLastName}}</td>                                                                                            
-                                                        <td data-title="'Email'" >{{ cliente.primarySubscriber.contactPoints.emails[0].value}}</td>                                                                                            
-                                                        <td data-title="'Teléfono'" >{{ cliente.primarySubscriber.contactPoints.phones[0].value}}</td>                                                                                            
-                                                        <!--<td data-title="'Estatus'" >{{ cliente.status}}</td>-->                                                                                            
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <div class="row" style="display: none; padding-top: 30px; " id="tblVehiculos">
-                                    <div class="col-12" style="overflow:scroll; " >
-                                        <h4> Vehículos del cliente: <span style="text-decoration: underline #0069D9">{{clienteSeleccionado.primarySubscriber.firstName}} {{clienteSeleccionado.primarySubscriber.lastName}} {{clienteSeleccionado.primarySubscriber.secondLastName}}</span> </h4>
-                                        <table ng-table="tableParamsVeviculos" class="table table-striped " style=" max-width:100%;width:1%; white-space: nowrap;">
-                                            <tbody>
-                                                <tr ng-repeat="vehiculo in $data" ng-click="seleccionarVehiculo(vehiculo)">
-                                                    <td> 
-                                                        <input type="checkbox" ng-click="seleccionarVehiculo(vehiculo)" ng-model="vehiculo.isSelected" ng-checked="vehiculo.isSelected"/>
-                                                    </td> 
-                                                    <td data-title="'VIN'" >{{ vehiculo.vin}}</td>                                                                                            
-                                                    <td data-title="'Marca'" >{{ vehiculo.makeName}}</td>                                                                                            
-                                                    <td data-title="'Modelo'" >{{ vehiculo.modelName}}</td>                                                                                            
-                                                    <td data-title="'Año'" >{{ vehiculo.modelYear}}</td>                                                                                            
-                                                    <td data-title="'Color'" >{{ vehiculo.exteriorColor}}</td>                                                                                            
-                                                    <td data-title="'Estatus'" >{{ vehiculo.status}}</td>                                                                                            
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                        </form>
-                    </div>
-
-
-                    <!-- /.container-fluid -->
-
-                    <!-- Sticky Footer -->
-                    <footer class="sticky-footer">
-                        <div class="container my-auto">
-                            <div class="copyright text-center my-auto">
-                                <span>Copyright © | {{usuarioSesion.environment}}</span>
-                            </div>
+                            </form>
                         </div>
-                    </footer>
+
+
+                        <!-- /.container-fluid -->
+
+                        <!-- Sticky Footer -->
+                        <footer class="sticky-footer">
+                            <div class="container my-auto">
+                                <div class="copyright text-center my-auto">
+                                    <span>Copyright © | {{usuarioSesion.environment}}</span>
+                                </div>
+                            </div>
+                        </footer>
+
+                    </div>
+                    <!-- /.content-wrapper -->
 
                 </div>
-                <!-- /.content-wrapper -->
+                <!-- /#wrapper -->
 
-            </div>
-            <!-- /#wrapper -->
-
-            <!-- Scroll to Top Button-->
-            <a class="scroll-to-top rounded" href="#page-top">
-                <i class="fas fa-angle-up"></i>
-            </a>
+                <!-- Scroll to Top Button-->
+                <a class="scroll-to-top rounded" href="#page-top">
+                    <i class="fas fa-angle-up"></i>
+                </a>
 
 
         </div>
 
         <% include ../modals.html %>
-        <% include ../scripts.html %>
-    </body>
+            <% include ../scripts.html %>
+</body>
+
 </html>

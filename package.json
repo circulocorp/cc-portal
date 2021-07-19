@@ -1,35 +1,35 @@
 {
-  "name": "circulocorp-portal",
-  "version": "0.8.8",
-  "scripts": {
-    "ng": "ng",
-    "start": "node ./bin/www",
-    "build": "ng build",
-    "test": "ng test"
-  },
-  "dependencies": {
-    "@angular/common": "7.2.10",
-    "@angular/core": "7.2.10",
-    "@popperjs/core": "^2.5.3",
-    "amqplib": "latest",
-    "angular": "1.7.8",
-    "body-parser": "^1.19.0",
-    "bootstrap": "4.3.1",
-    "core-js": "2.6.9",
-    "docker-secrets-nodejs": "^1.0.5",
-    "ejs": "2.7.1",
-    "express": "^4.16.4",
-    "express-session": "^1.17.1",
-    "jquery": "latest",
-    "jquery.easing": "1.4.1",
-    "morgan": "^1.9.1",
-    "ng-table": "3.0.1",
-    "node-localstorage": "^2.1.6",
-    "pg": "7.9.0",
-    "popper.js": "^1.16.1",
-    "request": "2.88.0",
-    "rxjs": "^6.6.3",
-    "serve-favicon": "latest",
-    "zone.js": "~0.8.26"
-  }
+    "name": "circulocorp-portal",
+    "version": "0.8.8",
+    "scripts": {
+        "ng": "ng",
+        "start": "node ./bin/www",
+        "build": "ng build",
+        "test": "ng test"
+    },
+    "dependencies": {
+        "@angular/common": "7.2.10",
+        "@angular/core": "7.2.10",
+        "@popperjs/core": "^2.5.3",
+        "amqplib": "latest",
+        "angular": "1.7.8",
+        "body-parser": "^1.19.0",
+        "bootstrap": "4.3.1",
+        "core-js": "2.6.9",
+        "docker-secrets-nodejs": "^1.0.5",
+        "ejs": "2.7.1",
+        "express": "^4.16.4",
+        "express-session": "^1.17.1",
+        "jquery": "latest",
+        "jquery.easing": "1.4.1",
+        "morgan": "^1.9.1",
+        "ng-table": "3.0.1",
+        "node-localstorage": "^2.1.6",
+        "pg": "8.5.1",
+        "popper.js": "^1.16.1",
+        "request": "2.88.0",
+        "rxjs": "^6.6.3",
+        "serve-favicon": "latest",
+        "zone.js": "~0.8.26"
+    }
 }

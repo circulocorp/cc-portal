@@ -4,5 +4,5 @@
  * and open the template in the editor.
  */
 
-//STAGIN o PROD
-exports.environment = 'PROD';
+//STAGIN o PROD, o DEV
+exports.environment = 'DEV';

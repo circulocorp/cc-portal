@@ -6,7 +6,7 @@ const request = require('request');
  * FUNCION PARA INTERCEPTAR TODAS LAS URLs DEL SISTEMA,
  * NO APLICARAN PARA /login /notfound Y LAS QUE VAYAMOS DESCARTANDO
  **/
-router.post("/passLocalStorage", function (req, res, next) {
+router.post("/passLocalStorage", function(req, res, next) {
     console.log('PASS LOCAL STORAGE');
     console.log("USUARIO EN EL LOCAL STORAGE: " + req.body.user);
     console.log("REQUEST MAP EN EL LOCAL STORAGE: " + req.body.reqmap);
@@ -14,10 +14,10 @@ router.post("/passLocalStorage", function (req, res, next) {
     req.session.user = req.body.user;
     req.session.paths = JSON.stringify(req.body.reqmap);
 
-    res.status(200).json({"status": true, "message": "Envio de parametros al LOCAL STORAGE de NODE con exito", "user": req.body.user});
+    res.status(200).json({ "status": true, "message": "Envio de parametros al LOCAL STORAGE de NODE con exito", "user": req.body.user });
 });
 
-router.use(function (req, res, next) {
+router.use(function(req, res, next) {
     console.log('HORA: ', Date.now());
     console.log('Request URL:', req.originalUrl);
     console.log('Request Type:', req.method);
@@ -53,37 +53,37 @@ router.use(function (req, res, next) {
     next();
 });
 
-router.get('/', function (req, res) {
+router.get('/', function(req, res) {
     res.render('login');
 });
 
-router.get('/index', function (req, res) {
+router.get('/index', function(req, res) {
     res.render('index');
 });
 
-router.get("/login", function (req, res) {
+router.get("/login", function(req, res) {
     res.render("login");
 });
-router.get("/notfound", function (req, res) {
+router.get("/notfound", function(req, res) {
     res.render("notfound");
 });
-router.get("/notaccess", function (req, res) {
+router.get("/notaccess", function(req, res) {
     res.render("notaccess");
 });
 
-router.get("/cerrarSession", function (req, res) {
+router.get("/cerrarSession", function(req, res) {
     res.render("login");
 });
 
-router.get('/sirius', function (req, res) {
+router.get('/sirius', function(req, res) {
     res.render('sirius/index');
 });
 
-router.get('/shells', function (req, res) {
+router.get('/shells', function(req, res) {
     res.render('sirius/shells');
 });
 
-router.get('/logs', function (req, res) {
+router.get('/logs', function(req, res) {
     res.render('sirius/logs');
 });
 
