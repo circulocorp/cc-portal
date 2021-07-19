@@ -424,6 +424,8 @@ router.post('/getShellsMzone', function (req, res, next) {
 
 router.post('/updateShellsMzone', function (req, res, next) {
 
+    //console.log("REQUEST EN [updateShellMzone]: "+JSON.stringfy(req.body));
+
     var shell = req.body;
     var token = shell.token;
 
@@ -443,7 +445,8 @@ router.post('/updateShellsMzone', function (req, res, next) {
             "description": shell.description,
             "registration": shell.registration,
             "vin": shell.vin,
-            "isFavorite": shell.isFavorite})
+            "isFavorite": shell.isFavorite
+	})
     };
     request(options, function (error, response) {
         if (error) {

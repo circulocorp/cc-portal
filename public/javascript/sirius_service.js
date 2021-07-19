@@ -517,9 +517,9 @@ app.service('SiriusService', function ($http) {
                                                 var shell = respuestaGetShellTarcker['shell'][0];
                                                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/SHELL]: " + JSON.stringify(shell));
 
-                                                shell.description = shell.id + " LIBRE";
-                                                shell.registration = shell.id + " LIBRE";
-                                                shell.vin = shell.id + " LIBRE";
+                                                shell.description = shell.id + ' LIBRE';
+                                                shell.registration = shell.id + ' LIBRE';
+                                                shell.vin = shell.id + ' LIBRE';
                                                 shell.isFavorite = false;
                                                 shell.status = false;
                                                 shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
@@ -793,9 +793,9 @@ app.service('SiriusService', function ($http) {
                         var shell = respuestaGetShellTarcker['shell'][0];
                         console.log("RESPUESTA EN EL SERVICE [actualizarShell/SHELL]: " + JSON.stringify(shell));
 
-                        shell.description = shell.id + " LIBRE";
-                        shell.registration = shell.id + " LIBRE";
-                        shell.vin = shell.id + " LIBRE";
+                        shell.description = shell.id + ' LIBRE';
+                        shell.registration = shell.id + ' LIBRE';
+                        shell.vin = shell.id + ' LIBRE';
                         shell.isFavorite = false;
                         shell.status = false;
                         shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');

@@ -23,7 +23,7 @@ router.post('/getUsuario', function (req, res, next) {
     var data = req.body;
     var sql = "SELECT * FROM users us WHERE us.user=$1 AND us.password=$2 AND us.status=true";
 
-    pool.query(sql, [data.usuario, data.password], (error, results) => {        
+    pool.query(sql, [data.usuario, data.password], (error, results) => {
         if (error) {
             console.log("ERROR AL CONSULTAR EL USUARIO: " + error);
             throw new Error(error);

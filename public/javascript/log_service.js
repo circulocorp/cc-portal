@@ -2,6 +2,7 @@ var app = angular.module('ccportal');
 
 app.service('LogService', function ($http) {
 
+
     this.consultarLogs = function (logsBusqueda) {
 
         return new Promise((resolve, reject) => {
@@ -51,6 +52,7 @@ app.service('LogService', function ($http) {
 
         });
     };
+
 
     this.saveSystemEvents = function (systemEvent) {
 
