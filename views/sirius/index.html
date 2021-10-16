@@ -30,27 +30,27 @@
 
                         <div class="col-mb-12">
 
-                            <form>
+                            <form autocomplete="off">
 
                                 <div class="row">
                                     <div class="col-3">
                                         <div class="row col-12">
                                             <h4> Buscar Cliente:</h4>
                                             <div class="col-12 form-group">
-                                                <label for="select-tenan">Tipo Cliente (tenan_id)</label>
+                                                <label for="select-tenan">Tipo Cliente</label>
                                                 <select id="select-tenan" onchange="seleccionarTenan(this)" class="form-control"></select>
                                             </div>
                                             <div class="col-12 form-group">
                                                 <label for="nombre">Nombre</label>
-                                                <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true">
+                                                <input type="text" class="form-control" id="nombre" ng-model="cliente.nombre" placeholder="Nombre del cliente" required="true" autocomplete="off">
                                             </div>
                                             <div class="col-12 form-group">
                                                 <label for="apellido">Apellido</label>
-                                                <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true">
+                                                <input type="text" class="form-control" id="apellido" ng-model="cliente.apellido" placeholder="Primer apellido del cliente" required="true" autocomplete="off">
                                             </div>
                                             <div class="col-12 form-group">
                                                 <label for="email">Email</label>
-                                                <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true">
+                                                <input type="text" class="form-control" id="email" ng-model="cliente.email" placeholder="Email del cliente" required="true" autocomplete="off">
                                             </div>
 
                                             <!--valid-feedback is-valid / invalid-feedback is-invalid-->
@@ -78,22 +78,22 @@
                                             <br/><br/>
 
                                             <div class="col-12" style="padding-bottom: 10px">
-                                                <button type="button" class="btn btn-primary" ng-click="consultarLocalizacion()" style="float: right">Consultar Localización</button>
+                                                <button id="btnConsultar" type="button" class="btn btn-primary btn-block" ng-click="consultarLocalizacion()" style="float: right">Consultar Localización</button>
                                             </div>
                                             <div class="col-12" style="padding-bottom: 10px">
-                                                <button type="button" class="btn btn-success" ng-click="activarLocalizacion()" style="float: right">Activar Localización</button>
+                                                <button id="btnActivar" type="button" class="btn btn-success btn-block" ng-click="activarLocalizacion()" style="float: right">Activar Localización</button>
                                             </div>
                                             <div class="col-12" style="padding-bottom: 10px">
-                                                <button type="button" class="btn btn-danger" ng-click="activarBloqueo()" style="float: right">Activar Bloqueo</button>
+                                                <button id="btnBloquear" type="button" class="btn btn-danger btn-block" ng-click="activarBloqueo()" style="float: right">Activar Bloqueo</button>
                                             </div>
                                             <div class="col-12" style="padding-bottom: 10px">
-                                                <button type="button" class="btn btn-warning" ng-click="aplazarLocalizacion()" style="float: right">Aplazar Localización</button>
+                                                <button id="btnAplazar" type="button" class="btn btn-warning btn-block" ng-click="aplazarLocalizacion()" style="float: right">Aplazar Localización</button>
                                             </div>
                                             <div class="col-12" style="padding-bottom: 10px">
-                                                <button type="button" class="btn btn-secondary" ng-click="cancelarLocalizacion()" style="float: right">Cancelar Localización</button>
+                                                <button id="btnCancelar" type="button" class="btn btn-secondary btn-block" ng-click="cancelarLocalizacion()" style="float: right">Cancelar Localización</button>
                                             </div>
                                             <div class="col-12" style="display: none">
-                                                <button type="button" class="btn btn-secondary" ng-click="actualizarShell()" style="float: right">Actualizar Perfil</button>
+                                                <button id="btnActualizar" type="button" class="btn btn-secondary btn-block" ng-click="actualizarShell()" style="float: right">Actualizar Perfil</button>
                                             </div>
                                         </div>
 
@@ -118,8 +118,9 @@
                                                             </td>
                                                             <td data-title="'Usuario'">{{ cliente.userName}}</td>
                                                             <td data-title="'Nombre'">{{ cliente.givenName}}</td>
-                                                            <td data-title="'Apellido(s)'">{{ cliente.surname}}</td>
+                                                            <td data-title="'Apellido(s)'">{{ cliente.surname}} {{ cliente.surname2}}</td>
                                                             <td data-title="'Email'">{{ cliente.email}}</td>
+                                                            <td data-title="'Télefono'">{{ cliente.primaryPhone}}</td>
                                                             <td data-title="'Descripción'">{{ cliente.description}}</td>
                                                             <td data-title="'Tipo Cuenta'">{{ cliente.accountType}}</td>
                                                             <td data-title="'Status'">{{ cliente.accountStatus}}</td>
@@ -131,19 +132,22 @@
 
                                         <div class="row" style="display: none; padding-top: 30px; " id="tblVehiculos">
                                             <div class="col-12" style="overflow:scroll; ">
-                                                <h4> Vehículos del cliente: <span style="text-decoration: underline #0069D9">{{clienteSeleccionado.primarySubscriber.firstName}} {{clienteSeleccionado.primarySubscriber.lastName}} {{clienteSeleccionado.primarySubscriber.secondLastName}}</span>                                                    </h4>
+                                                <h4> Vehículos del cliente: <span style="text-decoration: underline #0069D9">{{clienteSeleccionado.givenName}} {{clienteSeleccionado.surname}} {{clienteSeleccionado.surname2}}</span> </h4>
                                                 <table ng-table="tableParamsVeviculos" class="table table-striped " style=" max-width:100%;width:1%; white-space: nowrap;">
                                                     <tbody>
                                                         <tr ng-repeat="vehiculo in $data" ng-click="seleccionarVehiculo(vehiculo)">
                                                             <td>
                                                                 <input type="checkbox" ng-click="seleccionarVehiculo(vehiculo)" ng-model="vehiculo.isSelected" ng-checked="vehiculo.isSelected" />
                                                             </td>
+                                                            <td data-title="'VEHICLE ID'">{{ vehiculo.vehicle_id}}</td>
                                                             <td data-title="'VIN'">{{ vehiculo.vin}}</td>
-                                                            <td data-title="'Marca'">{{ vehiculo.makeName}}</td>
-                                                            <td data-title="'Modelo'">{{ vehiculo.modelName}}</td>
-                                                            <td data-title="'Año'">{{ vehiculo.modelYear}}</td>
-                                                            <td data-title="'Color'">{{ vehiculo.exteriorColor}}</td>
-                                                            <td data-title="'Estatus'">{{ vehiculo.status}}</td>
+                                                            <td data-title="'ESTATUS'">{{ vehiculo.active === true ? 'Active' : 'Inactive'}} </td>
+                                                            <td data-title="'MARCA'">{{ vehiculo.make}}</td>
+                                                            <td data-title="'MODELO'">{{ vehiculo.model}}</td>
+                                                            <td data-title="'AÑO'">{{ vehiculo.year}}</td>
+                                                            <td data-title="'COLOR'">{{ vehiculo.color}}</td>
+                                                            <td data-title="'TRANSMISIÓN'">{{ vehiculo.transmissionType}}</td>
+                                                            <td data-title="'TIPO CLIENTE'">{{ vehiculo.tenantId}}</td>
                                                         </tr>
                                                     </tbody>
                                                 </table>

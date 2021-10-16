@@ -20,6 +20,8 @@ var PASSWORD_SMX_CLOUD = conf.PASSWORD_SMX_CLOUD;
 //Variables para EndPoint: consultarCliente y consultarAuto
 var URL_SMX_CLOUD_CLIENTE = conf.URL_SMX_CLOUD_CLIENTE;
 var URL_SMX_CLOUD_AUTO = conf.URL_SMX_CLOUD_AUTO;
+var URL_SMX_CLOUD_AUTO_DETALLE = conf.URL_SMX_CLOUD_AUTO_DETALLE;
+var URL_SMX_CLOUD_TRAKING = conf.URL_SMX_CLOUD_TRAKING;
 
 //Variables para las acciones sobre el vehiculo
 var VIN_EXECUTE_TRACKER = conf.VIN_EXECUTE_TRACKER;
@@ -142,136 +144,122 @@ router.post('/consultarCliente', function(req, res, next) {
     });
 });
 
+router.post('/consultarDetalleVehiculo', function(req, res, next) {
+    console.log("BODY EN EL ROUTE: " + JSON.stringify(req.body));
+
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var tenant_id = params.tenant_id;
+    var access_token = params.access_token;
+
+    console.log("VEHICLE ID: " + vehicle_id);
+    console.log("TENAN ID: " + tenant_id);
+    console.log("TOKEN: " + access_token);
+
+    var options = {
+        'method': 'GET',
+        'url': 'https://' + URL_SMX_CLOUD_AUTO_DETALLE + '/vehicle-api/v1/vehicles/' + vehicle_id,
+        'headers': {
+            'Content-Type': 'application/json',
+            'CV-Tenant-Id': tenant_id,
+            'Authorization': 'Bearer ' + access_token
+        }
+    };
+    request(options, function(error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [consultarDetalleVehiculo]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [consultarDetalleVehiculo]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
+
+});
+
 router.post('/estatusLocalizacion', function(req, res, next) {
 
-    if (conf.isTest) {
-        if (conf.isTestCont === 0) {
-            res.send('{}');
-            conf.isTestCont = 1;
-        } else if (conf.isTestCont === 1) {
-            res.send('{' +
-                '"tracker": {' +
-                '	"statusChangedTime": "2020-11-11T03:24:48.000Z",' +
-                '	"requestedTime": "2020-11-11T03:24:48.000Z",' +
-                '	"status": "ACTIVE",' +
-                '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"' +
-                '}' +
-                '}');
-            conf.isTestCont = 2;
-        } else if (conf.isTestCont === 2) {
-            res.send('{' +
-                '"tracker": {' +
-                '	"statusChangedTime": "2020-11-11T03:24:48.000Z",' +
-                '	"requestedTime": "2020-11-11T03:24:48.000Z",' +
-                '	"status": "ACTIVE",' +
-                '	"svcReqId": "c751acf8-e30c-4b3d-9c2e-c7db297f7616"' +
-                '}' +
-                '}');
-            conf.isTestCont = 3;
-        } else {
-            res.send('{}');
-            conf.isTestCont = 0;
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var access_token = params.access_token;
+
+    var options = {
+        'method': 'GET',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'headers': {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + access_token
         }
+    };
+    request(options, function(error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
 
-    } else {
-        var vinRequest = req.body;
 
-        var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
-        var token_sxm_cloud = vinRequest.tokenSXMCloud;
-        VIN_EXECUTE_TRACKER = vinRequest.vin;
-
-        var options = {
-            'method': 'GET',
-            'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
-            'headers': {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token_sxm_cloud,
-                'x-api-key': X_API_KEY_EXECUTE_TRACKER,
-                'AccessToken': token_sxm_idm_login
-            }
-        };
-        request(options, function(error, response) {
-            if (error) {
-                console.log("RESPUESTA ERROR EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(error));
-                throw new Error(error);
-            } else {
-                console.log("RESPUESTA EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(response));
-                res.send(response.body);
-            }
-        });
-    }
 });
 
 router.post('/activarLocalizacion', function(req, res, next) {
 
-    if (conf.isTest) {
-        res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
-    } else {
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var access_token = params.access_token;
 
-        var vinRequest = req.body;
-
-        var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
-        var token_sxm_cloud = vinRequest.tokenSXMCloud;
-
-        VIN_EXECUTE_TRACKER = vinRequest.vin;
-        var session_id = vinRequest.sessionId;
-
-        var options = {
-            'method': 'POST',
-            'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
-            'headers': {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token_sxm_cloud,
-                'AccessToken': token_sxm_idm_login,
-                'CV-SessionId': session_id
-            },
-            body: JSON.stringify({ 'track': { 'type': 'Theft', 'duration': 'PT00H06M', 'state': 'Active' } })
-
-        };
-        request(options, function(error, response) {
-            if (error) {
-                console.log("RESPUESTA ERROR EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(error));
-                throw new Error(error);
-            } else {
-                console.log("RESPUESTA EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(response));
-                res.send(response.body);
+    var options = {
+        'method': 'POST',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'headers': {
+            'Authorization': 'Bearer ' + access_token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "track": {
+                "type": "Theft",
+                "state": "Active"
             }
-        });
-    }
+        })
 
+    };
+
+    request(options, function(error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
 });
 
 router.post('/cancelarLocalizacion', function(req, res, next) {
 
-    if (conf.isTest) {
-        res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
-    } else {
-        var vinRequest = req.body;
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var access_token = params.access_token;
 
-        var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
-        var token_sxm_cloud = vinRequest.tokenSXMCloud;
+    var options = {
+        'method': 'DELETE',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'headers': {
+            'Authorization': 'Bearer ' + access_token
+        }
+    };
 
-        VIN_EXECUTE_TRACKER = vinRequest.vin;
-
-        var options = {
-            'method': 'DELETE',
-            'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
-            'headers': {
-                'Content-Type': 'application/json',
-                'AccessToken': token_sxm_idm_login,
-                'Authorization': 'Bearer ' + token_sxm_cloud
-            }
-        };
-        request(options, function(error, response) {
-            if (error) {
-                console.log("RESPUESTA ERROR EN EL ROUTE [cancelarLocalizacion]: " + JSON.stringify(error));
-                throw new Error(error);
-            } else {
-                console.log("RESPUESTA EN EL ROUTE [cancelarLocalizacion]: " + JSON.stringify(response));
-                res.send(response.body);
-            }
-        });
-    }
+    request(options, function(error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [cancelarLocalizacion]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [cancelarLocalizacion]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
 });
 
 router.post('/bloquearLocalizacion', function(req, res, next) {
@@ -279,27 +267,26 @@ router.post('/bloquearLocalizacion', function(req, res, next) {
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
     } else {
-        var vinRequest = req.body;
-
-        var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
-        var token_sxm_cloud = vinRequest.tokenSXMCloud;
-
-        VIN_EXECUTE_TRACKER = vinRequest.vin;
-        var session_id = vinRequest.sessionId;
+        var params = req.body;
+        var vehicle_id = params.vehicle_id;
+        var access_token = params.access_token;
 
         var options = {
             'method': 'PUT',
-            'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
+            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
             'headers': {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token_sxm_cloud,
-                'CV-SessionId': session_id,
-                'x-api-key': X_API_KEY_EXECUTE_TRACKER,
-                'AccessToken': token_sxm_idm_login
+                'Authorization': 'Bearer ' + access_token,
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ "track": { "type": "Theft", "duration": "PT00H06M", "state": "Block" } })
+            body: JSON.stringify({
+                "track": {
+                    "type": "Theft",
+                    "state": "Block"
+                }
+            })
 
         };
+
         request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [bloquearLocalizacion]: " + JSON.stringify(error));
@@ -309,44 +296,44 @@ router.post('/bloquearLocalizacion', function(req, res, next) {
                 res.send(response.body);
             }
         });
+
     }
+
+
 });
 
 router.post('/aplazarLocalizacion', function(req, res, next) {
 
-    if (conf.isTest) {
-        res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
-    } else {
-        var vinRequest = req.body;
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var access_token = params.access_token;
 
-        var token_sxm_idm_login = vinRequest.tokenSXMIDMLogin;
-        var token_sxm_cloud = vinRequest.tokenSXMCloud;
-        var svc_req_id = vinRequest.svcReqId;
-
-        VIN_EXECUTE_TRACKER = vinRequest.vin;
-
-        var options = {
-            'method': 'PUT',
-            'url': URL_EXECUTE_TRACKER + VIN_EXECUTE_TRACKER + "/locations/tracker",
-            'headers': {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token_sxm_cloud,
-                'x-api-key': '{{apikey}}',
-                'AccessToken': token_sxm_idm_login
-            },
-            body: JSON.stringify({ "svcReqId": svc_req_id, "track": { "type": "Theft", "duration": "PT00H06M" } })
-
-        };
-        request(options, function(error, response) {
-            if (error) {
-                console.log("RESPUESTA ERROR EN EL ROUTE [aplazarLocalizacion]: " + JSON.stringify(error));
-                throw new Error(error);
-            } else {
-                console.log("RESPUESTA EN EL ROUTE [aplazarLocalizacion]: " + JSON.stringify(response));
-                res.send(response.body);
+    var request = require('request');
+    var options = {
+        'method': 'PUT',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'headers': {
+            'Authorization': 'Bearer ' + access_token,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "track": {
+                "type": "Theft",
+                "state": "Extend"
             }
-        });
-    }
+        })
+
+    };
+
+    request(options, function(error, response) {
+        if (error) {
+            console.log("RESPUESTA ERROR EN EL ROUTE [aplazarLocalizacion]: " + JSON.stringify(error));
+            throw new Error(error);
+        } else {
+            console.log("RESPUESTA EN EL ROUTE [aplazarLocalizacion]: " + JSON.stringify(response));
+            res.send(response.body);
+        }
+    });
 });
 
 router.get('/getTokenMzone', function(req, res, next) {

@@ -53,15 +53,31 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
 
     seleccionarTenan = function(ele) {
         $('#select-tenan').removeClass('is-invalid');
+        $('#nombre').removeClass('is-invalid');
+        $('#apellido').removeClass('is-invalid');
+        $('#email').removeClass('is-invalid');
+        $('#mensaje').removeClass('invalid-feedback');
+
+        $('#nombre').removeClass('is-valid');
+        $('#nombre').text('');
+        $('#apellido').removeClass('is-valid');
+        $('#apellido').text('');
+        $('#email').removeClass('is-valid');
+        $('#email').text('');
+        $('#mensaje').removeClass('valid-feedback');
+        $('#mensaje').text('');
+        $('#mensaje').hide();
 
         $('#mensajeGeneral').removeClass('alert alert-danger');
         $('#mensajeGeneral').text('');
         $('#mensajeGeneral').hide();
         $('#divMensajeGeneral').hide();
 
-        $('#mensaje').removeClass('valid-feedback');
-        $('#mensaje').text('');
-        $('#mensaje').hide();
+        $('#tblClientes').hide();
+        $('#tblVehiculos').hide();
+        $('#divAcciones').hide();
+
+
 
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
@@ -78,6 +94,7 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
         } else {
             $scope.tenan.tenan_id = opcion.toLowerCase();
             console.log('OPCION SELECCIONADA: ' + $scope.tenan.tenan_id);
+
         }
     };
 
@@ -245,7 +262,9 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
     $scope.seleccionarCliente = function(data) {
         $scope.clienteSeleccionado = {};
         $scope.vehiculos = [];
+        $scope.vehiculosConVehicleId = [];
         $scope.vehiculoSeleccionado = {};
+        $scope.vehicle_id = "";
 
         $('#tblVehiculos').hide();
         $('#mensajeGeneral').removeClass('alert alert-danger');
@@ -265,7 +284,17 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
 
+        $('#vin').attr('disabled', 'disabled');
+        $('#btnConsultar').attr('disabled', 'disabled');
+        $('#btnActivar').attr('disabled', 'disabled');
+        $('#btnBloquear').attr('disabled', 'disabled');
+        $('#btnAplazar').attr('disabled', 'disabled');
+        $('#btnCancelar').attr('disabled', 'disabled');
+        $('#btnActualizar').attr('disabled', 'disabled');
+
+
         $scope.listaClientes.forEach(function(valor, indice, array) {
+
             if (!valor.isSelected && data === valor) {
 
                 valor.isSelected = true;
@@ -276,33 +305,116 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
 
                 console.log("CLIENTE: " + JSON.stringify($scope.clienteSeleccionado));
 
-                $scope.vehiculos = $scope.clienteSeleccionado.vehicles;
+                $scope.vehiculos = $scope.clienteSeleccionado.effectiveRoles;
 
                 console.log("VEHICULOS: " + JSON.stringify($scope.vehiculos));
 
                 //QUITAR ESTA LINEA AL TENER DATOS REALES
-                if ($scope.vehiculos == null || $scope.vehiculos == 'undefined' || $scope.vehiculos.length == 0) {
-                    var vehiculo = { "vin": "NS000095074405420", "makeName": "NISSAN", "modelName": "SENTRA", "modelYear": "2021", "exteriorColor": "RED", "status": "ACTIVE" };
-                    $scope.vehiculos.push(vehiculo);
-                }
+                //if ($scope.vehiculos == null || $scope.vehiculos == 'undefined' || $scope.vehiculos.length == 0) {
+                //    var vehiculo = { "vin": "NS000095074405420", "makeName": "NISSAN", "modelName": "SENTRA", "modelYear": "2021", "exteriorColor": "RED", "status": "ACTIVE" };
+                //    $scope.vehiculos.push(vehiculo);
+                //}
 
                 if (typeof($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
 
+
+                    var listaVehiclesIds = [];
                     $scope.vehiculos.forEach(function(valor, indice, array) {
-                        valor.isSelected = false;
+                        if (valor.refProperties.hasOwnProperty('roleType')) {
+                            if (valor.refProperties.roleType === 'PRIMARY_SUBSCRIBER') {
+                                if (valor.refProperties.hasOwnProperty('vehicleId')) {
+                                    if (Array.isArray(valor.refProperties.vehicleId)) {
+                                        listaVehiclesIds = valor.refProperties.vehicleId;
+
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
                     });
 
-                    $scope.tableParamsVeviculos = new NgTableParams({ filter: {} }, { dataset: $scope.vehiculos });
-                    $scope.tableParams.reload();
+                    console.log("LISTA DE VEHICLES IDS: " + listaVehiclesIds);
 
-                    $('#tblVehiculos').show();
-                    $('#divAcciones').show();
+                    if (listaVehiclesIds !== null && listaVehiclesIds !== 'undefined' && listaVehiclesIds.length > 0) {
+
+
+                        if (Array.isArray(listaVehiclesIds)) {
+                            listaVehiclesIds.forEach(function(valorVehicleId, indice, array) {
+                                console.log("VEHICLE ID: " + valorVehicleId);
+
+                                var vehiculo = {};
+                                vehiculo.vehicle_id = valorVehicleId;
+                                vehiculo.tenant_id = $scope.cliente.tenan;
+                                vehiculo.access_token = $scope.cliente.token;
+
+                                SiriusService.consultarDetalleVehiculo(vehiculo).then(response => {
+                                    console.log("RESPUESTA EN EL CONTROLLER [consultarDetalleVehiculo]: " + JSON.stringify(response));
+
+                                    if (!response.error) {
+                                        vehiculo.isSelected = false;
+                                        vehiculo.make = response.detalle_vehiculo.make;
+                                        vehiculo.model = response.detalle_vehiculo.model;
+                                        vehiculo.year = response.detalle_vehiculo.year;
+                                        vehiculo.color = response.detalle_vehiculo.color;
+                                        vehiculo.transmissionType = response.detalle_vehiculo.transmissionType;
+                                        vehiculo.active = response.detalle_vehiculo.active;
+                                        vehiculo.tenantId = response.detalle_vehiculo.tenantId;
+                                        vehiculo.vin = response.detalle_vehiculo.vin;
+
+                                        console.log("VEHICULO: " + JSON.stringify(vehiculo));
+                                        $scope.vehiculosConVehicleId.push(vehiculo);
+                                        console.log("LISTA DE VEHICULOS: " + JSON.stringify($scope.vehiculosConVehicleId));
+
+                                        $scope.tableParamsVeviculos = new NgTableParams({ filter: {} }, { dataset: $scope.vehiculosConVehicleId });
+                                        $scope.tableParams.reload();
+                                    } else {
+
+                                        mensajeGeneral.addClass('alert alert-danger');
+                                        mensajeGeneral.text('Ocurrio un problema al consultar el detalle del vehiculo.\n' + 'Error: ' + response.status + ' ' + response.message);
+
+                                        mensajeGeneral.show();
+                                        divMensajeGeneral.show();
+                                        window.scrollTo(0, 0);
+
+                                    }
+
+                                    var systemEvent = new Object();
+                                    systemEvent.date = moment().format('YYYY/MM/DD HH:mm:ss');
+                                    systemEvent.userEmail = $scope.usuarioSesion.user;
+                                    systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
+                                    systemEvent.action = "CONSULTAR DETALLE DE VEHICULO";
+                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto el detalle del vehiculo con los parametros: vehicleid = " + vehiculo.vehicle_Id + " y tenanid = " + vehiculo.tenant_id;
+
+                                    SiriusService.saveSystemEvents(systemEvent).then(response => {
+
+                                    });
+
+                                });
+
+                            });
+                        }
+
+                        $scope.tableParamsVeviculos = new NgTableParams({ filter: {} }, { dataset: $scope.vehiculosConVehicleId });
+                        $scope.tableParams.reload();
+
+                        $('#tblVehiculos').show();
+                        $('#divAcciones').show();
+
+                    } else {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text('Los vehículos asignados al cliente seleccionado, NO cuentan con el valor = vehicleId,  para su procesamiento');
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
+                    }
+
                 } else {
                     mensajeGeneral.addClass('alert alert-danger');
                     mensajeGeneral.text('El cliente seleccionado no tiene vehículos asignados.');
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
+
                 }
 
             } else {
@@ -317,6 +429,15 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
     $scope.seleccionarVehiculo = function(data) {
         $scope.vehiculoSeleccionado = {};
 
+        $('#mensajeGeneral').removeClass('alert alert-danger');
+        $('#mensajeGeneral').text('');
+        $('#mensajeGeneral').hide();
+        $('#divMensajeGeneral').hide();
+
+        //var mensaje = $('#mensaje');
+        var mensajeGeneral = $('#mensajeGeneral');
+        var divMensajeGeneral = $('#divMensajeGeneral');
+
         $('#vin').removeClass('is-invalid');
         $('#vin').removeClass('is-valid');
 
@@ -325,12 +446,68 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
         $('#mensajeVin').text('');
         $('#mensajeVin').hide();
 
-        $scope.vehiculos.forEach(function(valor, indice, array) {
+        $scope.vehiculosConVehicleId.forEach(function(valor, indice, array) {
+
+            console.log("VALOR: " + JSON.stringify(valor));
+            console.log("DATA: " + JSON.stringify(data));
+            console.log("IS SELECTED: " + valor.isSelected);
+            console.log("DATA VIN: " + data.vin);
+            console.log("VALOR VIN: " + valor.vin);
 
             if (!valor.isSelected && data.vin === valor.vin) {
                 $scope.vehiculoSeleccionado = data;
                 $scope.vehiculoSeleccionado.isSelected = true;
 
+                if ($scope.vehiculoSeleccionado.vehicle_id === "SIN VEHICLE ID") {
+                    $('#btnConsultar').attr('disabled', 'disabled');
+                    $('#btnActivar').attr('disabled', 'disabled');
+                    $('#btnBloquear').attr('disabled', 'disabled');
+                    $('#btnAplazar').attr('disabled', 'disabled');
+                    $('#btnCancelar').attr('disabled', 'disabled');
+                    $('#btnActualizar').attr('disabled', 'disabled');
+
+                    mensajeGeneral.addClass('alert alert-danger');
+                    mensajeGeneral.text('El vehiculo seleccionado no cuenta con un vehicleid asignado');
+
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                } else {
+                    $('#btnConsultar').removeAttr('disabled', 'disabled');
+                    $('#btnActivar').removeAttr('disabled', 'disabled');
+                    $('#btnBloquear').removeAttr('disabled', 'disabled');
+                    $('#btnAplazar').removeAttr('disabled', 'disabled');
+                    $('#btnCancelar').removeAttr('disabled', 'disabled');
+                    $('#btnActualizar').removeAttr('disabled', 'disabled');
+
+                    console.log("VEHICULO SELECCIONADO: " + JSON.stringify($scope.vehiculoSeleccionado));
+
+
+                    SiriusService.consultarVehiculosSinBloqueo($scope.vehiculoSeleccionado).then(response => {
+                        console.log("RESPUESTA EN EL CONTROLLER [consultarVehiculosSinBloqueo]: " + JSON.stringify(response));
+
+
+                        if (response.vehiculos_sin_bloqueo != null && response.vehiculos_sin_bloqueo != undefined) {
+                            //alert("El Vehículo con Marca: " + response.vehiculos_sin_bloqueo[0].marca + ", Modelo: " + response.vehiculos_sin_bloqueo[0].modelo + ", Año: " + response.vehiculos_sin_bloqueo[0].anio + ", no se puede bloquear temporalmente");
+                            $('#btnBloquear').attr('disabled', 'disabled');
+
+                            mensajeGeneral.addClass('alert alert-danger');
+                            mensajeGeneral.text("El Vehículo con Marca: " + response.vehiculos_sin_bloqueo[0].marca + ", Modelo: " + response.vehiculos_sin_bloqueo[0].modelo + ", Año: " + response.vehiculos_sin_bloqueo[0].anio + ", no se puede bloquear temporalmente");
+
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
+                        } else {
+                            $('#btnBloquear').removeAttr('disabled', 'disabled');
+                        }
+
+
+                    });
+                }
+
+
+                return true;
             } else {
                 valor.isSelected = false;
                 //$scope.vehiculoSeleccionado = {};
@@ -340,8 +517,8 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
     };
 
     $scope.consultarLocalizacion = function() {
-        $scope.token_sxm_idm_login = {};
-        $scope.token_sxm_cloud = {};
+        //$scope.token_sxm_idm_login = {};
+        //$scope.token_sxm_cloud = {};
 
         $('#vin').removeClass('is-invalid');
         $('#vin').removeClass('is-valid');
@@ -358,6 +535,7 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
         $('#divMensajeGeneral').hide();
 
         var vin = $scope.vehiculoSeleccionado.vin;
+        vin = $('#vin').val();
         var mensajeVin = $('#mensajeVin');
         var mensajeGeneral = $('#mensajeGeneral');
         var divMensajeGeneral = $('#divMensajeGeneral');
@@ -395,93 +573,46 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
             systemEvent.action = "CONSULTAR LOCALIZACION";
 
+            var request = {};
+            request.access_token = $scope.cliente.token;
+            request.vin = vin;
+            request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+            SiriusService.consultaEstatusLocalizacion(request).then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
 
                 if (!response.error) {
-                    var tokenSXMIDMLogin = response.token;
 
-                    //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMCloud]: " + JSON.stringify(response));
-
-                        if (!response.error) {
-                            var tokenSXMCloud = response.token;
-
-                            var vinRequest = {};
-                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
-                            vinRequest.tokenSXMCloud = tokenSXMCloud;
-                            vinRequest.vin = vin;
-
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
-
-                                if (!response.error) {
-
-                                    mensajeGeneral.addClass('alert alert-success');
-                                    mensajeGeneral.text(response.message);
-                                    mensajeGeneral.show();
-                                    divMensajeGeneral.show();
-                                    window.scrollTo(0, 0);
-
-                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                    $('#Loading_Modal').modal('hide');
-
-                                } else {
-                                    mensajeGeneral.addClass('alert alert-danger');
-
-                                    if (response.status === 1004 || response.status === 1005 || response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                        mensajeGeneral.text(response.message);
-                                    } else {
-                                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                    }
-
-
-                                    mensajeGeneral.show();
-                                    divMensajeGeneral.show();
-                                    window.scrollTo(0, 0);
-
-                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                    $('#Loading_Modal').modal('hide');
-                                }
-
-
-
-                            });
-
-
-                        } else {
-                            mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + response.status + ' ' + response.message);
-                            mensajeGeneral.show();
-                            divMensajeGeneral.show();
-                            window.scrollTo(0, 0);
-
-                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vinRequest.vin + "\n" + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                            $('#Loading_Modal').modal('hide');
-                        }
-                    });
-
-                } else {
-                    mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                    mensajeGeneral.addClass('alert alert-success');
+                    mensajeGeneral.text(response.message);
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + vin + "\n" + mensajeGeneral.text();
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + request.vin + "\n" + mensajeGeneral.text();
+                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                    $('#Loading_Modal').modal('hide');
+
+                } else {
+                    mensajeGeneral.addClass('alert alert-danger');
+
+                    if (response.status === 1004 || response.status === 1005 || response.status === 1006 || response.status === 1007 || response.status === 1008 || response.status === 1009 || response.status === 1010) {
+                        mensajeGeneral.text(response.message);
+                    } else {
+                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
+                    }
+
+                    mensajeGeneral.show();
+                    divMensajeGeneral.show();
+                    window.scrollTo(0, 0);
+
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " consulto la localización del VIN: " + request.vin + "\n" + mensajeGeneral.text();
                     SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
+
             });
 
         }
@@ -489,8 +620,8 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
     };
 
     $scope.activarLocalizacion = function() {
-        $scope.token_sxm_idm_login = {};
-        $scope.token_sxm_cloud = {};
+        //$scope.token_sxm_idm_login = {};
+        //$scope.token_sxm_cloud = {};
 
         $('#vin').removeClass('is-invalid');
         $('#vin').removeClass('is-valid');
@@ -545,180 +676,82 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             systemEvent.action = "ACTIVAR LOCALIZACION";
 
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(responseTokenSXMIDMLogin => {
-                console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(responseTokenSXMIDMLogin));
+            var request = {};
+            request.access_token = $scope.cliente.token;
+            request.vin = vin;
+            request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
+            request.sessionId = generateUUID();
 
-                if (!responseTokenSXMIDMLogin.error) {
-                    var tokenSXMIDMLogin = responseTokenSXMIDMLogin.token;
+            SiriusService.consultaEstatusLocalizacion(request).then(responseEstatusLocalizacion => {
+                console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacion));
 
-                    //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(responseTokenSXMCloud => {
-                        console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaTokenSXMCloud]: " + JSON.stringify(responseTokenSXMCloud));
+                if (!responseEstatusLocalizacion.error) {
 
-                        if (!responseTokenSXMCloud.error) {
-                            var tokenSXMCloud = responseTokenSXMCloud.token;
+                    if (responseEstatusLocalizacion.status === 1005) {
+                        //Aqui activamos la localizacion
+                        SiriusService.activarLocalizacion(request).then(responseActivarLocalizacion => {
+                            console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/activarLocalizacion]: " + JSON.stringify(responseActivarLocalizacion));
 
-                            var vinRequest = {};
-                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
-                            vinRequest.tokenSXMCloud = tokenSXMCloud;
-                            vinRequest.vin = vin;
-                            vinRequest.sessionId = generateUUID();
+                            if (!responseActivarLocalizacion.error) {
+                                var svcReqId = responseActivarLocalizacion.svcReqId;
 
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(responseEstatusLocalizacion => {
-                                console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacion));
+                                mensajeGeneral.addClass('alert alert-success');
+                                mensajeGeneral.text('La activación de localización del vehículo con el vin ' + request.vin + ' se realizó con exito.');
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                if (!responseEstatusLocalizacion.error) {
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                    if (responseEstatusLocalizacion.status === 1005) {
-                                        //Aqui activamos la localizacion
-                                        SiriusService.activarLocalizacion(vinRequest).then(responseActivarLocalizacion => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/activarLocalizacion]: " + JSON.stringify(responseActivarLocalizacion));
+                                $('#Loading_Modal').modal('hide');
 
-                                            if (!responseActivarLocalizacion.error) {
-                                                var svcReqId = responseActivarLocalizacion.svcReqId;
+                            } else {
+                                mensajeGeneral.addClass('alert alert-danger');
+                                mensajeGeneral.text('Error: ' + responseActivarLocalizacion.status + ' ' + responseActivarLocalizacion.message);
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(responseEstatusLocalizacionFinal => {
-                                                    console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacionFinal));
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                                    if (!responseEstatusLocalizacionFinal.error) {
+                                $('#Loading_Modal').modal('hide');
+                            }
+                        });
 
-                                                        //Eliminar esta linea al subir a produccion
-                                                        //responseEstatusLocalizacionFinal.status = 1006;
-                                                        //responseEstatusLocalizacionFinal.message = "";
+                    } else {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text('Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
 
-                                                        if (responseEstatusLocalizacionFinal.status === 1005) {
-                                                            mensajeGeneral.addClass('alert alert-danger');
-                                                            mensajeGeneral.text('Ocurrió un problema al activar la localización del vehículo con el vin ' + vin + '.\n' + responseEstatusLocalizacionFinal.message);
-                                                            mensajeGeneral.show();
-                                                            divMensajeGeneral.show();
-                                                            window.scrollTo(0, 0);
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                            $('#Loading_Modal').modal('hide');
-                                                        } else {
-                                                            if (responseEstatusLocalizacionFinal.status === 1006) {
-                                                                mensajeGeneral.addClass('alert alert-success');
-                                                                mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + responseEstatusLocalizacionFinal.message);
-                                                                mensajeGeneral.show();
-                                                                divMensajeGeneral.show();
-                                                                window.scrollTo(0, 0);
-
-                                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                                $('#Loading_Modal').modal('hide');
-                                                            }
-                                                        }
-
-
-                                                    } else {
-                                                        if (responseEstatusLocalizacionFinal.status === 1006) {
-                                                            var mensaje = responseEstatusLocalizacionFinal.message.split('\n');
-                                                            mensajeGeneral.addClass('alert alert-success');
-
-                                                            mensajeGeneral.text('La activación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + mensaje[1]);
-                                                        } else {
-                                                            mensajeGeneral.addClass('alert alert-danger');
-
-                                                            if (responseEstatusLocalizacionFinal.status === 1004 || responseEstatusLocalizacionFinal.status === 1005 || responseEstatusLocalizacionFinal.status === 1007 || responseEstatusLocalizacionFinal.status === 1008) {
-                                                                mensajeGeneral.text(responseEstatusLocalizacionFinal.message);
-                                                            } else {
-                                                                mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + responseEstatusLocalizacionFinal.status + ' ' + responseEstatusLocalizacionFinal.message);
-                                                            }
-                                                        }
-
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        $('#Loading_Modal').modal('hide');
-                                                    }
-                                                });
-
-                                            } else {
-                                                mensajeGeneral.addClass('alert alert-danger');
-                                                mensajeGeneral.text('Error: ' + responseActivarLocalizacion.status + ' ' + responseActivarLocalizacion.message);
-                                                mensajeGeneral.show();
-                                                divMensajeGeneral.show();
-                                                window.scrollTo(0, 0);
-
-                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                $('#Loading_Modal').modal('hide');
-                                            }
-                                        });
-
-                                    } else {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text('Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
-
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                        $('#Loading_Modal').modal('hide');
-                                    }
-
-                                } else {
-                                    mensajeGeneral.addClass('alert alert-danger');
-
-                                    if (responseEstatusLocalizacion.status === 1004 || responseEstatusLocalizacion.status === 1006 || responseEstatusLocalizacion.status === 1007 || responseEstatusLocalizacion.status === 1008 || responseEstatusLocalizacion.status === 1009) {
-                                        mensajeGeneral.text(responseEstatusLocalizacion.message);
-                                    } else {
-                                        mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + responseEstatusLocalizacion.status + ' ' + responseEstatusLocalizacion.message);
-                                    }
-
-
-                                    mensajeGeneral.show();
-                                    divMensajeGeneral.show();
-                                    window.scrollTo(0, 0);
-
-                                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                    $('#Loading_Modal').modal('hide');
-                                }
-
-
-                            });
-
-
-                        } else {
-                            mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + responseTokenSXMCloud.status + ' ' + responseTokenSXMCloud.message);
-                            mensajeGeneral.show();
-                            divMensajeGeneral.show();
-                            window.scrollTo(0, 0);
-
-                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                            $('#Loading_Modal').modal('hide');
-                        }
-                    });
+                        $('#Loading_Modal').modal('hide');
+                    }
 
                 } else {
+
+                    if (responseEstatusLocalizacion.status === 1004 || responseEstatusLocalizacion.status === 1006 || responseEstatusLocalizacion.status === 1007 || responseEstatusLocalizacion.status === 1008 || responseEstatusLocalizacion.status === 1009 || responseEstatusLocalizacion.status === 1010) {
+                        mensajeGeneral.text(responseEstatusLocalizacion.message + "\nNo se puede volver activar la localización.");
+                    } else {
+                        mensajeGeneral.text(responseEstatusLocalizacion.message);
+                    }
+
                     mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + responseTokenSXMIDMLogin.status + ' ' + responseTokenSXMIDMLogin.message);
                     mensajeGeneral.show();
                     divMensajeGeneral.show();
                     window.scrollTo(0, 0);
 
-                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
                     SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                     $('#Loading_Modal').modal('hide');
                 }
+
             });
 
         }
@@ -781,153 +814,105 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
             systemEvent.action = "ACTIVAR BLOQUE0";
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+            var request = {};
+            request.access_token = $scope.cliente.token;
+            request.vin = vin;
+            request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
+
+            //sleep(2000);
+            SiriusService.consultaEstatusLocalizacion(request).then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
 
                 if (!response.error) {
-                    var tokenSXMIDMLogin = response.token;
+                    if (response.status === 1005) {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text(response.message);
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
 
-                    //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMCloud]: " + JSON.stringify(response));
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                        if (!response.error) {
-                            var tokenSXMCloud = response.token;
+                        $('#Loading_Modal').modal('hide');
+                    }
 
-                            var vinRequest = {};
-                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
-                            vinRequest.tokenSXMCloud = tokenSXMCloud;
-                            vinRequest.vin = vin;
+                } else {
 
-                            //sleep(2000);
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
+                    if (response.status === 1006) {
+                        //Aqui bloqueamos la localizacion
+                        SiriusService.bloquearLocalizacion(request).then(response => {
+                            console.log("RESPUESTA EN EL CONTROLLER [bloquearLocalizacion]: " + JSON.stringify(response));
 
-                                if (!response.error) {
-                                    if (response.status === 1005) {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text(response.status + ' ' + response.message);
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
+                            if (!response.error) {
+                                var svcReqId = response.svcReqId;
 
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
+                                mensajeGeneral.addClass('alert alert-success');
+                                mensajeGeneral.text('El bloqueo de la localización del vehículo con el vin ' + vin + ' se realizó con exito.');
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                        $('#Loading_Modal').modal('hide');
-                                    }
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                } else {
+                                $('#Loading_Modal').modal('hide');
 
-                                    if (response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                        //Aqui bloqueamos la localizacion
-                                        SiriusService.bloquearLocalizacion(vinRequest).then(response => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [bloquearLocalizacion]: " + JSON.stringify(response));
+                            } else {
+                                mensajeGeneral.addClass('alert alert-danger');
+                                mensajeGeneral.text(response.message);
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                            if (!response.error) {
-                                                var svcReqId = response.svcReqId;
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                                    if (response.tracker) {
-                                                        mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('El bloqueo de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + JSON.stringify(response.tracker));
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-
-                                                    } else {
-                                                        mensajeGeneral.addClass('alert alert-danger');
-                                                        mensajeGeneral.text('Ocurrió un problema al bloquear la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-                                                    }
-                                                });
-
-
-                                            } else {
-                                                mensajeGeneral.addClass('alert alert-danger');
-                                                mensajeGeneral.text('Ocurrió un problema al bloquear la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                mensajeGeneral.show();
-                                                divMensajeGeneral.show();
-                                                window.scrollTo(0, 0);
-
-                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                $('#Loading_Modal').modal('hide');
-                                            }
-                                        });
-
-                                    } else {
-                                        mensajeGeneral.addClass('alert alert-danger');
-
-                                        if (response.status === 1004) {
-                                            mensajeGeneral.text(response.message);
-                                        } else {
-                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                        }
-
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
-
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                        $('#Loading_Modal').modal('hide');
-                                    }
-
-                                }
-                            });
-
-
-                        } else {
+                                $('#Loading_Modal').modal('hide');
+                            }
+                        });
+                    } else {
+                        if (response.status === 1007 || response.status === 1008 || response.status === 1009 || response.status === 1010) {
                             mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.text(response.message + "\n No se puede realizar el bloqueo de la localización.");
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " bloqueo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                            $('#Loading_Modal').modal('hide');
+                        } else {
+                            mensajeGeneral.text(response.message);
+
+
+                            mensajeGeneral.addClass('alert alert-danger');
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
+
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " bloqueo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
                             SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
-                    });
 
-                } else {
-                    mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
-                    mensajeGeneral.show();
-                    divMensajeGeneral.show();
-                    window.scrollTo(0, 0);
+                    }
 
-                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " activo el bloqueo del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                    $('#Loading_Modal').modal('hide');
                 }
             });
+
+
+
 
         }
 
     };
 
     $scope.cancelarLocalizacion = function() {
-        $scope.token_sxm_idm_login = {};
-        $scope.token_sxm_cloud = {};
+        //$scope.token_sxm_idm_login = {};
+        //$scope.token_sxm_cloud = {};
 
         $('#vin').removeClass('is-invalid');
         $('#vin').removeClass('is-valid');
@@ -981,158 +966,90 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
             systemEvent.action = "CANCELAR LOCALIZACION";
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+
+            var request = {};
+            request.access_token = $scope.cliente.token;
+            request.vin = vin;
+            request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
+
+            //sleep(2000);
+            SiriusService.consultaEstatusLocalizacion(request).then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(response));
+
+                //Eliminar estas lineas al subir a produccion
+                //response.error = true;
+                //response.status = 1006;
 
                 if (!response.error) {
-                    var tokenSXMIDMLogin = response.token;
+                    if (response.status === 1005) {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text(response.message);
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
 
-                    //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaTokenSXMCloud]: " + JSON.stringify(response));
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                        if (!response.error) {
-                            var tokenSXMCloud = response.token;
-
-                            var vinRequest = {};
-                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
-                            vinRequest.tokenSXMCloud = tokenSXMCloud;
-                            vinRequest.vin = vin;
-
-                            //sleep(2000);
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(response));
-
-                                //Eliminar estas lineas al subir a produccion
-                                //response.error = true;
-                                //response.status = 1006;
-
-                                if (!response.error) {
-                                    if (response.status === 1005) {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text(response.status + ' ' + response.message);
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
-
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                        $('#Loading_Modal').modal('hide');
-                                    }
-
-                                } else {
-
-                                    if (response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                        //Aqui cancelamos la localizacion
-                                        SiriusService.cancelarLocalizacion(vinRequest).then(response => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/cancelarLocalizacion]: " + JSON.stringify(response));
-
-                                            if (!response.error) {
-                                                var svcReqId = response.svcReqId;
-
-                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                                    console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(response));
-
-                                                    if (!response.error) {
-
-                                                        mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + vin + ' se realizó con exito.\n' + response.message);
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-
-                                                    } else {
-                                                        mensajeGeneral.addClass('alert alert-danger');
-
-                                                        if (response.status === 1004 || response.status === 1005 || response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                                            mensajeGeneral.text(response.message);
-                                                        } else {
-                                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                        }
-
-
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-                                                    }
-                                                });
-
-
-                                            } else {
-                                                mensajeGeneral.addClass('alert alert-danger');
-                                                mensajeGeneral.text('Ocurrió un problema al cancelar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                mensajeGeneral.show();
-                                                divMensajeGeneral.show();
-                                                window.scrollTo(0, 0);
-
-                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                $('#Loading_Modal').modal('hide');
-                                            }
-                                        });
-
-                                    } else {
-                                        mensajeGeneral.addClass('alert alert-danger');
-
-                                        if (response.status === 1004) {
-                                            mensajeGeneral.text(response.message);
-                                        } else {
-                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                        }
-
-
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
-
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                        $('#Loading_Modal').modal('hide');
-                                    }
-
-                                }
-                            });
-
-
-                        } else {
-                            mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-Cloud.\n' + 'Error: ' + response.status + ' ' + response.message);
-                            mensajeGeneral.show();
-                            divMensajeGeneral.show();
-                            window.scrollTo(0, 0);
-
-                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                            $('#Loading_Modal').modal('hide');
-                        }
-                    });
+                        $('#Loading_Modal').modal('hide');
+                    }
 
                 } else {
-                    mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
-                    mensajeGeneral.show();
-                    divMensajeGeneral.show();
-                    window.scrollTo(0, 0);
 
-                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
+                    if (response.status === 1006 || response.status === 1009 || response.status === 1010) {
+                        //Aqui cancelamos la localizacion
+                        SiriusService.cancelarLocalizacion(request).then(response => {
+                            console.log("RESPUESTA EN EL CONTROLLER [cancelarLocalizacion/cancelarLocalizacion]: " + JSON.stringify(response));
 
-                    $('#Loading_Modal').modal('hide');
+                            if (!response.error) {
+                                var svcReqId = response.svcReqId;
+
+                                mensajeGeneral.addClass('alert alert-success');
+                                mensajeGeneral.text('La cancelación de localización del vehículo con el vin ' + request.vin + ' se realizó con exito.');
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
+
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                                $('#Loading_Modal').modal('hide');
+
+                            } else {
+                                mensajeGeneral.addClass('alert alert-danger');
+                                mensajeGeneral.text(response.message);
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
+
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                                $('#Loading_Modal').modal('hide');
+                            }
+                        });
+
+                    } else {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        if (response.status === 1007 || response.status === 1008) {
+                            mensajeGeneral.text(response.message + "\n No se puede realizar la cancelación.");
+                        } else if (response.status === 1004) {
+                            mensajeGeneral.text(response.message);
+                        } else {
+                            mensajeGeneral.text(response.message);
+                        }
+
+
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
+
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " cancelo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                        $('#Loading_Modal').modal('hide');
+                    }
+
                 }
             });
 
@@ -1196,143 +1113,97 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             systemEvent.userName = $scope.usuarioSesion.first_names + " " + $scope.usuarioSesion.last_names;
             systemEvent.action = "APLAZAR LOCALIZACION";
 
-            //Consultamos el token SXMIDMLogin
-            SiriusService.consultaTokenSXMIDMLogin().then(response => {
-                console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMIDMLogin]: " + JSON.stringify(response));
+
+
+            var request = {};
+            request.access_token = $scope.cliente.token;
+            request.vin = vin;
+            request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
+
+            //sleep(2000);
+            SiriusService.consultaEstatusLocalizacion(request).then(response => {
+                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
 
                 if (!response.error) {
-                    var tokenSXMIDMLogin = response.token;
+                    if (response.status === 1005) {
+                        mensajeGeneral.addClass('alert alert-danger');
+                        mensajeGeneral.text(response.message);
+                        mensajeGeneral.show();
+                        divMensajeGeneral.show();
+                        window.scrollTo(0, 0);
 
-                    //Consultamos el token SXMCloud
-                    SiriusService.consultaTokenSXMCloud().then(response => {
-                        console.log("RESPUESTA EN EL CONTROLLER [consultaTokenSXMCloud]: " + JSON.stringify(response));
+                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                        if (!response.error) {
-                            var tokenSXMCloud = response.token;
+                        $('#Loading_Modal').modal('hide');
+                    }
 
-                            var vinRequest = {};
-                            vinRequest.tokenSXMIDMLogin = tokenSXMIDMLogin;
-                            vinRequest.tokenSXMCloud = tokenSXMCloud;
-                            vinRequest.vin = vin;
+                } else {
 
-                            //sleep(2000);
-                            SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                console.log("RESPUESTA EN EL CONTROLLER [consultaEstatusLocalizacion]: " + JSON.stringify(response));
+                    if (response.status === 1006) {
+                        //Aqui aplazamos la localizacion
+                        SiriusService.aplazarLocalizacion(request).then(response => {
+                            console.log("RESPUESTA EN EL CONTROLLER [aplazarLocalizacion]: " + JSON.stringify(response));
 
-                                if (!response.error) {
-                                    if (response.status === 1005) {
-                                        mensajeGeneral.addClass('alert alert-danger');
-                                        mensajeGeneral.text(response.status + ' ' + response.message);
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
+                            if (!response.error) {
+                                var svcReqId = response.svcReqId;
 
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
+                                mensajeGeneral.addClass('alert alert-success');
+                                mensajeGeneral.text('El aplazamiento de localización del vehículo con el vin ' + vin + ' se realizó con exito.');
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                        $('#Loading_Modal').modal('hide');
-                                    }
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                } else {
-
-                                    if (response.status === 1006 || response.status === 1007 || response.status === 1008) {
-                                        //Aqui aplazamos la localizacion
-                                        SiriusService.aplazarLocalizacion(vinRequest).then(response => {
-                                            console.log("RESPUESTA EN EL CONTROLLER [aplazarLocalizacion]: " + JSON.stringify(response));
-
-                                            if (!response.error) {
-                                                var svcReqId = response.svcReqId;
-
-                                                SiriusService.consultaEstatusLocalizacion(vinRequest).then(response => {
-                                                    if (response.tracker) {
-                                                        mensajeGeneral.addClass('alert alert-danger');
-                                                        mensajeGeneral.text('Ocurrió un problema al aplazar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-                                                    } else {
-                                                        mensajeGeneral.addClass('alert alert-success');
-                                                        mensajeGeneral.text('El aplazamiento de localización del vehículo con el vin ' + vin + ' se realizó con exito.');
-                                                        mensajeGeneral.show();
-                                                        divMensajeGeneral.show();
-                                                        window.scrollTo(0, 0);
-
-                                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                                        $('#Loading_Modal').modal('hide');
-                                                    }
-                                                });
+                                $('#Loading_Modal').modal('hide');
 
 
-                                            } else {
-                                                mensajeGeneral.addClass('alert alert-danger');
-                                                mensajeGeneral.text('Ocurrió un problema al aplazar la localización del vehículo con el vin ' + vin + '.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                                mensajeGeneral.show();
-                                                divMensajeGeneral.show();
-                                                window.scrollTo(0, 0);
+                            } else {
+                                mensajeGeneral.addClass('alert alert-danger');
+                                mensajeGeneral.text(response.message);
+                                mensajeGeneral.show();
+                                divMensajeGeneral.show();
+                                window.scrollTo(0, 0);
 
-                                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
+                                systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                                SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
-                                                $('#Loading_Modal').modal('hide');
-                                            }
-                                        });
+                                $('#Loading_Modal').modal('hide');
+                            }
+                        });
 
-                                    } else {
-                                        mensajeGeneral.addClass('alert alert-danger');
+                    } else {
 
-                                        if (response.status === 1004) {
-                                            mensajeGeneral.text(response.message);
-                                        } else {
-                                            mensajeGeneral.text('Ocurrió un problema al consultar el estatus del vehículo.\n' + 'Error: ' + response.status + ' ' + response.message);
-                                        }
-
-
-                                        mensajeGeneral.show();
-                                        divMensajeGeneral.show();
-                                        window.scrollTo(0, 0);
-
-                                        systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                                        SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                                        $('#Loading_Modal').modal('hide');
-                                    }
-
-                                }
-                            });
-
-
-                        } else {
+                        if (response.status === 1007 || response.status === 1008 || response.status === 1009 || response.status === 1010) {
                             mensajeGeneral.addClass('alert alert-danger');
-                            mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
+                            mensajeGeneral.text(response.message + "\n No se puede realizar el aplazamiento de la localización.");
                             mensajeGeneral.show();
                             divMensajeGeneral.show();
                             window.scrollTo(0, 0);
 
-                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vinRequest.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
+                            SiriusService.saveSystemEvents(systemEvent).then(response => {});
+
+                            $('#Loading_Modal').modal('hide');
+                        } else {
+                            mensajeGeneral.text(response.message);
+
+
+                            mensajeGeneral.addClass('alert alert-danger');
+                            mensajeGeneral.show();
+                            divMensajeGeneral.show();
+                            window.scrollTo(0, 0);
+
+                            systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + request.vin + "\nRESPUESTA: " + mensajeGeneral.text();
                             SiriusService.saveSystemEvents(systemEvent).then(response => {});
 
                             $('#Loading_Modal').modal('hide');
                         }
-                    });
 
-                } else {
-                    mensajeGeneral.addClass('alert alert-danger');
-                    mensajeGeneral.text('Ocurrió un problema la obtener el token SXM-IDM-Login.\n' + 'Error: ' + response.status + ' ' + response.message);
-                    mensajeGeneral.show();
-                    divMensajeGeneral.show();
-                    window.scrollTo(0, 0);
+                    }
 
-                    systemEvent.observation = "El usuario " + $scope.usuarioSesion.user + " aplazo la localización del VIN: " + vin + "\nRESPUESTA: " + mensajeGeneral.text();
-                    SiriusService.saveSystemEvents(systemEvent).then(response => {});
-
-                    $('#Loading_Modal').modal('hide');
                 }
             });
 

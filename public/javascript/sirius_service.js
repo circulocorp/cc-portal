@@ -33,6 +33,40 @@ app.service('SiriusService', function($http) {
         });
     };
 
+    this.consultarVehiculosSinBloqueo = function(vehiculos_sin_bloqueo) {
+
+        console.log("VEHICULO_SIN_BLOQUEO EN EL SERVICE: " + JSON.stringify(vehiculos_sin_bloqueo));
+
+        return new Promise((resolve, reject) => {
+
+            var respuesta = new Object();
+
+            $http.post('./sirius_repository/getVehiculosSinBloqueo', vehiculos_sin_bloqueo).then(function(response) {
+                console.log("RESPUESTA EN EL SERVICE [getVehiculosSinBloqueo]: " + JSON.stringify(response));
+
+                var respuestaObject;
+
+                if (response['status'] === 200) {
+                    respuestaObject = response['data'];
+
+                    console.log("VEHICULO_SIN_BLOQUEO: " + JSON.stringify(respuestaObject));
+                    respuesta.error = false;
+                    respuesta.status = 'OK';
+                    respuesta.message = 'Consulta de vehiculos sin bloqueo con exito.';
+                    respuesta.vehiculos_sin_bloqueo = respuestaObject['vehiculos_sin_bloqueo'];
+
+                    resolve(respuesta);
+                } else {
+                    respuesta.error = true;
+                    respuesta.status = 'Error';
+                    respuesta.message = 'No hay tenans o tipos de clientes configurados.';
+                    respuesta.vehiculos_sin_bloqueo = null;
+                    resolve(respuesta);
+                }
+            });
+        });
+    };
+
     this.consultaTokenSXMCloud = function(tenan) {
         console.log("TENAND_ID EN EL SERVICE: " + tenan.tenan_id);
 
@@ -143,11 +177,48 @@ app.service('SiriusService', function($http) {
         });
     };
 
-    this.consultaEstatusLocalizacion = function(vinRequest) {
+    this.consultarDetalleVehiculo = function(vehiculo) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.post('./sirius_route/estatusLocalizacion', vinRequest).then(function(response) {
+            $http.post('./sirius_route/consultarDetalleVehiculo', vehiculo).then(function(response) {
+                console.log("RESPUESTA EN EL SERVICE [consultarDetalleVehiculo]: " + JSON.stringify(response));
+
+                var respuestaObject;
+                if (response['status'] === 200) {
+                    respuestaObject = response['data'];
+                    console.log("VEHICULO EN EL SERVICE: " + JSON.stringify(respuestaObject));
+
+                    if (respuestaObject !== null) {
+                        respuesta.error = false;
+                        respuesta.status = 200;
+                        respuesta.message = "Consulta de dedatlle del vehiculo correcta";
+                        respuesta.detalle_vehiculo = respuestaObject;
+                        resolve(respuesta);
+
+                    } else {
+                        respuesta.error = true;
+                        respuesta.status = response['status'];
+                        respuesta.message = response['message'];
+                        respuesta.detalle_vehiculo = null;
+                        resolve(respuesta);
+                    }
+                } else {
+                    respuesta.error = true;
+                    respuesta.status = response['status'];
+                    respuesta.message = response['message'];
+                    respuesta.detalle_vehiculo = null;
+                    resolve(respuesta);
+                }
+            });
+        });
+    };
+
+    this.consultaEstatusLocalizacion = function(request) {
+
+        return new Promise((resolve, reject) => {
+            var respuesta = new Object();
+            $http.post('./sirius_route/estatusLocalizacion', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [consultaEstatusLocalizacion]: " + JSON.stringify(response));
 
                 var respuestaObject;
@@ -161,7 +232,7 @@ app.service('SiriusService', function($http) {
                         if (Object.entries(respuestaObject).length === 0) {
                             respuesta.error = false;
                             respuesta.status = 1005;
-                            respuesta.message = "El vehículo con el VIN: " + vinRequest.vin + " NO tiene una localización activa.\n" + JSON.stringify(respuestaObject);
+                            respuesta.message = "El vehículo con el VIN: " + request.vin + " NO tiene una localización activa.";
                             respuesta.tracker = respuestaObject;
                             resolve(respuesta);
                         } else {
@@ -172,19 +243,25 @@ app.service('SiriusService', function($http) {
                                 if (tracker['status'] === "ACTIVE") {
                                     respuesta.error = true;
                                     respuesta.status = 1006;
-                                    respuesta.message = "La localización para el vehículo con el VIN " + vinRequest.vin + " ya se encuentra activa.\n " + JSON.stringify(tracker) + " ";
+                                    respuesta.message = "La localización para el vehículo con el VIN " + request.vin + " ya se encuentra activa. ";
                                     respuesta.tracker = tracker;
                                     resolve(respuesta);
                                 } else if (tracker['status'] === "FAILED") {
                                     respuesta.error = true;
                                     respuesta.status = 1007;
-                                    respuesta.message = "La localización para el vehículo con el VIN " + vinRequest.vin + " tiene un estatus " + tracker['status'] + ".\n " + JSON.stringify(tracker) + "";
+                                    respuesta.message = "La localización para el vehículo con el VIN " + request.vin + " tiene un estatus: " + tracker['status'] + ".";
                                     respuesta.tracker = tracker;
                                     resolve(respuesta);
                                 } else if (tracker['status'] === "ACTIVATION_IN_PROGRESS") {
                                     respuesta.error = true;
                                     respuesta.status = 1009;
-                                    respuesta.message = "La localización para el vehículo con el VIN " + vinRequest.vin + " tiene un estatus " + tracker['status'] + ".\n " + JSON.stringify(tracker) + "";
+                                    respuesta.message = "La localización para el vehículo con el VIN " + request.vin + " tiene un estatus: " + tracker['status'] + ".";
+                                    respuesta.tracker = tracker;
+                                    resolve(respuesta);
+                                } else if (tracker['status'] === "CANCELLATION_IN_PROGRESS") {
+                                    respuesta.error = true;
+                                    respuesta.status = 1010;
+                                    respuesta.message = "La localización para el vehículo con el VIN " + request.vin + " tiene un estatus: " + tracker['status'] + ".";
                                     respuesta.tracker = tracker;
                                     resolve(respuesta);
                                 } else {
@@ -209,7 +286,7 @@ app.service('SiriusService', function($http) {
                         if (isEmpty(respuestaObject) || respuestaObject.length === 0) {
                             respuesta.error = true;
                             respuesta.status = 1004;
-                            respuesta.message = "No se encontro información sobre el Tracker para el VIN: " + vinRequest.vin + ".";
+                            respuesta.message = "No se encontro información sobre el Tracker para el VIN: " + request.vin + ".";
                             respuesta.tracker = null;
                             resolve(respuesta);
                         } else {
@@ -232,13 +309,13 @@ app.service('SiriusService', function($http) {
         });
     };
 
-    this.activarLocalizacion = function(vinRequest) {
+    this.activarLocalizacion = function(request) {
 
-        console.log("VIN-REQUEST EN EL SERVICE: " + JSON.stringify(vinRequest));
+        console.log("VIN-REQUEST EN EL SERVICE: " + JSON.stringify(request));
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
-            $http.post('./sirius_route/activarLocalizacion', vinRequest).then(function(response) {
+            $http.post('./sirius_route/activarLocalizacion', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion]: " + JSON.stringify(response));
 
 
@@ -247,10 +324,10 @@ app.service('SiriusService', function($http) {
 
                     if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
-                        vinRequest.svcReqId = respuestaObject['svcReqId'];
-                        vinRequest.eventType = "ACTIVE_TRACKER";
+                        request.svcReqId = respuestaObject['svcReqId'];
+                        request.eventType = "ACTIVE_TRACKER";
 
-                        $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
+                        $http.post('./sirius_repository/saveTracker', request).then(function(response) {
                             console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(response));
 
 
@@ -258,7 +335,7 @@ app.service('SiriusService', function($http) {
                                 var respuestaSaveTarcker = response['data'];
                                 console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/saveTracker]: " + JSON.stringify(respuestaSaveTarcker));
 
-                                $http.post('./sirius_repository/getShellByStatus', vinRequest).then(function(response) {
+                                $http.post('./sirius_repository/getShellByStatus', request).then(function(response) {
                                     console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/getShellByStatus]: " + JSON.stringify(response));
 
 
@@ -270,9 +347,9 @@ app.service('SiriusService', function($http) {
                                             var shell = respuestaGetShellTarcker['shell'][0];
                                             console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/SHELL]: " + JSON.stringify(shell));
 
-                                            shell.description = vinRequest.vin;
-                                            shell.registration = vinRequest.vin;
-                                            shell.vin = vinRequest.vin;
+                                            shell.description = request.vin;
+                                            shell.registration = request.vin;
+                                            shell.vin = request.vin;
                                             shell.isFavorite = true;
                                             shell.status = true;
                                             shell.lastUpdate = moment().format('YYYY/MM/DD HH:mm:ss');
@@ -404,10 +481,6 @@ app.service('SiriusService', function($http) {
                                                         }
                                                     });
 
-
-
-
-
                                                 } else {
                                                     respuesta.error = true;
                                                     respuesta.status = 2005;
@@ -424,7 +497,6 @@ app.service('SiriusService', function($http) {
                                             resolve(respuesta);
                                         }
 
-
                                     } else {
                                         respuesta.error = true;
                                         respuesta.status = 2003;
@@ -437,7 +509,7 @@ app.service('SiriusService', function($http) {
                             } else {
                                 respuesta.error = true;
                                 respuesta.status = 2002;
-                                respuesta.message = "La activación fue exitosa, sinembargo, Ocurrio un problema al registrar el TRACKER en la base de datos";
+                                respuesta.message = "La activación fue exitosa, sin embargo, Ocurrio un problema al registrar el TRACKER en la base de datos";
                                 respuesta.svcReqId = null;
                                 resolve(respuesta);
                             }
@@ -463,12 +535,12 @@ app.service('SiriusService', function($http) {
         });
     };
 
-    this.cancelarLocalizacion = function(vinRequest) {
+    this.cancelarLocalizacion = function(request) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_route/cancelarLocalizacion', vinRequest).then(function(response) {
+            $http.post('./sirius_route/cancelarLocalizacion', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion]: " + JSON.stringify(response));
 
 
@@ -484,12 +556,12 @@ app.service('SiriusService', function($http) {
                     } else {
                         if (respuestaCancelarLocalizacion['svcReqId'] !== null && respuestaCancelarLocalizacion['svcReqId'] !== '' && typeof(respuestaCancelarLocalizacion['svcReqId']) !== 'undefined') {
 
-                            $http.post('./sirius_repository/deleteTracker', vinRequest).then(function(response) {
+                            $http.post('./sirius_repository/deleteTracker', request).then(function(response) {
                                 console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/deleteTracker]: " + JSON.stringify(response));
 
                                 if (response['status'] === 200) {
 
-                                    $http.post('./sirius_repository/getShellByVIN', vinRequest).then(function(response) {
+                                    $http.post('./sirius_repository/getShellByVIN', request).then(function(response) {
                                         console.log("RESPUESTA EN EL SERVICE [cancelarLocalizacion/getShellByVIN]: " + JSON.stringify(response));
 
                                         if (response['status'] === 200) {
@@ -534,7 +606,7 @@ app.service('SiriusService', function($http) {
                                                                             if (responseUpdateShellsMzone['status'] === 200 || responseUpdateShellsMzone['status'] === 204) {
                                                                                 respuesta.error = false;
                                                                                 respuesta.status = null;
-                                                                                respuesta.message = "Cancelación correcta";
+                                                                                respuesta.message = "La cancelación del traking para el vehiculo con el VIN " + request.vin + " fue exitosa";
                                                                                 respuesta.svcReqId = respuestaObject['svcReqId'];
                                                                                 resolve(respuesta);
 
@@ -584,7 +656,7 @@ app.service('SiriusService', function($http) {
                                             } else {
                                                 respuesta.error = true;
                                                 respuesta.status = 3004;
-                                                respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                                respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + request.vin + ".";
                                                 respuesta.svcReqId = null;
                                                 resolve(respuesta);
                                             }
@@ -593,7 +665,7 @@ app.service('SiriusService', function($http) {
                                         } else {
                                             respuesta.error = true;
                                             respuesta.status = 3003;
-                                            respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + vinRequest.vin + " para el envio de posiciones";
+                                            respuesta.message = "La cancelación fue exitosa, sin embargo, No se encontro un perfil MZone/MProfile ocupado con el VIN " + request.vin + " para el envio de posiciones";
                                             respuesta.svcReqId = null;
                                             resolve(respuesta);
                                         }
@@ -629,27 +701,27 @@ app.service('SiriusService', function($http) {
         });
     };
 
-    this.bloquearLocalizacion = function(vinRequest) {
+    this.bloquearLocalizacion = function(request) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
             var idSession = "";
-            $http.post('./sirius_repository/getTracker', vinRequest).then(function(response) {
+            $http.post('./sirius_repository/getTracker', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
                 console.log("RESPUESTA OBJECT [bloquearLocalizacion/getTracker]: " + JSON.stringify(responseObject));
                 var trackerObject = responseObject['tracker'];
                 console.log("RESPUESTA TRACKER [bloquearLocalizacion/getTracker]: " + JSON.stringify(trackerObject));
-                vinRequest.sessionId = trackerObject[0]['session_id'];
-                console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(vinRequest.sessionId));
-                idSession = vinRequest.sessionId;
+                request.sessionId = trackerObject[0]['session_id'];
+                console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.sessionId));
+                idSession = request.sessionId;
                 console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(idSession));
 
-                vinRequest.sessionId = idSession;
-                console.log("+++RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(vinRequest.sessionId));
+                request.sessionId = idSession;
+                console.log("+++RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.sessionId));
 
-                $http.post('./sirius_route/bloquearLocalizacion', vinRequest).then(function(response) {
+                $http.post('./sirius_route/bloquearLocalizacion', request).then(function(response) {
                     console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion]: " + JSON.stringify(response));
 
                     var respuestaObject;
@@ -665,9 +737,9 @@ app.service('SiriusService', function($http) {
                         } else {
                             if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
-                                vinRequest.svcReqId = respuestaObject['svcReqId'];
-                                vinRequest.eventType = "BLOCK_TRACKER";
-                                $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
+                                request.svcReqId = respuestaObject['svcReqId'];
+                                request.eventType = "BLOCK_TRACKER";
+                                $http.post('./sirius_repository/saveTracker', request).then(function(response) {
                                     console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/saveTracker]: " + JSON.stringify(response));
                                 });
 
@@ -698,22 +770,22 @@ app.service('SiriusService', function($http) {
         });
     };
 
-    this.aplazarLocalizacion = function(vinRequest) {
+    this.aplazarLocalizacion = function(request) {
 
         return new Promise((resolve, reject) => {
             var respuesta = new Object();
 
-            $http.post('./sirius_repository/getTracker', vinRequest).then(function(response) {
+            $http.post('./sirius_repository/getTracker', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
                 console.log("RESPUESTA OBJECT [aplazarLocalizacion/getTracker]: " + JSON.stringify(responseObject));
                 var trackerObject = responseObject['tracker'];
                 console.log("RESPUESTA TRACKER [aplazarLocalizacion/getTracker]: " + JSON.stringify(trackerObject));
-                vinRequest.svcReqId = trackerObject[0]['svc_req_id'];
-                console.log("RESPUESTA SVC REQ ID [aplazarLocalizacion/getTracker]: " + JSON.stringify(vinRequest.svcReqId));
+                request.svcReqId = trackerObject[0]['svc_req_id'];
+                console.log("RESPUESTA SVC REQ ID [aplazarLocalizacion/getTracker]: " + JSON.stringify(request.svcReqId));
             });
 
-            $http.post('./sirius_route/aplazarLocalizacion', vinRequest).then(function(response) {
+            $http.post('./sirius_route/aplazarLocalizacion', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion]: " + JSON.stringify(response));
 
                 var respuestaObject;
@@ -729,9 +801,9 @@ app.service('SiriusService', function($http) {
                     } else {
                         if (respuestaObject['svcReqId'] !== null && respuestaObject['svcReqId'] !== '' && typeof(respuestaObject['svcReqId']) !== 'undefined') {
 
-                            vinRequest.svcReqId = respuestaObject['svcReqId'];
-                            vinRequest.eventType = "POSTPONE_TRACKER";
-                            $http.post('./sirius_repository/saveTracker', vinRequest).then(function(response) {
+                            request.svcReqId = respuestaObject['svcReqId'];
+                            request.eventType = "POSTPONE_TRACKER";
+                            $http.post('./sirius_repository/saveTracker', request).then(function(response) {
                                 console.log("RESPUESTA EN EL SERVICE [aplazarLocalizacion/saveTracker]: " + JSON.stringify(response));
                             });
 

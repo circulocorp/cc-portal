@@ -75,6 +75,30 @@ router.get('/getTenans', function(req, res, next) {
     });
 });
 
+router.post('/getVehiculosSinBloqueo', function(req, res, next) {
+
+    console.log("VEHICULO_SIN_BLOQUEO EN EL REPOSITORY: " + JSON.stringify(req.body));
+
+    var data = req.body;
+    var sql = "SELECT * FROM vehiculos_sin_bloqueo b WHERE marca=$1 AND modelo=$2 AND anio=$3 AND b.status=true";
+
+    pool.query(sql, [data.make, data.model, data.year], (error, results) => {
+        if (error) {
+            console.log("ERROR AL CONSULTAR LOS VEHICULOS SIN BLOQUEO: " + error);
+            throw new Error(error);
+        } else {
+            console.log("RESULTADO AL CONSULTAR LOS VEHICULOS SIN BLOQUEO: " + JSON.stringify(results));
+
+            if (results.rows !== null && results.rows.length > 0) {
+                res.status(200).json({ "status": true, "message": "Consulta de vehiculos sin bloqueo con exito", "vehiculos_sin_bloqueo": results.rows });
+            } else {
+                res.status(200).json({ "status": true, "message": "No se encontro información", "vehiculos_sin_bloqueo": null });
+            }
+
+        }
+    });
+});
+
 router.post('/saveTracker', function(req, res, next) {
     console.log("BODY EN EL REPOSITORY [saveTracker]: " + JSON.stringify(req.body));
 
