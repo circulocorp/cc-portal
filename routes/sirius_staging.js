@@ -65,7 +65,7 @@ exports.password = "Pass$word01";
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION
-exports.isTest = true;
+exports.isTest = false;
 exports.isTestCont = 0;
 
 exports.port_sirius = 3002;

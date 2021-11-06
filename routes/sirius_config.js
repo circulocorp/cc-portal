@@ -5,4 +5,4 @@
  */
 
 //STAGIN o PROD, o DEV
-exports.environment = 'PROD';
+exports.environment = 'STAGIN';
