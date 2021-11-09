@@ -270,13 +270,15 @@ router.post('/bloquearLocalizacion', function(req, res, next) {
         var params = req.body;
         var vehicle_id = params.vehicle_id;
         var access_token = params.access_token;
+        var session_id = params.sessionId;
 
         var options = {
             'method': 'PUT',
             'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
             'headers': {
                 'Authorization': 'Bearer ' + access_token,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'CV-SessionId': session_id
             },
             body: JSON.stringify({
                 "track": {
