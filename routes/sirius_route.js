@@ -191,6 +191,9 @@ router.post('/estatusLocalizacion', function(req, res, next) {
             'Authorization': 'Bearer ' + access_token
         }
     };
+
+    console.log('ESTATUS LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
+
     request(options, function(error, response) {
         if (error) {
             console.log("RESPUESTA ERROR EN EL ROUTE [estatusLocalizacion]: " + JSON.stringify(error));
@@ -209,13 +212,15 @@ router.post('/activarLocalizacion', function(req, res, next) {
     var params = req.body;
     var vehicle_id = params.vehicle_id;
     var access_token = params.access_token;
+    var session_id = params.sessionId;
 
     var options = {
         'method': 'POST',
         'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
         'headers': {
             'Authorization': 'Bearer ' + access_token,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'CV-SessionId': session_id
         },
         body: JSON.stringify({
             "track": {
@@ -225,6 +230,8 @@ router.post('/activarLocalizacion', function(req, res, next) {
         })
 
     };
+
+    console.log('ACTIVAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
 
     request(options, function(error, response) {
         if (error) {
@@ -250,6 +257,8 @@ router.post('/cancelarLocalizacion', function(req, res, next) {
             'Authorization': 'Bearer ' + access_token
         }
     };
+
+    console.log('CANCELAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
 
     request(options, function(error, response) {
         if (error) {
@@ -289,6 +298,8 @@ router.post('/bloquearLocalizacion', function(req, res, next) {
 
         };
 
+        console.log('BLOQUEAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
+
         request(options, function(error, response) {
             if (error) {
                 console.log("RESPUESTA ERROR EN EL ROUTE [bloquearLocalizacion]: " + JSON.stringify(error));
@@ -326,6 +337,8 @@ router.post('/aplazarLocalizacion', function(req, res, next) {
         })
 
     };
+
+    console.log('APLAZAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
 
     request(options, function(error, response) {
         if (error) {
