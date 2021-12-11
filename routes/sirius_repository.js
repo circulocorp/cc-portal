@@ -103,9 +103,9 @@ router.post('/saveTracker', function(req, res, next) {
     console.log("BODY EN EL REPOSITORY [saveTracker]: " + JSON.stringify(req.body));
 
     var data = req.body;
-    var sql = 'INSERT INTO tracker(vin, session_id, svc_req_id, event_type) VALUES ($1, $2, $3, $4) RETURNING tracker_id';
+    var sql = 'INSERT INTO tracker(vin, session_id, svc_req_id, event_type, correlation_id) VALUES ($1, $2, $3, $4, $5) RETURNING tracker_id';
 
-    pool.query(sql, [data.vin, data.sessionId, data.svcReqId, data.eventType], (error, results) => {
+    pool.query(sql, [data.vin, data.sessionId, data.svcReqId, data.eventType, data.correlationId], (error, results) => {
         if (error) {
             console.log("ERROR AL REGISTRAR EL TRACKER: " + error);
             throw new Error(error);

@@ -59,7 +59,7 @@ exports.PASSWORD_MZONE_HIJA = "A3TEKCC3461";
 //Para el servidor actual de los servicios: exports.password = "Pass$word01";
 //Para el servidor SIRIUS: exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; exports.password = "Pass$word01";
 exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; //
-exports.database = "sirius";
+exports.database = "siriussit";
 exports.user = "postgres";
 exports.password = "Pass$word01";
 exports.port = 5432;

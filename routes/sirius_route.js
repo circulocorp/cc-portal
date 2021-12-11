@@ -181,11 +181,12 @@ router.post('/estatusLocalizacion', function(req, res, next) {
 
     var params = req.body;
     var vehicle_id = params.vehicle_id;
+    var vin = params.vin;
     var access_token = params.access_token;
 
     var options = {
         'method': 'GET',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + access_token
@@ -211,48 +212,62 @@ router.post('/activarLocalizacion', function(req, res, next) {
 
     var params = req.body;
     var vehicle_id = params.vehicle_id;
+    var vin = params.vin;
     var access_token = params.access_token;
     var session_id = params.sessionId;
+    var correlation_id = params.correlationId;
 
-    var options = {
-        'method': 'POST',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
-        'headers': {
-            'Authorization': 'Bearer ' + access_token,
-            'Content-Type': 'application/json',
-            'CV-SessionId': session_id
-        },
-        body: JSON.stringify({
-            "track": {
-                "type": "Theft",
-                "state": "Active"
+    console.log(">>> VEHICLE ID ANTES DE LA PETICION DE LA ACTIVACION: " + vehicle_id);
+    console.log(">>> SESSION ID ANTES DE LA PETICION DE LA ACTIVACION: " + session_id);
+    console.log(">>> CORRELATION ID ANTES DE LA PETICION DE LA ACTIVACION: " + correlation_id);
+
+    if (conf.isTest) {
+        res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
+    } else {
+
+        var options = {
+            'method': 'POST',
+            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+            'headers': {
+                'Authorization': 'Bearer ' + access_token,
+                'Content-Type': 'application/json',
+                'CV-SessionId': session_id,
+                'CV-Correlation-Id': correlation_id
+            },
+            body: JSON.stringify({
+                "track": {
+                    "type": "Theft",
+                    "state": "Active"
+                }
+            })
+
+        };
+
+        console.log('ACTIVAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
+
+        request(options, function(error, response) {
+            if (error) {
+                console.log("RESPUESTA ERROR EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(error));
+                throw new Error(error);
+            } else {
+                console.log("RESPUESTA EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(response));
+                res.send(response.body);
             }
-        })
+        });
 
-    };
-
-    console.log('ACTIVAR LOCALIZACION: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
-
-    request(options, function(error, response) {
-        if (error) {
-            console.log("RESPUESTA ERROR EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(error));
-            throw new Error(error);
-        } else {
-            console.log("RESPUESTA EN EL ROUTE [activarLocalizacion]: " + JSON.stringify(response));
-            res.send(response.body);
-        }
-    });
+    }
 });
 
 router.post('/cancelarLocalizacion', function(req, res, next) {
 
     var params = req.body;
     var vehicle_id = params.vehicle_id;
+    var vin = params.vin;
     var access_token = params.access_token;
 
     var options = {
         'method': 'DELETE',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
         'headers': {
             'Authorization': 'Bearer ' + access_token
         }
@@ -273,21 +288,29 @@ router.post('/cancelarLocalizacion', function(req, res, next) {
 
 router.post('/bloquearLocalizacion', function(req, res, next) {
 
+
+    var params = req.body;
+    var vehicle_id = params.vehicle_id;
+    var vin = params.vin;
+    var access_token = params.access_token;
+    var session_id = params.sessionId;
+    var correlation_id = params.correlationId;
+
+    console.log(">>> VEHICLE ID ANTES DE LA PETICION DEL BLOQUEO: " + vehicle_id);
+    console.log(">>> SESSION ID ANTES DE LA PETICION DEL BLOQUEO: " + session_id);
+    console.log(">>> CORRELATION ID ANTES DE LA PETICION DEL BLOQUEO: " + correlation_id);
+
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
     } else {
-        var params = req.body;
-        var vehicle_id = params.vehicle_id;
-        var access_token = params.access_token;
-        var session_id = params.sessionId;
-
         var options = {
             'method': 'PUT',
-            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
             'headers': {
                 'Authorization': 'Bearer ' + access_token,
                 'Content-Type': 'application/json',
-                'CV-SessionId': session_id
+                'CV-SessionId': session_id,
+                'CV-Correlation-Id': correlation_id
             },
             body: JSON.stringify({
                 "track": {
@@ -319,12 +342,13 @@ router.post('/aplazarLocalizacion', function(req, res, next) {
 
     var params = req.body;
     var vehicle_id = params.vehicle_id;
+    var vin = params.vin;
     var access_token = params.access_token;
 
     var request = require('request');
     var options = {
         'method': 'PUT',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
         'headers': {
             'Authorization': 'Bearer ' + access_token,
             'Content-Type': 'application/json'

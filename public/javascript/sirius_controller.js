@@ -318,6 +318,7 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
                 if (typeof($scope.vehiculos) !== 'undefined' && $scope.vehiculos !== null && $scope.vehiculos.length !== null && $scope.vehiculos.length > 0) {
 
 
+                    //Con esta funcion s eobtienen la lista de vehicleId asignados al vehiculo
                     var listaVehiclesIds = [];
                     $scope.vehiculos.forEach(function(valor, indice, array) {
                         if (valor.refProperties.hasOwnProperty('roleType')) {
@@ -325,7 +326,7 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
                                 if (valor.refProperties.hasOwnProperty('vehicleId')) {
                                     if (Array.isArray(valor.refProperties.vehicleId)) {
                                         listaVehiclesIds = valor.refProperties.vehicleId;
-
+                                        //Aqui asigno la lista de vehicleId que se encontraron
                                         return true;
                                     }
                                 }
@@ -681,6 +682,7 @@ app.controller('SiriusController', function($scope, NgTableParams, $http, Sirius
             request.vin = vin;
             request.vehicle_id = $scope.vehiculoSeleccionado.vehicle_id;
             request.sessionId = generateUUID();
+            request.correlationId = generateUUID();
 
             SiriusService.consultaEstatusLocalizacion(request).then(responseEstatusLocalizacion => {
                 console.log("RESPUESTA EN EL CONTROLLER [activarLocalizacion/consultaEstatusLocalizacion]: " + JSON.stringify(responseEstatusLocalizacion));

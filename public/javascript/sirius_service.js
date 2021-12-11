@@ -362,6 +362,12 @@ app.service('SiriusService', function($http) {
                                                     var respuestaUpdateShell = response['data'];
                                                     console.log("RESPUESTA EN EL SERVICE [activarLocalizacion/updateShell]: " + JSON.stringify(respuestaUpdateShell));
 
+                                                    respuesta.error = false;
+                                                    respuesta.status = null;
+                                                    respuesta.message = "Activación correcta";
+                                                    respuesta.svcReqId = respuestaObject['svcReqId'];
+                                                    resolve(respuesta);
+
                                                     $http.get('./sirius_route/getTokenMzone').then(function(responseTokenMzone) {
                                                         console.log("RESPUESTA EN EL SERVICE [getTokenMzone]: " + JSON.stringify(responseTokenMzone));
 
@@ -707,19 +713,28 @@ app.service('SiriusService', function($http) {
             var respuesta = new Object();
 
             var idSession = "";
+            var idCorrelation = "";
             $http.post('./sirius_repository/getTracker', request).then(function(response) {
                 console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion/getTracker]: " + JSON.stringify(response));
                 var responseObject = response['data'];
                 console.log("RESPUESTA OBJECT [bloquearLocalizacion/getTracker]: " + JSON.stringify(responseObject));
                 var trackerObject = responseObject['tracker'];
                 console.log("RESPUESTA TRACKER [bloquearLocalizacion/getTracker]: " + JSON.stringify(trackerObject));
+
                 request.sessionId = trackerObject[0]['session_id'];
                 console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.sessionId));
                 idSession = request.sessionId;
                 console.log("RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(idSession));
 
+                request.correlationId = trackerObject[0]['correlation_id'];
+                console.log("RESPUESTA CORRELATION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.correlationId));
+                idCorrelation = request.correlationId;
+                console.log("RESPUESTA CORRELATION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(idCorrelation));
+
                 request.sessionId = idSession;
+                request.correlationId = idCorrelation;
                 console.log("+++RESPUESTA SESSION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.sessionId));
+                console.log("+++RESPUESTA CORRELATION ID [bloquearLocalizacion/getTracker]: " + JSON.stringify(request.correlationId));
 
                 $http.post('./sirius_route/bloquearLocalizacion', request).then(function(response) {
                     console.log("RESPUESTA EN EL SERVICE [bloquearLocalizacion]: " + JSON.stringify(response));
