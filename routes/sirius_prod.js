@@ -61,7 +61,7 @@ exports.PASSWORD_MZONE_HIJA = "A3TEKCC3461";
 exports.host = "sirius.c1rv3iuqyhko.us-east-1.rds.amazonaws.com"; //"localhost"; 
 exports.database = "sirius";
 exports.user = "postgres";
-exports.password = "Pass$word01"; //"root"; 
+exports.password = "Pass$word01";
 exports.port = 5432;
 
 //COLOCAR ESTA VARIABLE EN FALSE AL SUBIR A PRODUCCION

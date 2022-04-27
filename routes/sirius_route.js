@@ -186,7 +186,7 @@ router.post('/estatusLocalizacion', function(req, res, next) {
 
     var options = {
         'method': 'GET',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + access_token
@@ -217,17 +217,13 @@ router.post('/activarLocalizacion', function(req, res, next) {
     var session_id = params.sessionId;
     var correlation_id = params.correlationId;
 
-    console.log(">>> VEHICLE ID ANTES DE LA PETICION DE LA ACTIVACION: " + vehicle_id);
-    console.log(">>> SESSION ID ANTES DE LA PETICION DE LA ACTIVACION: " + session_id);
-    console.log(">>> CORRELATION ID ANTES DE LA PETICION DE LA ACTIVACION: " + correlation_id);
-
     if (conf.isTest) {
         res.send('{"svcReqId": "11eafc04-48f3-470c-916e-c6725930TEST"}');
     } else {
 
         var options = {
             'method': 'POST',
-            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
             'headers': {
                 'Authorization': 'Bearer ' + access_token,
                 'Content-Type': 'application/json',
@@ -267,7 +263,7 @@ router.post('/cancelarLocalizacion', function(req, res, next) {
 
     var options = {
         'method': 'DELETE',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
         'headers': {
             'Authorization': 'Bearer ' + access_token
         }
@@ -305,7 +301,7 @@ router.post('/bloquearLocalizacion', function(req, res, next) {
     } else {
         var options = {
             'method': 'PUT',
-            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+            'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
             'headers': {
                 'Authorization': 'Bearer ' + access_token,
                 'Content-Type': 'application/json',
@@ -348,7 +344,7 @@ router.post('/aplazarLocalizacion', function(req, res, next) {
     var request = require('request');
     var options = {
         'method': 'PUT',
-        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vin + '/locations/tracker',
+        'url': 'https://' + URL_SMX_CLOUD_TRAKING + '/telematicsservices/v1/vehicles/' + vehicle_id + '/locations/tracker',
         'headers': {
             'Authorization': 'Bearer ' + access_token,
             'Content-Type': 'application/json'
@@ -485,12 +481,15 @@ router.post('/updateShellsMzone', function(req, res, next) {
             "isFavorite": shell.isFavorite
         })
     };
+
+    console.log('ACTUALIZAR PERFIL MZONE: FECHA [' + new Date().toLocaleString("es-MX", { timeZone: "America/Mexico_City" }) + '] PETICION: ' + JSON.stringify(options));
+
     request(options, function(error, response) {
         if (error) {
-            console.log("RESPUESTA ERROR EN EL ROUTE [updateShellsMzone]: " + JSON.stringify(error));
+            console.log("ACTUALIZAR PERFIL MZONE: RESPUESTA ERROR EN EL ROUTE [updateShellsMzone]: " + JSON.stringify(error));
             throw new Error(error);
         } else {
-            console.log("RESPUESTA EN EL ROUTE [updateShellsMzone]: " + JSON.stringify(response));
+            console.log("ACTUALIZAR PERFIL MZONE: RESPUESTA EN EL ROUTE [updateShellsMzone]: " + JSON.stringify(response));
             res.send(response.body);
         }
     });
