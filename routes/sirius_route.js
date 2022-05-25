@@ -437,7 +437,7 @@ router.post('/getShellsMzone', function(req, res, next) {
 
     var options = {
         'method': 'GET',
-        'url': 'https://live.mzoneweb.net/mzone61.api/Vehicles?$format=json&$count=true&$select=id,unit_Description,unit_Id,vehicleType_Id,utcStartDate,cofDueDate,purchaseDate,description,registration,vin&$orderby=registration&$skip=0&$top=1000&$filter=vehicleGroups/any(x:%20x/id%20eq%20b89325c2-89cb-4af2-8445-70b24749a780)',
+        'url': 'https://live.mzoneweb.net/mzone62.api/Vehicles?$format=json&$count=true&$select=id,unit_Description,unit_Id,vehicleType_Id,utcStartDate,cofDueDate,purchaseDate,description,registration,vin&$orderby=registration&$skip=0&$top=1000&$filter=vehicleGroups/any(x:%20x/id%20eq%20b89325c2-89cb-4af2-8445-70b24749a780)',
         'headers': {
             'Authorization': 'Bearer ' + token.token
         }
@@ -463,7 +463,7 @@ router.post('/updateShellsMzone', function(req, res, next) {
 
     var options = {
         'method': 'PUT',
-        'url': 'https://live.mzoneweb.net/mzone61.api/Vehicles(' + shell.vehicle_Id + ')',
+        'url': 'https://live.mzoneweb.net/mzone62.api/Vehicles(' + shell.vehicle_Id + ')',
         'headers': {
             'Authorization': 'Bearer ' + shell.token,
             'Content-Type': 'application/json'
