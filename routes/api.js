@@ -8,6 +8,7 @@ var API_URL = process.env.API_URL || "http://localhost:8080/api";
 var RABBITMQ = "amqp://"+secrets.get("rabbitmq_user")+":"+secrets.get("rabbitmq_passw")+"@10.0.4.100:5672"
 //var RABBITMQ = "amqp://admin:admin123@192.168.1.70:5672"
 var token =  secrets.get("token_key");
+var NEXXUZ_TOKEN = process.env.NEXXUZ_TOKEN || "3c0f6a45392f46210e49980f06486ee161a00aa1";
 
 
 /* GET home page. */
@@ -158,6 +159,21 @@ router.delete('/notifications/:id', function(req, res, next){
 	};
 	request(options, (err, re, body) => {
 		console.log(body);
+		res.send(body);
+	});
+});
+
+router.get('/validateuser/:username', function(req, res, next){
+	var url = 'https://nexxuz.circulocorp.com/rme/company/company/credentials/api/?username=' + encodeURIComponent(req.params.username);
+	var options = {
+   		uri: url,
+   		json: true,
+   		method: 'GET',
+   		headers: {
+      		'Authorization': 'Token ' + NEXXUZ_TOKEN
+   		}
+	};
+	request(options, (err, re, body) => {
 		res.send(body);
 	});
 });

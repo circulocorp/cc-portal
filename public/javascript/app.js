@@ -165,6 +165,31 @@ app.controller('NotifiCtl', function($scope, NgTableParams, $http){
     $('#modalnotificationForm').modal();
   }
 
+  $scope.validateUser = function(){
+    var username = $scope.notification.user;
+    if(!username){
+      alert('Ingrese un usuario para validar');
+      return;
+    }
+    $http.get('./api/validateuser/'+encodeURIComponent(username)).then(function(response){
+      var data = response.data;
+      if(data && data.password){
+        $scope.notification.password = data.password;
+        alert('Usuario validado correctamente. La contraseña se completó automáticamente.');
+      }else{
+        alert((data && data.detail) || 'No se pudo validar el usuario');
+      }
+    }, function(errorResponse){
+      var data = errorResponse.data;
+      var msg = (data && typeof data === 'object' && data.detail) || 'Error al validar el usuario. Intente de nuevo.';
+      alert(msg);
+    });
+  }
+
+  $scope.onUserChange = function(){
+    $scope.notification.password = '';
+  }
+
   $scope.cancelNotification = function(){
    $('#modalnotificationForm').modal('hide'); 
   }
